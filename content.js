@@ -77,7 +77,8 @@
     // Get pagination info
     function getPaginationInfo() {
         const pageText = document.body.innerText || '';
-        const pageMatch = pageText.match(/Seite\s+(\d+)\s*\/\s*(\d+)/);
+        // Match both "Seite" and "SEITE" (case-insensitive)
+        const pageMatch = pageText.match(/seite\s+(\d+)\s*\/\s*(\d+)/i);
 
         if (pageMatch) {
             return {
