@@ -138,9 +138,9 @@ This is normal - some address formats are unusual. The extension tries multiple 
 
 ## 📝 Version History
 
-- **v1.0.0** - Initial release with geocoding cache and keyboard navigation
-- **v1.1.0** - Added API threshold warning and redesigned popup
-- **v1.2.0** - Fixed pagination detection (case-insensitive)
+- **v0.3.0** - Major UX improvements: loading skeleton, empty states, smooth pin animations, compact popup design
+- **v0.2.0** - Fixed pagination detection (case-insensitive)
+- **v0.1.0** - Initial development release with geocoding cache and keyboard navigation
 
 ---
 
