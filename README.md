@@ -1,54 +1,151 @@
-# Falter Restaurant Map - Chrome Extension
+<div align="center">
 
-View your Falter Lokalführer search results on an interactive map.
+# 🗺️ Falter Restaurant Map
 
-## Installation
+**Transform your Falter Lokalführer search results into an interactive map**
 
-### Chrome / Edge / Brave
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-yellow?style=flat&logo=googlechrome&logoColor=white)](https://www.google.com/chrome/)
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue?style=flat)](https://developer.chrome.com/docs/extensions/mv3/intro/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
 
-1. Unzip this folder somewhere permanent (e.g., Documents)
-2. Open Chrome and go to `chrome://extensions/`
-3. Enable **Developer mode** (toggle in top right)
-4. Click **Load unpacked**
-5. Select the unzipped `falter-map-extension` folder
-6. The extension icon should appear in your toolbar
+</div>
 
-### Firefox
+---
 
-Firefox uses a different extension format. This extension is built for Chromium-based browsers.
+## ✨ Features
 
-## Usage
+<table>
+<tr>
+<td width="50%">
 
-1. Go to [falter.at/lokalfuehrer/suche](https://www.falter.at/lokalfuehrer/suche)
-2. Apply your filters (district, cuisine, price, etc.)
-3. Click the red **"Show on Map"** button that appears on the page
-4. Click the extension icon in your toolbar to open the map
+### 🔄 **Smart Pagination**
+Automatically fetches all result pages, not just the first one
 
-## Features
+### 💾 **Intelligent Caching**
+30-day cache with OpenStreetMap geocoding - instant on second search
 
-- **Automatic pagination**: Fetches all result pages, not just the first one
-- **Geocoding with cache**: Addresses are geocoded via OpenStreetMap and cached locally. Second time you search the same restaurants, it's instant.
-- **Dark theme map**: Easy on the eyes
-- **Click to zoom**: Click any restaurant in the sidebar to zoom to its location
-- **Direct links**: Each popup has links to the Falter page and Google Maps
+</td>
+<td width="50%">
 
-## Notes
+### ⌨️ **Keyboard Navigation**
+Use arrow keys to navigate restaurants, ESC to close
 
-- Geocoding takes ~1 second per restaurant (OpenStreetMap rate limit)
-- Cached addresses persist across browser sessions
-- Some addresses may fail to geocode if the formatting is unusual
+### 🔗 **Quick Links**
+Direct links to Falter details and Google Maps
 
-## Troubleshooting
+</td>
+</tr>
+</table>
 
-**"Show on Map" button doesn't appear?**
+---
+
+## 🚀 Quick Start
+
+### Installation
+
+<table>
+<tr><td>
+
+**For Chrome / Edge / Brave:**
+
+1. 📦 Download and unzip this extension
+2. 🔧 Open `chrome://extensions/`
+3. 🔓 Enable **Developer mode** (top right toggle)
+4. 📂 Click **Load unpacked**
+5. ✅ Select the `falter-map-extension` folder
+
+</td></tr>
+</table>
+
+> **Note:** Firefox uses a different extension format. This is for Chromium-based browsers only.
+
+---
+
+## 📖 How to Use
+
+```
+1️⃣  Visit falter.at/lokalfuehrer/suche
+2️⃣  Apply your filters (district, cuisine, price, etc.)
+3️⃣  Click "Auf Karte anzeigen" button on the page
+4️⃣  Explore restaurants on the interactive map!
+```
+
+**Pro Tips:**
+- ⬆️⬇️ Use arrow keys to navigate through restaurants
+- 🖱️ Click any restaurant in the sidebar to zoom to its location
+- ⚡ Results are cached for 30 days for instant repeat searches
+
+---
+
+## ⚙️ Settings & Cache
+
+Open the extension popup to:
+- 📊 View cache statistics
+- 🗑️ Clear cached geocoding data
+- ⏱️ See 30-day expiration info
+
+---
+
+## 🛡️ Privacy & Rate Limiting
+
+- ✅ Uses free OpenStreetMap Nominatim API (respects 1 req/sec limit)
+- ✅ All data stored locally in your browser
+- ✅ No tracking, no analytics, no external servers
+- ✅ Shows API warning for 100+ uncached addresses
+
+---
+
+## ❓ FAQ
+
+<details>
+<summary><b>"Auf Karte anzeigen" button doesn't appear?</b></summary>
+
 - Refresh the page
-- Make sure you're on a search results page (URL contains `/lokalfuehrer/suche`)
+- Ensure you're on a search results page (`/lokalfuehrer/suche`)
+- Check that the extension is enabled
+</details>
 
-**Map doesn't load in popup?**
-- Check your internet connection
-- Try closing and reopening the popup
+<details>
+<summary><b>How do I clear the cache?</b></summary>
 
-**Want to clear the geocoding cache?**
-- Go to `chrome://extensions/`
-- Click "Details" on this extension
-- Click "Clear data" or remove/reinstall the extension
+Open the extension popup and click "Clear Cache" button
+</details>
+
+<details>
+<summary><b>Some addresses fail to geocode?</b></summary>
+
+This is normal - some address formats are unusual. The extension tries multiple variations but may miss a few.
+</details>
+
+<details>
+<summary><b>How long does geocoding take?</b></summary>
+
+~1 second per restaurant due to OpenStreetMap rate limits. But cached addresses load instantly!
+</details>
+
+---
+
+## 🔧 Technical Details
+
+- **Manifest Version:** V3
+- **Geocoding:** OpenStreetMap Nominatim API
+- **Rate Limit:** 1 request per second
+- **Cache TTL:** 30 days
+- **Map Library:** Leaflet.js
+- **Supported Browsers:** Chrome, Edge, Brave, Opera
+
+---
+
+## 📝 Version History
+
+- **v1.0.0** - Initial release with geocoding cache and keyboard navigation
+- **v1.1.0** - Added API threshold warning and redesigned popup
+- **v1.2.0** - Fixed pagination detection (case-insensitive)
+
+---
+
+<div align="center">
+
+Made with ❤️ for Vienna foodies | Powered by OpenStreetMap
+
+</div>

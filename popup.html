@@ -7,12 +7,14 @@
     <style>
         :root {
             --bg-primary: #1a1a1a;
-            --bg-secondary: #fafafa;
+            --bg-secondary: #f8f9fa;
             --text-primary: #1a1a1a;
-            --text-secondary: #737373;
-            --accent: #fbe51f;
-            --accent-hover: #e6d01b;
-            --border: #e5e5e5;
+            --text-secondary: #6c757d;
+            --accent: #fbc531;
+            --accent-hover: #e6b800;
+            --border: #e1e4e8;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         * {
@@ -22,17 +24,36 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: white;
             color: var(--text-primary);
-            width: 320px;
+            width: 288px;
             min-height: 200px;
+            overflow-x: hidden;
         }
 
         .header {
-            padding: 20px 20px 16px;
-            background: var(--bg-primary);
+            padding: 16px 16px 14px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             border-bottom: 3px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(251,197,49,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
         }
 
         .header h1 {
@@ -40,20 +61,27 @@
             font-weight: 700;
             margin-bottom: 4px;
             color: white;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.03em;
         }
 
         .header p {
             font-size: 12px;
             color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
         }
 
         .content {
-            padding: 20px;
+            padding: 16px;
         }
 
         .section {
-            margin-bottom: 24px;
+            margin-bottom: 16px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .section:last-child {
@@ -62,89 +90,128 @@
 
         .section-title {
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 6px;
+            letter-spacing: -0.01em;
         }
 
         .section-title svg {
             width: 16px;
             height: 16px;
             stroke: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .info-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 10px 12px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
+            padding: 8px 0;
+            font-size: 12px;
         }
 
-        .info-row:last-child {
-            border-bottom: none;
+        .info-row:not(:last-child) {
+            border-bottom: 1px solid #e9ecef;
         }
 
         .info-label {
             color: var(--text-secondary);
-            font-weight: 400;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .info-value {
-            font-weight: 600;
-            color: var(--bg-primary);
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 14px;
         }
 
         .badge {
             background: var(--accent);
             color: var(--bg-primary);
-            padding: 3px 8px;
-            border-radius: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
             font-size: 11px;
             font-weight: 700;
+            letter-spacing: 0.02em;
+            box-shadow: 0 2px 4px rgba(251,197,49,0.3);
         }
 
         .btn {
             width: 100%;
-            padding: 10px 14px;
+            padding: 9px 12px;
             font-size: 13px;
             font-weight: 600;
-            border: 1px solid var(--border);
+            border: 2px solid var(--border);
             border-radius: 6px;
             cursor: pointer;
             background: white;
             color: var(--text-secondary);
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin-top: 12px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:hover {
             background: var(--bg-primary);
             color: white;
             border-color: var(--bg-primary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:active {
+            transform: translateY(0);
         }
 
         .btn svg {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
         }
 
         .instructions {
-            background: var(--bg-secondary);
+            background: linear-gradient(135deg, #fff9e6 0%, #fff4d4 100%);
             border-left: 3px solid var(--accent);
-            padding: 12px;
-            border-radius: 4px;
+            padding: 10px 12px;
+            border-radius: 6px;
             font-size: 12px;
             line-height: 1.6;
             color: var(--text-secondary);
+            box-shadow: var(--shadow-sm);
         }
 
         .instructions strong {
@@ -153,34 +220,55 @@
         }
 
         .instructions ol {
-            margin: 8px 0 0 20px;
+            margin: 8px 0 0 18px;
             padding: 0;
         }
 
         .instructions li {
             margin: 4px 0;
+            color: #495057;
+        }
+
+        .instructions li::marker {
+            color: var(--accent);
+            font-weight: 700;
         }
 
         .version {
             text-align: center;
-            padding: 12px 20px;
-            font-size: 11px;
+            padding: 10px 16px;
+            font-size: 10px;
             color: var(--text-secondary);
             border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+
+        /* Subtle pulse animation for badge */
+        .badge {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 2px 4px rgba(251,197,49,0.3); }
+            50% { box-shadow: 0 2px 8px rgba(251,197,49,0.5); }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Falter Restaurant Map</h1>
-        <p>Extension Settings</p>
+        <div class="header-content">
+            <h1>Falter Restaurant Map</h1>
+            <p>Extension Settings</p>
+        </div>
     </div>
 
     <div class="content">
         <!-- How to Use -->
         <div class="section">
             <div class="section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <circle cx="12" cy="12" r="10"></circle>
                     <path d="M12 16v-4M12 8h.01"></path>
                 </svg>
@@ -189,7 +277,7 @@
             <div class="instructions">
                 <ol>
                     <li>Go to <strong>falter.at/lokalfuehrer/suche</strong></li>
-                    <li>Apply your filters</li>
+                    <li>Apply your filters (district, cuisine, etc.)</li>
                     <li>Click <strong>"Auf Karte anzeigen"</strong> button</li>
                 </ol>
             </div>
@@ -198,29 +286,48 @@
         <!-- Cache Management -->
         <div class="section">
             <div class="section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                 </svg>
                 Geocoding Cache
             </div>
 
-            <div class="info-row">
-                <span class="info-label">Cached addresses</span>
-                <span class="info-value" id="cacheCount">-</span>
-            </div>
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        Cached addresses
+                    </span>
+                    <span class="info-value" id="cacheCount">-</span>
+                </div>
 
-            <div class="info-row">
-                <span class="info-label">Storage size</span>
-                <span class="info-value" id="cacheSize">-</span>
-            </div>
+                <div class="info-row">
+                    <span class="info-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        </svg>
+                        Storage size
+                    </span>
+                    <span class="info-value" id="cacheSize">-</span>
+                </div>
 
-            <div class="info-row">
-                <span class="info-label">Expiration</span>
-                <span class="badge">30 days</span>
+                <div class="info-row">
+                    <span class="info-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Expiration
+                    </span>
+                    <span class="badge">30 days</span>
+                </div>
             </div>
 
             <button class="btn" id="clearCacheBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
                 Clear Cache
@@ -228,7 +335,7 @@
         </div>
     </div>
 
-    <div class="version">v1.0.0</div>
+    <div class="version">v1.2.0</div>
 
     <script src="popup.js"></script>
 </body>

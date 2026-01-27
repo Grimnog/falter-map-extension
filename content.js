@@ -357,10 +357,11 @@
     }
 
     // Create numbered marker
-    function createNumberedMarker(number) {
+    function createNumberedMarker(number, isNew = false) {
+        const pinClass = isNew ? 'marker-pin marker-new' : 'marker-pin';
         return L.divIcon({
             className: 'custom-marker',
-            html: `<div class="marker-pin">
+            html: `<div class="${pinClass}">
                 <div class="marker-number">${number}</div>
             </div>`,
             iconSize: [40, 50],
@@ -516,9 +517,10 @@
         for (const restaurant of restaurants) {
             const cacheKey = restaurant.address.toLowerCase().trim();
             if (cache[cacheKey]) {
+                const cached = cache[cacheKey];
                 currentResults.push({
                     ...restaurant,
-                    coords: cache[cacheKey]
+                    coords: cached.coords || cached // Support both old and new format
                 });
             } else {
                 currentResults.push({
@@ -528,9 +530,12 @@
             }
         }
 
-        // Display initial results
-        updateResultsList(currentResults);
-        updateMapMarkers(currentResults.filter(r => r.coords));
+        // Display initial results with skeleton
+        updateResultsList([]);
+        setTimeout(() => {
+            updateResultsList(currentResults);
+            updateMapMarkers(currentResults.filter(r => r.coords), false);
+        }, 300);
 
         const initialLocatedCount = currentResults.filter(r => r.coords).length;
         statusEl.textContent = `${initialLocatedCount}/${restaurants.length} located`;
@@ -545,11 +550,19 @@
             noteEl.style.display = 'block';
             statusEl.classList.add('loading');
 
+            let lastMarkerCount = currentResults.filter(r => r.coords).length;
+
             const results = await geocodeRestaurants(restaurants, (current, total, progressResults) => {
                 const locatedCount = progressResults.filter(r => r.coords).length;
                 statusEl.textContent = `${locatedCount}/${total} located`;
                 updateResultsList(progressResults);
-                updateMapMarkers(progressResults.filter(r => r.coords));
+
+                // During progress, always animate=true to prevent auto-zoom
+                const newMarkersAdded = locatedCount > lastMarkerCount;
+                if (newMarkersAdded) {
+                    updateMapMarkers(progressResults.filter(r => r.coords), true);
+                }
+                lastMarkerCount = locatedCount;
             });
 
             const locatedCount = results.filter(r => r.coords).length;
@@ -557,13 +570,37 @@
             statusEl.classList.remove('loading');
             noteEl.style.display = 'none';
             updateResultsList(results);
-            updateMapMarkers(results.filter(r => r.coords));
+
+            // Don't auto-zoom after geocoding - let user explore or click to zoom
         }
+    }
+
+    // Create loading skeleton
+    function createLoadingSkeleton(count = 5) {
+        let html = '';
+        for (let i = 0; i < count; i++) {
+            html += `
+                <div class="skeleton-item">
+                    <div class="skeleton skeleton-number"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-subtitle"></div>
+                    </div>
+                </div>
+            `;
+        }
+        return html;
     }
 
     function updateResultsList(restaurantList) {
         const resultsEl = document.getElementById('modal-results');
         if (!resultsEl) return;
+
+        // Show skeleton if list is empty (during initial load)
+        if (restaurantList.length === 0) {
+            resultsEl.innerHTML = createLoadingSkeleton(8);
+            return;
+        }
 
         resultsEl.innerHTML = '';
 
@@ -622,37 +659,89 @@
         resultsEl.setAttribute('aria-label', 'Restaurant list');
     }
 
-    function updateMapMarkers(restaurantList) {
+    function updateMapMarkers(restaurantList, animate = false) {
         if (!map) return;
 
-        markers.forEach(m => map.removeLayer(m));
-        markers = [];
+        // When animate=false, do a full refresh (remove all and recreate)
+        if (!animate) {
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            restaurantList.forEach((restaurant, index) => {
+                if (!restaurant.coords) return;
+
+                const googleMapsQuery = encodeURIComponent(`${restaurant.name}, ${restaurant.address}, Austria`);
+                const marker = L.marker([restaurant.coords.lat, restaurant.coords.lng], {
+                    icon: createNumberedMarker(index + 1, false)
+                })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div class="popup-name">${escapeHtml(restaurant.name)}</div>
+                        <div class="popup-address">${escapeHtml(restaurant.address)}</div>
+                        <div class="popup-links">
+                            <a href="${restaurant.url}" target="_blank">Falter</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=${googleMapsQuery}" target="_blank">Google Maps</a>
+                        </div>
+                    `);
+
+                marker.restaurantId = restaurant.id;
+                markers.push(marker);
+            });
+
+            if (markers.length > 0) {
+                const group = L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+            return;
+        }
+
+        // When animate=true, only add NEW markers that don't exist yet
+        const existingMarkerIds = new Set(markers.map(m => m.restaurantId));
+        let staggerDelay = 0;
 
         restaurantList.forEach((restaurant, index) => {
             if (!restaurant.coords) return;
 
-            const googleMapsQuery = encodeURIComponent(`${restaurant.name}, ${restaurant.address}, Austria`);
-            const marker = L.marker([restaurant.coords.lat, restaurant.coords.lng], {
-                icon: createNumberedMarker(index + 1)
-            })
-                .addTo(map)
-                .bindPopup(`
-                    <div class="popup-name">${escapeHtml(restaurant.name)}</div>
-                    <div class="popup-address">${escapeHtml(restaurant.address)}</div>
-                    <div class="popup-links">
-                        <a href="${restaurant.url}" target="_blank">Falter</a>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${googleMapsQuery}" target="_blank">Google Maps</a>
-                    </div>
-                `);
+            // Skip if marker already exists
+            if (existingMarkerIds.has(restaurant.id)) {
+                return;
+            }
 
-            marker.restaurantId = restaurant.id;
-            markers.push(marker);
+            const googleMapsQuery = encodeURIComponent(`${restaurant.name}, ${restaurant.address}, Austria`);
+
+            // Add new marker with animation
+            const addMarker = () => {
+                const marker = L.marker([restaurant.coords.lat, restaurant.coords.lng], {
+                    icon: createNumberedMarker(index + 1, true)
+                })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div class="popup-name">${escapeHtml(restaurant.name)}</div>
+                        <div class="popup-address">${escapeHtml(restaurant.address)}</div>
+                        <div class="popup-links">
+                            <a href="${restaurant.url}" target="_blank">Falter</a>
+                            <a href="https://www.google.com/maps/search/?api=1&query=${googleMapsQuery}" target="_blank">Google Maps</a>
+                        </div>
+                    `);
+
+                marker.restaurantId = restaurant.id;
+                markers.push(marker);
+
+                // Add pulse class for newly added markers
+                if (marker._icon) {
+                    marker._icon.classList.add('marker-pulse');
+                    setTimeout(() => {
+                        if (marker._icon) marker._icon.classList.remove('marker-pulse');
+                    }, 600);
+                }
+            };
+
+            // Stagger each new marker
+            setTimeout(addMarker, staggerDelay);
+            staggerDelay += 50;
         });
 
-        if (markers.length > 0) {
-            const group = L.featureGroup(markers);
-            map.fitBounds(group.getBounds().pad(0.1));
-        }
+        // Don't adjust zoom during progress updates - only at the very end
     }
 
     // Inject the map button
@@ -704,7 +793,33 @@
             });
 
             if (restaurants.length === 0) {
-                alert('No restaurants found.');
+                // Show empty state modal
+                const emptyModal = document.createElement('div');
+                emptyModal.id = 'falter-map-modal';
+                emptyModal.innerHTML = `
+                    <div class="modal-overlay"></div>
+                    <div class="modal-content">
+                        <button class="modal-close" title="Close">&times;</button>
+                        <div class="modal-body">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔍</div>
+                                <div class="empty-state-title">No Restaurants Found</div>
+                                <div class="empty-state-message">
+                                    We couldn't find any restaurants matching your filters.<br>
+                                    Try adjusting your search criteria and try again.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(emptyModal);
+
+                const closeBtn = emptyModal.querySelector('.modal-close');
+                const overlay = emptyModal.querySelector('.modal-overlay');
+                const closeEmpty = () => emptyModal.remove();
+                closeBtn.addEventListener('click', closeEmpty);
+                overlay.addEventListener('click', closeEmpty);
+
                 btn.innerHTML = originalHTML;
                 btn.disabled = false;
                 return;

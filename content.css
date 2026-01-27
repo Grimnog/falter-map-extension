@@ -456,6 +456,31 @@
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
 }
 
+/* Pin drop animation - only for new markers */
+.marker-pin.marker-new {
+    animation: pinDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pinDrop {
+    0% {
+        transform: translateY(-100px) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translateY(10px) scale(1.1);
+    }
+    70% {
+        transform: translateY(-5px) scale(0.95);
+    }
+    85% {
+        transform: translateY(2px) scale(1.02);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
 .marker-pin::before {
     content: '';
     position: absolute;
@@ -480,4 +505,88 @@
     font-size: 15px;
     z-index: 1;
     text-shadow: none;
+}
+
+/* Pulse animation for newly added markers */
+.leaflet-marker-icon.marker-pulse {
+    animation: markerPulse 0.6s ease-out;
+}
+
+@keyframes markerPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Empty state messaging */
+.empty-state {
+    text-align: center;
+    padding: 60px 40px;
+    color: rgb(107, 114, 128);
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: rgb(31, 41, 55);
+    margin-bottom: 8px;
+}
+
+.empty-state-message {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgb(107, 114, 128);
+}
+
+/* Loading skeleton */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+
+.skeleton-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.skeleton-content {
+    flex: 1;
+}
+
+.skeleton-title {
+    height: 16px;
+    width: 70%;
+    margin-bottom: 8px;
+}
+
+.skeleton-subtitle {
+    height: 12px;
+    width: 90%;
 }
