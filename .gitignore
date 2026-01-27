@@ -1,0 +1,28 @@
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Claude Code Plans
+.claude/
+
+# Temporary files
+*.log
+*.tmp
+
+# Build artifacts (future-proofing)
+node_modules/
+dist/
+build/
+*.zip
+
+# Extension packaging
+*.crx
+*.pem

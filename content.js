@@ -16,6 +16,8 @@
     let preloadedRestaurants = null;
     let isPreloading = false;
     let expectedRestaurantCount = 0;
+    let selectedRestaurantIndex = -1;
+    let navigableRestaurants = [];
 
     // Parse restaurant entries from a document
     function parseRestaurantsFromDOM(doc) {
@@ -365,6 +367,9 @@
         mapModal.querySelector('.modal-close').addEventListener('click', closeMapModal);
         mapModal.querySelector('.modal-overlay').addEventListener('click', closeMapModal);
 
+        // Add keyboard navigation listener
+        document.addEventListener('keydown', handleKeyboardNavigation);
+
         // Initialize map
         setTimeout(() => {
             map = L.map('modal-map').setView([48.2082, 16.3719], 13);
@@ -381,10 +386,67 @@
 
     function closeMapModal() {
         if (mapModal) {
+            // Remove keyboard listener and reset state
+            document.removeEventListener('keydown', handleKeyboardNavigation);
+
             mapModal.remove();
             mapModal = null;
             map = null;
             markers = [];
+            selectedRestaurantIndex = -1;
+            navigableRestaurants = [];
+        }
+    }
+
+    function handleKeyboardNavigation(event) {
+        // Only process if modal is open
+        if (!mapModal) return;
+
+        const items = document.querySelectorAll('#modal-results .result-item:not(.no-coords)');
+        if (items.length === 0) return;
+
+        switch(event.key) {
+            case 'Escape':
+                event.preventDefault();
+                closeMapModal();
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                navigateRestaurants(1, items);
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                navigateRestaurants(-1, items);
+                break;
+        }
+    }
+
+    function navigateRestaurants(direction, items) {
+        // Initialize or update index with wrap-around
+        if (selectedRestaurantIndex === -1) {
+            selectedRestaurantIndex = direction > 0 ? 0 : items.length - 1;
+        } else {
+            selectedRestaurantIndex = (selectedRestaurantIndex + direction + items.length) % items.length;
+        }
+
+        // Update visual state and scroll
+        items.forEach((item, index) => {
+            if (index === selectedRestaurantIndex) {
+                item.classList.add('active');
+                item.setAttribute('aria-selected', 'true');
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                item.classList.remove('active');
+                item.setAttribute('aria-selected', 'false');
+            }
+        });
+
+        // Zoom map to selected restaurant
+        const restaurant = navigableRestaurants[selectedRestaurantIndex];
+        if (restaurant && restaurant.coords) {
+            map.setView([restaurant.coords.lat, restaurant.coords.lng], 16);
+            const marker = markers.find(m => m.restaurantId === restaurant.id);
+            if (marker) marker.openPopup();
         }
     }
 
@@ -452,9 +514,20 @@
 
         resultsEl.innerHTML = '';
 
+        // Reset navigable restaurants array
+        navigableRestaurants = [];
+
         restaurantList.forEach((restaurant, index) => {
             const item = document.createElement('div');
             item.className = 'result-item' + (restaurant.coords ? '' : ' no-coords');
+
+            // Add ARIA attributes
+            if (restaurant.coords) {
+                item.setAttribute('role', 'option');
+                item.setAttribute('aria-selected', 'false');
+                item.setAttribute('tabindex', '-1');
+            }
+
             item.innerHTML = `
                 <div class="result-number">${index + 1}</div>
                 <div class="result-content">
@@ -464,9 +537,20 @@
             `;
 
             if (restaurant.coords) {
+                // Track for keyboard navigation
+                navigableRestaurants.push(restaurant);
+
                 item.addEventListener('click', () => {
-                    document.querySelectorAll('.result-item').forEach(el => el.classList.remove('active'));
+                    document.querySelectorAll('.result-item').forEach(el => {
+                        el.classList.remove('active');
+                        el.setAttribute('aria-selected', 'false');
+                    });
                     item.classList.add('active');
+                    item.setAttribute('aria-selected', 'true');
+
+                    // Update selectedRestaurantIndex when clicking
+                    const navigableItems = Array.from(document.querySelectorAll('#modal-results .result-item:not(.no-coords)'));
+                    selectedRestaurantIndex = navigableItems.indexOf(item);
 
                     map.setView([restaurant.coords.lat, restaurant.coords.lng], 16);
 
@@ -479,6 +563,10 @@
 
             resultsEl.appendChild(item);
         });
+
+        // Add ARIA role to container
+        resultsEl.setAttribute('role', 'listbox');
+        resultsEl.setAttribute('aria-label', 'Restaurant list');
     }
 
     function updateMapMarkers(restaurantList) {

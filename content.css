@@ -273,6 +273,7 @@
     overflow-y: auto;
     padding: 0;
     background: white;
+    scroll-behavior: smooth;
 }
 
 .result-item {
@@ -312,6 +313,8 @@
 
 .result-item.active {
     background: rgb(255, 253, 240);
+    outline: 2px solid rgb(251, 229, 31);
+    outline-offset: -2px;
 }
 
 .result-item.no-coords {
