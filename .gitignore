@@ -17,6 +17,9 @@ desktop.ini
 *.log
 *.tmp
 
+# Development tools
+generate-icons.html
+
 # Build artifacts (future-proofing)
 node_modules/
 dist/

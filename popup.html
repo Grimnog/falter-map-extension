@@ -4,342 +4,232 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Falter Map</title>
-    <link rel="stylesheet" href="leaflet.css" />
     <style>
         :root {
-            --bg-primary: #0d0d0d;
-            --bg-secondary: #1a1a1a;
-            --bg-tertiary: #262626;
-            --text-primary: #f5f5f5;
-            --text-secondary: #a3a3a3;
-            --accent: #e63946;
-            --accent-hover: #ff4757;
-            --success: #2a9d8f;
-            --border: #333;
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #fafafa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #737373;
+            --accent: #fbe51f;
+            --accent-hover: #e6d01b;
+            --border: #e5e5e5;
         }
-        
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
+            background: white;
             color: var(--text-primary);
-            width: 700px;
-            height: 500px;
-            overflow: hidden;
+            width: 320px;
+            min-height: 200px;
         }
-        
-        .container {
-            display: grid;
-            grid-template-columns: 240px 1fr;
-            height: 100%;
-        }
-        
-        .sidebar {
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
+
         .header {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .header h1 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-        
-        .header p {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-        
-        .status {
-            padding: 12px 16px;
+            padding: 20px 20px 16px;
             background: var(--bg-primary);
-            border-bottom: 1px solid var(--border);
-            font-size: 12px;
+            border-bottom: 3px solid var(--accent);
         }
-        
-        .status-row {
+
+        .header h1 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: white;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--accent);
+        }
+
+        .info-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .status-row:last-child {
-            margin-bottom: 0;
-        }
-        
-        .status-label {
-            color: var(--text-secondary);
-        }
-        
-        .status-value {
-            font-weight: 500;
-        }
-        
-        .status-value.loading {
-            color: var(--accent);
-        }
-        
-        .status-value.done {
-            color: var(--success);
-        }
-        
-        .progress-bar {
-            height: 3px;
-            background: var(--bg-tertiary);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .results-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 4px 0;
-        }
-        
-        .result-item {
-            padding: 10px 16px;
-            cursor: pointer;
-            transition: background 0.15s;
-            border-left: 3px solid transparent;
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
         }
 
-        .result-number {
-            flex-shrink: 0;
-            width: 24px;
-            height: 24px;
-            background: var(--accent);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 2px;
+        .info-row:last-child {
+            border-bottom: none;
         }
 
-        .result-content {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .result-item:hover {
-            background: var(--bg-tertiary);
-        }
-        
-        .result-item.active {
-            background: var(--bg-tertiary);
-            border-left-color: var(--accent);
-        }
-        
-        .result-item.no-coords {
-            opacity: 0.5;
-        }
-        
-        .result-name {
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .result-address {
-            font-size: 11px;
+        .info-label {
             color: var(--text-secondary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-weight: 400;
         }
-        
-        #map {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .leaflet-popup-content-wrapper {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-        
-        .leaflet-popup-content {
-            margin: 12px 14px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        
-        .leaflet-popup-tip {
-            background: var(--bg-secondary);
-        }
-        
-        .popup-name {
+
+        .info-value {
             font-weight: 600;
-            font-size: 13px;
-            margin-bottom: 4px;
+            color: var(--bg-primary);
         }
-        
-        .popup-address {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-        
-        .popup-links {
-            display: flex;
-            gap: 12px;
-            font-size: 11px;
-        }
-        
-        .popup-links a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-        
-        .popup-links a:hover {
-            text-decoration: underline;
-        }
-        
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .empty-state svg {
-            margin-bottom: 16px;
-            color: var(--text-secondary);
-        }
-        
-        .empty-state h2 {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        
-        .empty-state p {
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-        
-        .empty-state p strong {
-            color: var(--text-primary);
-        }
-        
-        .btn {
-            padding: 8px 14px;
-            font-size: 12px;
-            font-weight: 500;
-            border: none;
+
+        .badge {
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 3px 8px;
             border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            border-radius: 6px;
             cursor: pointer;
+            background: white;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             margin-top: 12px;
         }
-        
-        .btn-primary {
-            background: var(--accent);
+
+        .btn:hover {
+            background: var(--bg-primary);
             color: white;
-        }
-        
-        .btn-primary:hover {
-            background: var(--accent-hover);
+            border-color: var(--bg-primary);
         }
 
-        /* Numbered markers on map */
-        .marker-pin {
-            width: 30px;
-            height: 40px;
-            position: relative;
+        .btn svg {
+            width: 16px;
+            height: 16px;
         }
 
-        .marker-pin::before {
-            content: '';
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background: var(--accent);
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            top: 0;
-            left: 0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        .instructions {
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--accent);
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-secondary);
         }
 
-        .marker-number {
-            position: absolute;
-            top: 6px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-weight: 700;
-            font-size: 13px;
-            z-index: 1;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        .instructions strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .instructions ol {
+            margin: 8px 0 0 20px;
+            padding: 0;
+        }
+
+        .instructions li {
+            margin: 4px 0;
+        }
+
+        .version {
+            text-align: center;
+            padding: 12px 20px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <aside class="sidebar">
-            <div class="header">
-                <h1>Falter Restaurant Map</h1>
-                <p id="searchInfo">Loading...</p>
-            </div>
-            
-            <div class="status" id="statusSection">
-                <div class="status-row">
-                    <span class="status-label">Restaurants</span>
-                    <span class="status-value" id="totalCount">-</span>
-                </div>
-                <div class="status-row">
-                    <span class="status-label">Geocoding</span>
-                    <span class="status-value" id="geocodeStatus">-</span>
-                </div>
-                <div class="progress-bar" id="progressBar" style="display: none;">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-            </div>
-            
-            <div class="results-list" id="resultsList"></div>
-        </aside>
-        
-        <main id="mapContainer">
-            <div id="map"></div>
-        </main>
+    <div class="header">
+        <h1>Falter Restaurant Map</h1>
+        <p>Extension Settings</p>
     </div>
-    
-    <script src="leaflet.js"></script>
+
+    <div class="content">
+        <!-- How to Use -->
+        <div class="section">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 16v-4M12 8h.01"></path>
+                </svg>
+                How to Use
+            </div>
+            <div class="instructions">
+                <ol>
+                    <li>Go to <strong>falter.at/lokalfuehrer/suche</strong></li>
+                    <li>Apply your filters</li>
+                    <li>Click <strong>"Auf Karte anzeigen"</strong> button</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Cache Management -->
+        <div class="section">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                </svg>
+                Geocoding Cache
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Cached addresses</span>
+                <span class="info-value" id="cacheCount">-</span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Storage size</span>
+                <span class="info-value" id="cacheSize">-</span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Expiration</span>
+                <span class="badge">30 days</span>
+            </div>
+
+            <button class="btn" id="clearCacheBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Clear Cache
+            </button>
+        </div>
+    </div>
+
+    <div class="version">v1.0.0</div>
+
     <script src="popup.js"></script>
 </body>
 </html>

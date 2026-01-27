@@ -61,42 +61,6 @@
     white-space: nowrap;
 }
 
-/* Preloading indicator */
-#falter-map-btn.preloading::after {
-    content: '';
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 7px;
-    height: 7px;
-    background: rgb(26, 26, 26);
-    border-radius: 50%;
-    animation: preloadPulse 1.5s ease-in-out infinite;
-}
-
-#falter-map-btn.preloaded::after {
-    content: '';
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 7px;
-    height: 7px;
-    background: rgb(34, 197, 94);
-    border-radius: 50%;
-    box-shadow: 0 0 4px rgba(34, 197, 94, 0.6);
-}
-
-@keyframes preloadPulse {
-    0%, 100% {
-        opacity: 0.5;
-        transform: scale(0.9);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.3);
-    }
-}
-
 /* Modal overlay - modern design */
 #falter-map-modal {
     position: fixed;

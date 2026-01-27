@@ -13,9 +13,6 @@
     let map = null;
     let markers = [];
     let mapModal = null;
-    let preloadedRestaurants = null;
-    let isPreloading = false;
-    let expectedRestaurantCount = 0;
     let selectedRestaurantIndex = -1;
     let navigableRestaurants = [];
 
@@ -153,16 +150,70 @@
     async function loadGeocodeCache() {
         return new Promise((resolve) => {
             chrome.storage.local.get(['geocodeCache'], (result) => {
-                resolve(result.geocodeCache || {});
+                const cache = result.geocodeCache || {};
+                const now = Date.now();
+                const validCache = {};
+
+                // Filter out expired entries and migrate old format
+                for (const [address, data] of Object.entries(cache)) {
+                    // Handle old format (no expiresAt) - migrate it
+                    if (!data.expiresAt) {
+                        // Old format: { lat, lng }
+                        validCache[address] = {
+                            coords: data,
+                            cachedAt: now,
+                            expiresAt: now + (30 * 24 * 60 * 60 * 1000) // 30 days
+                        };
+                    } else if (data.expiresAt > now) {
+                        // New format and not expired
+                        validCache[address] = data;
+                    }
+                    // Skip expired entries (implicit cleanup)
+                }
+
+                resolve(validCache);
             });
         });
     }
 
     async function saveToCache(address, coords) {
         const cache = await loadGeocodeCache();
-        cache[address.toLowerCase().trim()] = coords;
+        const ttlDays = 30; // 30-day expiration
+        const expiresAt = Date.now() + (ttlDays * 24 * 60 * 60 * 1000);
+
+        cache[address.toLowerCase().trim()] = {
+            coords: coords,
+            cachedAt: Date.now(),
+            expiresAt: expiresAt
+        };
+
         return new Promise((resolve) => {
             chrome.storage.local.set({ geocodeCache: cache }, resolve);
+        });
+    }
+
+    // Clean expired cache entries and save back to storage
+    async function cleanExpiredCache() {
+        console.log('Cleaning expired geocode cache...');
+        const cache = await loadGeocodeCache(); // Already filters expired
+
+        return new Promise((resolve) => {
+            chrome.storage.local.set({ geocodeCache: cache }, () => {
+                console.log('Cache cleanup complete');
+
+                // Log cache stats
+                chrome.storage.local.getBytesInUse(['geocodeCache'], (bytes) => {
+                    const kb = (bytes / 1024).toFixed(2);
+                    const count = Object.keys(cache).length;
+                    console.log(`Cache: ${count} addresses, ${kb} KB`);
+
+                    if (bytes > 5_000_000) { // 5MB warning
+                        console.warn('Cache size exceeds 5MB - consider clearing');
+                    }
+                });
+
+                resolve();
+            });
         });
     }
 
@@ -254,9 +305,10 @@
             const cacheKey = restaurant.address.toLowerCase().trim();
 
             if (cache[cacheKey]) {
+                const cached = cache[cacheKey];
                 results.push({
                     ...restaurant,
-                    coords: cache[cacheKey],
+                    coords: cached.coords || cached, // Support both old and new format
                     fromCache: true
                 });
             } else {
@@ -632,56 +684,6 @@
         entriesDiv.insertBefore(container, entriesDiv.firstChild);
 
         btn.addEventListener('click', handleMapButtonClick);
-
-        // Start background preload after button is injected
-        setTimeout(() => {
-            preloadRestaurantsInBackground();
-        }, 500);
-    }
-
-    // Background preload restaurants and start geocoding
-    async function preloadRestaurantsInBackground() {
-        if (isPreloading || preloadedRestaurants) return;
-
-        isPreloading = true;
-        console.log('Background preload: Starting...');
-
-        const btn = document.getElementById('falter-map-btn');
-        if (btn) {
-            btn.classList.add('preloading');
-        }
-
-        try {
-            // Fetch all restaurant pages silently
-            const restaurants = await fetchAllPages();
-
-            if (restaurants.length > 0) {
-                console.log(`Background preload: Fetched ${restaurants.length} restaurants`);
-                expectedRestaurantCount = restaurants.length;
-                preloadedRestaurants = restaurants;
-
-                // Start geocoding in background (silently cache addresses)
-                // Don't update preloadedRestaurants to avoid partial data issues
-                geocodeRestaurants(restaurants, (current, total, currentResults) => {
-                    console.log(`Background geocoding: ${current}/${total}`);
-                }).then((fullyGeocodedResults) => {
-                    console.log('Background geocoding: Complete!');
-                    // Only update once geocoding is fully complete
-                    preloadedRestaurants = fullyGeocodedResults;
-                    if (btn) {
-                        btn.classList.remove('preloading');
-                        btn.classList.add('preloaded');
-                    }
-                });
-            }
-        } catch (error) {
-            console.error('Background preload error:', error);
-            if (btn) {
-                btn.classList.remove('preloading');
-            }
-        } finally {
-            isPreloading = false;
-        }
     }
 
     // Handle map button click
@@ -692,29 +694,48 @@
 
         const originalHTML = btn.innerHTML;
         btn.disabled = true;
+        btn.innerHTML = `<span>Loading restaurants...</span>`;
 
         try {
-            let restaurants;
-
-            // Use preloaded data if available
-            if (preloadedRestaurants && preloadedRestaurants.length > 0) {
-                console.log('Using preloaded restaurants');
-                restaurants = preloadedRestaurants;
-                btn.innerHTML = `<span>Opening map...</span>`;
-            } else {
-                // Fallback: fetch if not preloaded
-                console.log('Fetching restaurants (not preloaded)');
-                btn.innerHTML = `<span>Loading...</span>`;
-                restaurants = await fetchAllPages((current, total) => {
-                    btn.innerHTML = `<span>Loading page ${current}/${total}...</span>`;
-                });
-            }
+            // Always fetch on-demand
+            const restaurants = await fetchAllPages((current, total) => {
+                btn.innerHTML = `<span>Loading page ${current}/${total}...</span>`;
+            });
 
             if (restaurants.length === 0) {
                 alert('No restaurants found.');
                 btn.innerHTML = originalHTML;
                 btn.disabled = false;
                 return;
+            }
+
+            // Check cache to estimate how many need geocoding
+            const cache = await loadGeocodeCache();
+            let needsGeocoding = 0;
+            for (const restaurant of restaurants) {
+                const cacheKey = restaurant.address.toLowerCase().trim();
+                if (!cache[cacheKey]) {
+                    needsGeocoding++;
+                }
+            }
+
+            // Nominatim API threshold warning (100+ uncached addresses)
+            if (needsGeocoding >= 100) {
+                const confirmed = confirm(
+                    `⚠️ API Usage Notice\n\n` +
+                    `You're about to geocode ${needsGeocoding} restaurant addresses using OpenStreetMap's Nominatim API.\n\n` +
+                    `To be respectful of this free service:\n` +
+                    `• We'll process 1 address per second\n` +
+                    `• This will take approximately ${Math.ceil(needsGeocoding / 60)} minutes\n` +
+                    `• Results will be cached for 30 days\n\n` +
+                    `Continue with geocoding?`
+                );
+
+                if (!confirmed) {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    return;
+                }
             }
 
             // Show modal with map
@@ -733,14 +754,15 @@
 
     // Initialize
     function init() {
+        // Clean expired cache on startup
+        cleanExpiredCache().catch(err => {
+            console.error('Cache cleanup error:', err);
+        });
+
         setTimeout(injectMapButton, 500);
 
         const observer = new MutationObserver(() => {
             if (!document.getElementById('falter-map-btn-container') && document.getElementById('entries')) {
-                // Reset preloaded data when page content changes (e.g., filters applied)
-                preloadedRestaurants = null;
-                isPreloading = false;
-                expectedRestaurantCount = 0;
                 injectMapButton();
             }
         });
@@ -753,11 +775,7 @@
             const url = location.href;
             if (url !== lastUrl) {
                 lastUrl = url;
-                // Reset preloaded data when URL changes
-                preloadedRestaurants = null;
-                isPreloading = false;
-                expectedRestaurantCount = 0;
-                console.log('URL changed, reset preload');
+                console.log('URL changed');
             }
         }).observe(document, { subtree: true, childList: true });
     }
