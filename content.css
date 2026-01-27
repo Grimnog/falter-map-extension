@@ -1,0 +1,516 @@
+/* Falter Map Extension - Content Script Styles */
+
+/* Button on Falter page - properly aligned */
+#falter-map-btn-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 1rem 0;
+    margin: 0;
+    border-bottom: 1px dotted rgb(209 213 219);
+}
+
+#falter-map-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: rgb(251 229 31);
+    color: rgb(25 15 11) !important;
+    border: 2px solid transparent;
+    border-radius: 0.25rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    cursor: pointer;
+    transition-property: color, background-color, border-color, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+#falter-map-btn:hover:not(:disabled) {
+    background-color: rgb(234, 211, 25);
+    border-color: transparent;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.15);
+}
+
+#falter-map-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+#falter-map-btn:disabled {
+    background-color: rgb(229 231 235);
+    color: rgb(156 163 175) !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+#falter-map-btn svg {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    stroke: currentColor;
+}
+
+#falter-map-btn span {
+    white-space: nowrap;
+}
+
+/* Preloading indicator */
+#falter-map-btn.preloading::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    background: rgb(26, 26, 26);
+    border-radius: 50%;
+    animation: preloadPulse 1.5s ease-in-out infinite;
+}
+
+#falter-map-btn.preloaded::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    background: rgb(34, 197, 94);
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(34, 197, 94, 0.6);
+}
+
+@keyframes preloadPulse {
+    0%, 100% {
+        opacity: 0.5;
+        transform: scale(0.9);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.3);
+    }
+}
+
+/* Modal overlay - modern design */
+#falter-map-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999999;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(17, 24, 39, 0.75);
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92vw;
+    height: 88vh;
+    max-width: 1600px;
+    max-height: 900px;
+    background: rgb(250, 250, 250);
+    border-radius: 20px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 1000;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.modal-close:hover {
+    background: rgb(251, 229, 31);
+    color: rgb(26, 26, 26);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 100%;
+    overflow: hidden;
+    gap: 0;
+    background: white;
+}
+
+.modal-sidebar {
+    background: white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid rgb(240, 240, 240);
+}
+
+.modal-header {
+    padding: 28px 24px 24px;
+    background: rgb(26, 26, 26);
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, rgb(251, 229, 31) 0%, rgb(255, 200, 0) 100%);
+}
+
+.modal-header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: white;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.modal-header p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    font-weight: 400;
+}
+
+.modal-status {
+    padding: 16px 24px 14px;
+    background: white;
+    border-bottom: 1px solid rgb(240, 240, 240);
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.status-label {
+    color: rgb(115, 115, 115);
+    font-weight: 400;
+}
+
+.status-value {
+    font-weight: 600;
+    color: rgb(26, 26, 26);
+    background: rgb(251, 229, 31);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.status-note {
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgb(140, 140, 140);
+    font-style: italic;
+}
+
+.modal-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    background: white;
+}
+
+.result-item {
+    padding: 14px 24px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: white;
+    border-bottom: 1px solid rgb(245, 245, 245);
+    position: relative;
+}
+
+.result-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: rgb(251, 229, 31);
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.result-item:hover::before {
+    width: 3px;
+}
+
+.result-item:hover {
+    background: rgb(252, 252, 252);
+}
+
+.result-item.active::before {
+    width: 3px;
+}
+
+.result-item.active {
+    background: rgb(255, 253, 240);
+}
+
+.result-item.no-coords {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.result-item.no-coords:hover {
+    background: white;
+}
+
+.result-item.no-coords::before {
+    display: none;
+}
+
+.result-number {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: rgb(251, 229, 31);
+    color: rgb(26, 26, 26);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.result-item:hover .result-number {
+    transform: scale(1.08);
+}
+
+.result-item.active .result-number {
+    background: rgb(26, 26, 26);
+    color: rgb(251, 229, 31);
+    transform: scale(1.08);
+}
+
+.result-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.result-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: rgb(26, 26, 26);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.result-address {
+    font-size: 12px;
+    color: rgb(115, 115, 115);
+    line-height: 1.4;
+    font-weight: 400;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+#modal-map {
+    width: 100%;
+    height: 100%;
+}
+
+/* Leaflet popup styling - sleek & minimal with border */
+.leaflet-popup-content-wrapper {
+    border-radius: 10px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    border: 1.5px solid rgb(230, 230, 230);
+    padding: 0;
+    background: white;
+}
+
+.leaflet-popup-content {
+    margin: 18px 20px;
+    min-width: 200px;
+}
+
+.leaflet-popup-tip {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1.5px solid rgb(230, 230, 230);
+}
+
+.popup-name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 6px;
+    color: rgb(26, 26, 26);
+    line-height: 1.4;
+}
+
+.popup-address {
+    font-size: 13px;
+    color: rgb(115, 115, 115);
+    margin-bottom: 14px;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+.popup-links {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    padding-top: 4px;
+    border-top: 1px solid rgb(245, 245, 245);
+}
+
+.popup-links a {
+    color: rgb(80, 80, 80);
+    text-decoration: underline;
+    text-decoration-color: rgb(200, 200, 200);
+    text-underline-offset: 2px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.popup-links a:hover {
+    color: rgb(26, 26, 26);
+    text-decoration-color: rgb(26, 26, 26);
+}
+
+/* Custom scrollbar for sidebar - minimal */
+.modal-results::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-results::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-results::-webkit-scrollbar-thumb {
+    background: rgb(220, 220, 220);
+    border-radius: 3px;
+}
+
+.modal-results::-webkit-scrollbar-thumb:hover {
+    background: rgb(251, 229, 31);
+}
+
+/* Loading state animation */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.status-value.loading {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Map container styling */
+.modal-map-container {
+    position: relative;
+    overflow: hidden;
+    background: rgb(245, 245, 245);
+}
+
+/* Numbered markers on map - clean yellow pins */
+.marker-pin {
+    width: 40px;
+    height: 50px;
+    position: relative;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.marker-pin::before {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: rgb(251, 229, 31);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    top: 0;
+    left: 0;
+    border: 2px solid white;
+    box-sizing: border-box;
+}
+
+.marker-number {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgb(26, 26, 26);
+    font-weight: 800;
+    font-size: 15px;
+    z-index: 1;
+    text-shadow: none;
+}
