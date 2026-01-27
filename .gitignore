@@ -19,6 +19,7 @@ desktop.ini
 
 # Development tools
 generate-icons.html
+icon-generator.html
 
 # Build artifacts (future-proofing)
 node_modules/
