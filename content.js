@@ -224,13 +224,22 @@
     }
 
     // Helper function to update both status text and progress bar
-    function updateProgress(current, total) {
+    function updateProgress(current, total, locatedCount) {
         const statusEl = document.getElementById('modal-geocode-status');
         const progressBarEl = document.getElementById('progress-bar');
         const progressTextEl = document.getElementById('progress-text');
 
-        if (statusEl) statusEl.textContent = `${current}/${total} located`;
-        if (progressTextEl) progressTextEl.textContent = `${current}/${total} located`;
+        // Status shows located count (successful geocoding)
+        if (statusEl) statusEl.textContent = `${locatedCount}/${total} located`;
+
+        // Progress bar shows processed count (all attempts, including failures)
+        if (progressTextEl) {
+            if (current === total) {
+                progressTextEl.textContent = `Complete: ${locatedCount}/${total} located`;
+            } else {
+                progressTextEl.textContent = `Processing ${current}/${total}...`;
+            }
+        }
 
         if (progressBarEl) {
             const percentage = total > 0 ? (current / total) * 100 : 0;
@@ -272,7 +281,7 @@
         }, CONFIG.UI.SKELETON_DELAY_MS);
 
         const initialLocatedCount = currentResults.filter(r => r.coords).length;
-        updateProgress(initialLocatedCount, restaurants.length);
+        updateProgress(restaurants.length, restaurants.length, initialLocatedCount);
 
         // Check if we need to geocode anything
         const needsGeocoding = restaurants.filter(r => {
@@ -288,7 +297,7 @@
 
             const results = await geocodeRestaurants(restaurants, (current, total, progressResults) => {
                 const locatedCount = progressResults.filter(r => r.coords).length;
-                updateProgress(locatedCount, total);
+                updateProgress(current, total, locatedCount);
                 updateResultsList(progressResults);
 
                 // During progress, always animate=true to prevent auto-zoom
@@ -300,7 +309,7 @@
             });
 
             const locatedCount = results.filter(r => r.coords).length;
-            updateProgress(locatedCount, restaurants.length);
+            updateProgress(restaurants.length, restaurants.length, locatedCount);
             statusEl.classList.remove('loading');
             noteEl.style.display = 'none';
             updateResultsList(results);
