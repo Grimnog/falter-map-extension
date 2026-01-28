@@ -22,6 +22,15 @@
     let selectedRestaurantIndex = -1;
     let navigableRestaurants = [];
 
+    // Cached DOM references for modal elements
+    const dom = {
+        geocodeStatus: null,
+        progressBar: null,
+        progressText: null,
+        statusNote: null,
+        results: null
+    };
+
     // Map marker functions
     // Create numbered marker
     function createNumberedMarker(number, isNew = false) {
@@ -88,13 +97,19 @@
 
         document.body.appendChild(mapModal);
 
+        // Cache DOM element references
+        dom.geocodeStatus = document.getElementById('modal-geocode-status');
+        dom.progressBar = document.getElementById('progress-bar');
+        dom.progressText = document.getElementById('progress-text');
+        dom.statusNote = document.getElementById('status-note');
+        dom.results = document.getElementById('modal-results');
+
         // Close button handler
         mapModal.querySelector('.modal-close').addEventListener('click', closeMapModal);
         mapModal.querySelector('.modal-overlay').addEventListener('click', closeMapModal);
 
         // Add event delegation for result item clicks
-        const resultsEl = document.getElementById('modal-results');
-        resultsEl.addEventListener('click', (event) => {
+        dom.results.addEventListener('click', (event) => {
             // Find the clicked result item (handle clicks on child elements)
             const item = event.target.closest('.result-item');
             if (!item || item.classList.contains('no-coords')) return;
@@ -153,6 +168,13 @@
             markers = [];
             selectedRestaurantIndex = -1;
             navigableRestaurants = [];
+
+            // Clear cached DOM references
+            dom.geocodeStatus = null;
+            dom.progressBar = null;
+            dom.progressText = null;
+            dom.statusNote = null;
+            dom.results = null;
         }
     }
 
@@ -258,33 +280,25 @@
 
     // Helper function to update both status text and progress bar
     function updateProgress(current, total, locatedCount) {
-        const statusEl = document.getElementById('modal-geocode-status');
-        const progressBarEl = document.getElementById('progress-bar');
-        const progressTextEl = document.getElementById('progress-text');
-
         // Status shows located count (successful geocoding)
-        if (statusEl) statusEl.textContent = `${locatedCount}/${total} located`;
+        if (dom.geocodeStatus) dom.geocodeStatus.textContent = `${locatedCount}/${total} located`;
 
         // Progress bar shows processed count (all attempts, including failures)
-        if (progressTextEl) {
+        if (dom.progressText) {
             if (current === total) {
-                progressTextEl.textContent = `Complete: ${locatedCount}/${total} located`;
+                dom.progressText.textContent = `Complete: ${locatedCount}/${total} located`;
             } else {
-                progressTextEl.textContent = `Processing ${current}/${total}...`;
+                dom.progressText.textContent = `Processing ${current}/${total}...`;
             }
         }
 
-        if (progressBarEl) {
+        if (dom.progressBar) {
             const percentage = total > 0 ? (current / total) * 100 : 0;
-            progressBarEl.style.width = `${percentage}%`;
+            dom.progressBar.style.width = `${percentage}%`;
         }
     }
 
     async function startGeocoding(restaurants) {
-        const statusEl = document.getElementById('modal-geocode-status');
-        const noteEl = document.getElementById('status-note');
-        const resultsEl = document.getElementById('modal-results');
-
         // Show initial state
         const cache = await CacheManager.load();
         let currentResults = [];
@@ -323,8 +337,8 @@
         });
 
         if (needsGeocoding.length > 0) {
-            noteEl.style.display = 'block';
-            statusEl.classList.add('loading');
+            dom.statusNote.style.display = 'block';
+            dom.geocodeStatus.classList.add('loading');
 
             let lastMarkerCount = currentResults.filter(r => r.coords).length;
 
@@ -343,8 +357,8 @@
 
             const locatedCount = results.filter(r => r.coords).length;
             updateProgress(restaurants.length, restaurants.length, locatedCount);
-            statusEl.classList.remove('loading');
-            noteEl.style.display = 'none';
+            dom.geocodeStatus.classList.remove('loading');
+            dom.statusNote.style.display = 'none';
             updateResultsList(results);
 
             // Don't auto-zoom after geocoding - let user explore or click to zoom
@@ -369,16 +383,15 @@
     }
 
     function updateResultsList(restaurantList) {
-        const resultsEl = document.getElementById('modal-results');
-        if (!resultsEl) return;
+        if (!dom.results) return;
 
         // Show skeleton if list is empty (during initial load)
         if (restaurantList.length === 0) {
-            resultsEl.innerHTML = createLoadingSkeleton(8);
+            dom.results.innerHTML = createLoadingSkeleton(8);
             return;
         }
 
-        resultsEl.innerHTML = '';
+        dom.results.innerHTML = '';
 
         // Reset navigable restaurants array
         navigableRestaurants = [];
@@ -407,12 +420,12 @@
                 navigableRestaurants.push(restaurant);
             }
 
-            resultsEl.appendChild(item);
+            dom.results.appendChild(item);
         });
 
         // Add ARIA role to container
-        resultsEl.setAttribute('role', 'listbox');
-        resultsEl.setAttribute('aria-label', 'Restaurant list');
+        dom.results.setAttribute('role', 'listbox');
+        dom.results.setAttribute('aria-label', 'Restaurant list');
     }
 
     function updateMapMarkers(restaurantList, animate = false) {
