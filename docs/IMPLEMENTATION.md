@@ -20,30 +20,11 @@ An Epic represents a large body of work that can be broken down into smaller tic
 -   **FALTMAP-01:** Centralize Configuration into `constants.js`
 -   **FALTMAP-02:** Create Shared `CacheManager` Module
 -   **FALTMAP-03:** Refactor `popup.js` and `background.js` to Use `CacheManager`
+-   **FALTMAP-04:** Implement Event Delegation for Restaurant List
 
 ---
 
 ## Backlog
-
-### 🎟️ **TICKET: FALTMAP-04 - Implement Event Delegation for Restaurant List**
-- Epic: E01
-- Status: Open
-
-**Objective:** To improve performance and reduce memory usage by replacing multiple event listeners with a single delegated listener on the parent container.
-**Priority:** 🟡 High
-
-**Scope of Work:**
-1.  **File to Modify:** `content.js`
-    - Action: Locate the `updateResultsList` function. Inside the loop that creates each `item`, **remove** the entire `item.addEventListener('click', ...)` block.
-    - Action: In the `createModal` function, after the `resultsEl` is created, add a *single* click event listener to it.
-    - Action: The listener's logic should check if the clicked element's ancestor matches a result item, determine its index, and call `selectRestaurant(index)`.
-
-**Acceptance Criteria (AC):**
-- [ ] The `item.addEventListener('click', ...)` block is removed from the loop in `updateResultsList`.
-- [ ] A single `click` listener is attached to the results list's parent element.
-- [ ] Clicking a restaurant item in the list still correctly highlights it and pans the map.
-- [ ] The commit message follows the format: `refactor(perf): use event delegation for results list`
-- [ ] The ticket is moved to the "Done" section in this document.
 
 ### 🎟️ **TICKET: FALTMAP-05 - Cache DOM Element Queries in Variables**
 - Epic: E01
