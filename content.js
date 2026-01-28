@@ -123,18 +123,66 @@
         }
     }
 
+    function showKeyboardHelp() {
+        // Check if help is already visible
+        if (document.getElementById('keyboard-help-overlay')) return;
+
+        const helpOverlay = document.createElement('div');
+        helpOverlay.id = 'keyboard-help-overlay';
+        helpOverlay.innerHTML = `
+            <div class="keyboard-help">
+                <h3>⌨️ Keyboard Shortcuts</h3>
+                <dl>
+                    <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
+                    <dd>Navigate restaurants</dd>
+                    <dt><kbd>ESC</kbd></dt>
+                    <dd>Close map</dd>
+                    <dt><kbd>?</kbd></dt>
+                    <dd>Show this help</dd>
+                </dl>
+                <p class="help-hint">Press any key to close</p>
+            </div>
+        `;
+
+        mapModal.appendChild(helpOverlay);
+
+        // Close help on any key press
+        const closeHelp = () => {
+            helpOverlay.remove();
+            document.removeEventListener('keydown', closeHelp);
+        };
+        setTimeout(() => document.addEventListener('keydown', closeHelp), 100);
+    }
+
     function handleKeyboardNavigation(event) {
         // Only process if modal is open
         if (!mapModal) return;
 
+        // Handle help shortcut (works regardless of items)
+        if (event.key === '?' || event.key === '/') {
+            event.preventDefault();
+            showKeyboardHelp();
+            return;
+        }
+
+        // Handle escape (works regardless of items)
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            // Close help overlay if visible
+            const helpOverlay = document.getElementById('keyboard-help-overlay');
+            if (helpOverlay) {
+                helpOverlay.remove();
+                return;
+            }
+            closeMapModal();
+            return;
+        }
+
+        // Navigation shortcuts need items
         const items = document.querySelectorAll('#modal-results .result-item:not(.no-coords)');
         if (items.length === 0) return;
 
         switch(event.key) {
-            case 'Escape':
-                event.preventDefault();
-                closeMapModal();
-                break;
             case 'ArrowDown':
                 event.preventDefault();
                 navigateRestaurants(1, items);
