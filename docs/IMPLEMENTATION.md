@@ -87,3 +87,25 @@ An Epic represents a large body of work that can be broken down into smaller tic
 - [ ] The status text (e.g., "15/50 located") is still visible.
 - [ ] The commit message follows the format: `feat: add visual progress bar for geocoding`
 - [ ] The ticket is moved to the "Done" section in this document.
+
+### 🎟️ **TICKET: FALTMAP-07 - Introduce Basic Testing Strategy for Critical Modules**
+- Epic: E01
+- Status: Open
+
+**Objective:** To improve reliability and reduce manual testing effort by implementing a lightweight testing strategy for critical modules.
+**Priority:** 🟡 High
+
+**Scope of Work:**
+1.  **File to Create:** `tests/cache-utils.test.js`
+    - Action: Create this file.
+    - Action: Implement basic unit tests for `modules/cache-utils.js` focusing on `load()`, `save()`, `clear()`, and `getStats()` methods.
+2.  **Action:** The tests should be executable directly in the browser console for simplicity (as described in the original `REFACTORING_ANALYSIS.md` "Lightweight testing without build complexity" section).
+3.  **Action:** Provide clear instructions on how to run these tests.
+
+**Acceptance Criteria (AC):**
+- [ ] `tests/cache-utils.test.js` is created and contains tests for `CacheManager`.
+- [ ] The tests can be run in the browser console.
+- [ ] The tests cover `load()`, `save()`, `clear()`, and `getStats()`.
+- [ ] All tests pass.
+- [ ] The commit message follows the format: `feat: introduce basic testing for cache-utils`.
+- [ ] The ticket is moved to the "Done" section in this document.
