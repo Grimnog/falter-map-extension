@@ -719,28 +719,28 @@ Custom code         ~60 KB (16% reduction via deduplication)
 ## 8. Implementation Priority
 
 ### Phase 1: Quick Wins (1-2 hours)
-1. ✅ Extract constants to `constants.js`
-2. ✅ Create shared `cache-utils.js`
-3. ✅ Add progress bar UI
-4. ✅ Event delegation for result items
-5. ✅ Cache DOM queries
+1. ✅ [x] Extract constants to `constants.js`
+2. ✅ [x] Create shared `cache-utils.js`
+3. ✅ [ ] Add progress bar UI
+4. ✅ [ ] Event delegation for result items
+5. ✅ [ ] Cache DOM queries
 
 **Impact**: Immediate code quality improvement, ~15% reduction in duplication
 
 ### Phase 2: Modularization (3-4 hours)
-1. ✅ Extract `dom-parser.js`
-2. ✅ Extract `geocoder.js`
-3. ✅ Extract `map-modal.js`
-4. ✅ Extract `navigation.js`
-5. ✅ Update manifest for ES6 modules
+1. ✅ [x] Extract `dom-parser.js`
+2. ✅ [x] Extract `geocoder.js`
+3. ✅ [ ] Extract `map-modal.js`
+4. ✅ [ ] Extract `navigation.js`
+5. ✅ [x] Update manifest for ES6 modules
 
 **Impact**: Better maintainability, easier to test, cleaner architecture
 
 ### Phase 3: Enhancements (2-3 hours)
-1. ✅ Better error handling with user notifications
-2. ✅ Keyboard shortcut help overlay
-3. ✅ Smart cache management UI
-4. ✅ Write basic test suite
+1. ✅ [ ] Better error handling with user notifications
+2. ✅ [ ] Keyboard shortcut help overlay
+3. ✅ [ ] Smart cache management UI
+4. ✅ [ ] Write basic test suite
 
 **Impact**: Better UX, more robust error handling
 
@@ -770,14 +770,14 @@ Custom code         ~60 KB (16% reduction via deduplication)
 ## 10. Recommendations Summary
 
 ### Must Do (Highest ROI):
-1. ✅ **Create shared cache utility** - Eliminates 70 lines of duplication
-2. ✅ **Extract constants** - Improves maintainability
-3. ✅ **Event delegation** - Small change, immediate performance gain
+1. ✅ [x] **Create shared cache utility** - Eliminates 70 lines of duplication
+2. ✅ [x] **Extract constants** - Improves maintainability
+3. ✅ [ ] **Event delegation** - Small change, immediate performance gain
 
 ### Should Do (High Value):
-4. ✅ **Modularize content.js** - Long-term maintainability
-5. ✅ **Better error handling** - Improved UX
-6. ✅ **Progress bar** - Visual feedback enhancement
+4. ✅ [x] **Modularize content.js** - Long-term maintainability
+5. ✅ [ ] **Better error handling** - Improved UX
+6. ✅ [ ] **Progress bar** - Visual feedback enhancement
 
 ### Nice to Have (Future):
 7. ⚪ **Parallel pagination fetching** - Marginal speed improvement
