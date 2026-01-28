@@ -92,6 +92,39 @@
         mapModal.querySelector('.modal-close').addEventListener('click', closeMapModal);
         mapModal.querySelector('.modal-overlay').addEventListener('click', closeMapModal);
 
+        // Add event delegation for result item clicks
+        const resultsEl = document.getElementById('modal-results');
+        resultsEl.addEventListener('click', (event) => {
+            // Find the clicked result item (handle clicks on child elements)
+            const item = event.target.closest('.result-item');
+            if (!item || item.classList.contains('no-coords')) return;
+
+            // Clear active state from all items
+            document.querySelectorAll('.result-item').forEach(el => {
+                el.classList.remove('active');
+                el.setAttribute('aria-selected', 'false');
+            });
+
+            // Set active state on clicked item
+            item.classList.add('active');
+            item.setAttribute('aria-selected', 'true');
+
+            // Find the index among navigable items
+            const navigableItems = Array.from(document.querySelectorAll('#modal-results .result-item:not(.no-coords)'));
+            selectedRestaurantIndex = navigableItems.indexOf(item);
+
+            // Get the corresponding restaurant
+            const restaurant = navigableRestaurants[selectedRestaurantIndex];
+            if (restaurant && restaurant.coords) {
+                map.setView([restaurant.coords.lat, restaurant.coords.lng], CONFIG.MAP.SELECTED_ZOOM);
+
+                const marker = markers.find(m => m.restaurantId === restaurant.id);
+                if (marker) {
+                    marker.openPopup();
+                }
+            }
+        });
+
         // Add keyboard navigation listener
         document.addEventListener('keydown', handleKeyboardNavigation);
 
@@ -372,26 +405,6 @@
             if (restaurant.coords) {
                 // Track for keyboard navigation
                 navigableRestaurants.push(restaurant);
-
-                item.addEventListener('click', () => {
-                    document.querySelectorAll('.result-item').forEach(el => {
-                        el.classList.remove('active');
-                        el.setAttribute('aria-selected', 'false');
-                    });
-                    item.classList.add('active');
-                    item.setAttribute('aria-selected', 'true');
-
-                    // Update selectedRestaurantIndex when clicking
-                    const navigableItems = Array.from(document.querySelectorAll('#modal-results .result-item:not(.no-coords)'));
-                    selectedRestaurantIndex = navigableItems.indexOf(item);
-
-                    map.setView([restaurant.coords.lat, restaurant.coords.lng], CONFIG.MAP.SELECTED_ZOOM);
-
-                    const marker = markers.find(m => m.restaurantId === restaurant.id);
-                    if (marker) {
-                        marker.openPopup();
-                    }
-                });
             }
 
             resultsEl.appendChild(item);
