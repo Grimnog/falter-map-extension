@@ -49,3 +49,24 @@ An Epic represents a large body of work that can be broken down into smaller tic
 - [ ] All tests pass.
 - [ ] The commit message follows the format: `feat: introduce basic testing for cache-utils`.
 - [ ] The ticket is moved to the "Done" section in this document.
+
+**Implementation Notes (Claude - 2026-01-28):**
+Attempted implementations failed due to Chrome extension architecture constraints:
+
+1. **Browser Console Approach (Failed)**
+   - Issue: `chrome` API not available in page console context
+   - Error: `Cannot read properties of undefined (reading 'getURL')`
+
+2. **Service Worker Console Approach (Failed)**
+   - Issue: Service Workers don't support dynamic `import()` statements
+   - Error: "import() is disallowed on ServiceWorkerGlobalScope by the HTML specification"
+   - Reference: https://github.com/w3c/ServiceWorker/issues/1356
+
+3. **HTML Test Runner Approach (Failed)**
+   - Issue: `chrome-extension://<ID>/tests/test-runner.html` navigation doesn't work
+   - Problem: Extension page routing or permissions issue
+
+**Next Steps:**
+- Investigate alternative testing approaches (Jest with chrome-extension mock, Puppeteer, or web-ext test runner)
+- May require build tooling despite "lightweight" goal
+- Consult with architect (Gemini) on testing strategy revision
