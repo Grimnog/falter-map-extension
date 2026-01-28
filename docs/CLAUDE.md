@@ -26,34 +26,7 @@ While this project doesn't follow a strict Red-Green-Refactor TDD approach, we a
 3.  **Run Tests Often:** After any significant change, run the relevant tests to ensure no existing functionality has been broken (regression).
 4.  **Reference Ticket `FALTMAP-07`** for the initial testing strategy and implementation details.
 
----
-
-## 2. Project Planning & Workflow
-
-This section defines how we manage our work.
-
-### 2.1. Our Documentation
--   **`docs/REFACTORING_ANALYSIS.md` (The "Why"):** The strategic architectural blueprint and technical debt registry.
--   **`docs/IMPLEMENTATION.md` (The "What"):** The tactical sprint backlog, containing all `FALTMAP-XX` tickets.
--   **`docs/CLAUDE.md` (The "How"):** This engineering guide, defining our processes and principles.
-
-### 2.2. Ticket Workflow
-All work must be performed against a ticket from the `IMPLEMENTATION.md` backlog. The goal is to move tickets from "Open" to "Done".
-
-### 2.3. Definition of Done (DoD)
-A ticket is considered "Done" ONLY when all the following criteria are met:
--   [ ] All scope of work for the ticket is complete.
--   [ ] The code adheres to our Core Principles (Clean Code, Test-Aware).
--   [ ] All existing and new tests pass.
--   [ ] The functionality has been manually verified in the browser.
--   [ ] The final commit is atomic and follows the Conventional Commit standard.
--   [ ] The ticket has been moved to the "✅ Done" section in `IMPLEMENTATION.md`.
-
----
-
-## 3. Git & Commit Guidelines
-
-### 3.1. Atomic Commits
+### Atomic Commits
 This project follows **atomic commit** principles. Each commit should:
 
 1.  **Be self-contained**: Represent one logical change.
@@ -81,29 +54,52 @@ git commit -m "fix pagination bug, add progress bar, update docs"
 git commit -m "various updates and improvements"
 ```
 
-### 3.2. Conventional Commit Messages
+### Conventional Commit Messages
 All commit messages MUST follow the [Conventional Commits](https://www.conventionalcommits.org/) standard.
 -   **Format:** `<type>: <description>` (e.g., `feat: add user login form`).
 -   **Types:** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `style`, `perf`.
 
 ---
 
-## 4. Project Knowledge Base
+## 2. Project Planning & Workflow
+
+This section defines how we manage our work.
+
+### 2.1. Our Documentation
+-   **`docs/REFACTORING_ANALYSIS.md` (The "Why"):** The strategic architectural blueprint and technical debt registry.
+-   **`docs/IMPLEMENTATION.md` (The "What"):** The tactical sprint backlog, containing all `FALTMAP-XX` tickets.
+-   **`docs/CLAUDE.md` (The "How"):** This engineering guide, defining our processes and principles.
+
+### 2.2. Ticket Workflow
+All work must be performed against a ticket from the `IMPLEMENTATION.md` backlog. The goal is to move tickets from "Open" to "Done".
+
+### 2.3. Definition of Done (DoD)
+A ticket is considered "Done" ONLY when all the following criteria are met:
+-   [ ] All scope of work for the ticket is complete.
+-   [ ] The code adheres to our Core Principles (Clean Code, Test-Aware).
+-   [ ] All existing and new tests pass.
+-   [ ] The functionality has been manually verified in the browser.
+-   [ ] The final commit is atomic and follows the Conventional Commit standard.
+-   [ ] The ticket has been moved to the "✅ Done" section in `IMPLEMENTATION.md`.
+
+---
+
+## 3. Project Knowledge Base
 
 This is a reference for critical project-specific information.
 
-### 4.1. Current Architecture
+### 3.1. Current Architecture
 The extension uses a modular architecture where `content.js` acts as a coordinator for various service modules. For the full blueprint and target architecture, see `docs/REFACTORING_ANALYSIS.md`.
 
-### 4.2. Error Handling Philosophy
+### 3.2. Error Handling Philosophy
 -   **Fail Gracefully:** The extension must never crash the host page. All errors should be caught and handled.
 -   **Inform, Don't Interrupt:** For non-critical errors (e.g., a single address failing to geocode), use subtle UI cues. For critical failures (e.g., the geocoding service is down), use a clear, non-modal notification to the user.
 
-### 4.3. API & Service Policies
+### 3.3. API & Service Policies
 -   **Rate Limiting (Nominatim):** We are strictly limited to **1 request per second**. The `geocoder.js` module respects this. This is a critical constraint.
 -   **Content Security Policy (CSP):** The `manifest.json` restricts external connections. Any new service requires a CSP update.
 
-### 4.4. Development & Versioning
+### 3.4. Development & Versioning
 -   **Loading the Extension:** Load as an unpacked extension in `chrome://extensions/`.
 -   **Debugging:** Use the browser console for the content script, service worker logs in `chrome://extensions/`, and the popup console (right-click the icon).
 -   **Versioning:** When updating the version, change it in `manifest.json`, `popup.html`, and `CHANGELOG.md`.
