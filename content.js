@@ -71,6 +71,10 @@
                                 <span class="status-label">Geocoding</span>
                                 <span class="status-value" id="modal-geocode-status">Starting...</span>
                             </div>
+                            <div class="progress-container">
+                                <div class="progress-bar" id="progress-bar"></div>
+                                <div class="progress-text" id="progress-text">0/0 located</div>
+                            </div>
                             <div class="status-note" id="status-note" style="display: none;">Addresses are being located, this may take a moment...</div>
                         </div>
                         <div class="modal-results" id="modal-results"></div>
@@ -171,6 +175,21 @@
         }
     }
 
+    // Helper function to update both status text and progress bar
+    function updateProgress(current, total) {
+        const statusEl = document.getElementById('modal-geocode-status');
+        const progressBarEl = document.getElementById('progress-bar');
+        const progressTextEl = document.getElementById('progress-text');
+
+        if (statusEl) statusEl.textContent = `${current}/${total} located`;
+        if (progressTextEl) progressTextEl.textContent = `${current}/${total} located`;
+
+        if (progressBarEl) {
+            const percentage = total > 0 ? (current / total) * 100 : 0;
+            progressBarEl.style.width = `${percentage}%`;
+        }
+    }
+
     async function startGeocoding(restaurants) {
         const statusEl = document.getElementById('modal-geocode-status');
         const noteEl = document.getElementById('status-note');
@@ -205,7 +224,7 @@
         }, CONFIG.UI.SKELETON_DELAY_MS);
 
         const initialLocatedCount = currentResults.filter(r => r.coords).length;
-        statusEl.textContent = `${initialLocatedCount}/${restaurants.length} located`;
+        updateProgress(initialLocatedCount, restaurants.length);
 
         // Check if we need to geocode anything
         const needsGeocoding = restaurants.filter(r => {
@@ -221,7 +240,7 @@
 
             const results = await geocodeRestaurants(restaurants, (current, total, progressResults) => {
                 const locatedCount = progressResults.filter(r => r.coords).length;
-                statusEl.textContent = `${locatedCount}/${total} located`;
+                updateProgress(locatedCount, total);
                 updateResultsList(progressResults);
 
                 // During progress, always animate=true to prevent auto-zoom
@@ -233,7 +252,7 @@
             });
 
             const locatedCount = results.filter(r => r.coords).length;
-            statusEl.textContent = `${locatedCount}/${restaurants.length} located`;
+            updateProgress(locatedCount, restaurants.length);
             statusEl.classList.remove('loading');
             noteEl.style.display = 'none';
             updateResultsList(results);

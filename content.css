@@ -225,6 +225,31 @@
     font-size: 12px;
 }
 
+.progress-container {
+    position: relative;
+    height: 4px;
+    background: rgb(240, 240, 240);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, rgb(251, 229, 31), rgb(255, 200, 0));
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    font-size: 11px;
+    color: rgb(115, 115, 115);
+    font-weight: 500;
+}
+
 .status-note {
     margin-top: 8px;
     font-size: 11px;
