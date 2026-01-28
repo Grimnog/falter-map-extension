@@ -8,20 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - 2025-01-28
 
 ### Changed
-- **Major refactoring (Phase 1)**: Improved code maintainability and consistency
+- **Major refactoring (Phase 1 + 2)**: Complete modular architecture overhaul
 - Extracted shared `constants.js` module for all configuration values
 - Created unified `CacheManager` module for geocoding cache operations
-- Eliminated ~70 lines of duplicated cache management code
+- Extracted `dom-parser.js` module for restaurant data scraping and pagination
+- Extracted `geocoder.js` module for address geocoding logic
+- Eliminated ~270 lines of code duplication across all files
 - All magic numbers replaced with named constants (timing, thresholds, coordinates)
-- Reduced custom code by ~16% while maintaining all functionality
+- content.js reduced by 37% (904 → 571 lines)
+- Overall code organization significantly improved
 
 ### Technical
-- Refactored content.js (904 → 838 lines)
-- Refactored popup.js (87 → 52 lines)
-- Refactored background.js to use shared modules
-- Added ES6 module support for background service worker
+- **Phase 1**: Cache management and constants unification
+  - Refactored popup.js (87 → 52 lines, -40%)
+  - Refactored background.js to use shared modules
+  - Added ES6 module support for background service worker
+- **Phase 2**: Core logic modularization
+  - Created modules/dom-parser.js (153 lines) - restaurant scraping
+  - Created modules/geocoder.js (158 lines) - address geocoding
+  - content.js (904 → 571 lines, -37%)
 - Added web_accessible_resources for dynamic module imports in content scripts
 - Improved code separation of concerns and testability
+- Each module has single responsibility and clear interface
 
 ## [0.3.0] - 2025-01-28
 
