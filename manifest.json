@@ -51,6 +51,13 @@
     }
   ],
 
+  "web_accessible_resources": [
+    {
+      "resources": ["modules/*.js"],
+      "matches": ["https://www.falter.at/*"]
+    }
+  ],
+
   "background": {
     "service_worker": "background.js",
     "type": "module"

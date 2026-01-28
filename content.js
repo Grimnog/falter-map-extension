@@ -1,7 +1,7 @@
 // Content script for Falter Lokalführer pages
 // Extracts restaurant data and displays map modal
 
-(function() {
+(async function() {
     'use strict';
 
     // Avoid running multiple times
@@ -9,6 +9,10 @@
     window.falterMapExtensionLoaded = true;
 
     console.log('Falter Map Extension: Content script loaded');
+
+    // Dynamically import modules
+    const { CONFIG } = await import(chrome.runtime.getURL('modules/constants.js'));
+    const { CacheManager } = await import(chrome.runtime.getURL('modules/cache-utils.js'));
 
     let map = null;
     let markers = [];
@@ -139,7 +143,7 @@
             });
 
             if (page < pagination.total) {
-                await new Promise(resolve => setTimeout(resolve, 300));
+                await new Promise(resolve => setTimeout(resolve, CONFIG.PAGINATION.FETCH_DELAY_MS));
             }
         }
 
@@ -148,76 +152,6 @@
     }
 
     // Geocoding functions
-    async function loadGeocodeCache() {
-        return new Promise((resolve) => {
-            chrome.storage.local.get(['geocodeCache'], (result) => {
-                const cache = result.geocodeCache || {};
-                const now = Date.now();
-                const validCache = {};
-
-                // Filter out expired entries and migrate old format
-                for (const [address, data] of Object.entries(cache)) {
-                    // Handle old format (no expiresAt) - migrate it
-                    if (!data.expiresAt) {
-                        // Old format: { lat, lng }
-                        validCache[address] = {
-                            coords: data,
-                            cachedAt: now,
-                            expiresAt: now + (30 * 24 * 60 * 60 * 1000) // 30 days
-                        };
-                    } else if (data.expiresAt > now) {
-                        // New format and not expired
-                        validCache[address] = data;
-                    }
-                    // Skip expired entries (implicit cleanup)
-                }
-
-                resolve(validCache);
-            });
-        });
-    }
-
-    async function saveToCache(address, coords) {
-        const cache = await loadGeocodeCache();
-        const ttlDays = 30; // 30-day expiration
-        const expiresAt = Date.now() + (ttlDays * 24 * 60 * 60 * 1000);
-
-        cache[address.toLowerCase().trim()] = {
-            coords: coords,
-            cachedAt: Date.now(),
-            expiresAt: expiresAt
-        };
-
-        return new Promise((resolve) => {
-            chrome.storage.local.set({ geocodeCache: cache }, resolve);
-        });
-    }
-
-    // Clean expired cache entries and save back to storage
-    async function cleanExpiredCache() {
-        console.log('Cleaning expired geocode cache...');
-        const cache = await loadGeocodeCache(); // Already filters expired
-
-        return new Promise((resolve) => {
-            chrome.storage.local.set({ geocodeCache: cache }, () => {
-                console.log('Cache cleanup complete');
-
-                // Log cache stats
-                chrome.storage.local.getBytesInUse(['geocodeCache'], (bytes) => {
-                    const kb = (bytes / 1024).toFixed(2);
-                    const count = Object.keys(cache).length;
-                    console.log(`Cache: ${count} addresses, ${kb} KB`);
-
-                    if (bytes > 5_000_000) { // 5MB warning
-                        console.warn('Cache size exceeds 5MB - consider clearing');
-                    }
-                });
-
-                resolve();
-            });
-        });
-    }
-
     async function geocodeAddress(address) {
         console.log('Geocoding:', address);
 
@@ -289,7 +223,7 @@
 
             // Small delay between attempts to respect rate limits
             if (i < addressVariations.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
             }
         }
 
@@ -298,7 +232,7 @@
     }
 
     async function geocodeRestaurants(restaurantList, progressCallback) {
-        const cache = await loadGeocodeCache();
+        const cache = await CacheManager.load();
         const results = [];
         let needsGeocoding = [];
 
@@ -334,7 +268,7 @@
                 const coords = await geocodeAddress(restaurant.address);
 
                 if (coords) {
-                    await saveToCache(restaurant.address, coords);
+                    await CacheManager.save(restaurant.address, coords);
                 }
 
                 results.push({
@@ -348,7 +282,7 @@
                 }
 
                 if (i < needsGeocoding.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 1100));
+                    await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RATE_LIMIT_MS));
                 }
             }
         }
@@ -426,7 +360,7 @@
 
         // Initialize map
         setTimeout(() => {
-            map = L.map('modal-map').setView([48.2082, 16.3719], 13);
+            map = L.map('modal-map').setView(CONFIG.MAP.DEFAULT_CENTER, CONFIG.MAP.DEFAULT_ZOOM);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors',
@@ -435,7 +369,7 @@
 
             // Start geocoding
             startGeocoding(restaurants);
-        }, 100);
+        }, CONFIG.ANIMATION.MODAL_INIT_DELAY_MS);
     }
 
     function closeMapModal() {
@@ -498,7 +432,7 @@
         // Zoom map to selected restaurant
         const restaurant = navigableRestaurants[selectedRestaurantIndex];
         if (restaurant && restaurant.coords) {
-            map.setView([restaurant.coords.lat, restaurant.coords.lng], 16);
+            map.setView([restaurant.coords.lat, restaurant.coords.lng], CONFIG.MAP.SELECTED_ZOOM);
             const marker = markers.find(m => m.restaurantId === restaurant.id);
             if (marker) marker.openPopup();
         }
@@ -510,7 +444,7 @@
         const resultsEl = document.getElementById('modal-results');
 
         // Show initial state
-        const cache = await loadGeocodeCache();
+        const cache = await CacheManager.load();
         let currentResults = [];
 
         // First, show cached results
@@ -535,7 +469,7 @@
         setTimeout(() => {
             updateResultsList(currentResults);
             updateMapMarkers(currentResults.filter(r => r.coords), false);
-        }, 300);
+        }, CONFIG.UI.SKELETON_DELAY_MS);
 
         const initialLocatedCount = currentResults.filter(r => r.coords).length;
         statusEl.textContent = `${initialLocatedCount}/${restaurants.length} located`;
@@ -642,7 +576,7 @@
                     const navigableItems = Array.from(document.querySelectorAll('#modal-results .result-item:not(.no-coords)'));
                     selectedRestaurantIndex = navigableItems.indexOf(item);
 
-                    map.setView([restaurant.coords.lat, restaurant.coords.lng], 16);
+                    map.setView([restaurant.coords.lat, restaurant.coords.lng], CONFIG.MAP.SELECTED_ZOOM);
 
                     const marker = markers.find(m => m.restaurantId === restaurant.id);
                     if (marker) {
@@ -690,7 +624,7 @@
 
             if (markers.length > 0) {
                 const group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.1));
+                map.fitBounds(group.getBounds().pad(CONFIG.MAP.BOUNDS_PADDING));
             }
             return;
         }
@@ -732,13 +666,13 @@
                     marker._icon.classList.add('marker-pulse');
                     setTimeout(() => {
                         if (marker._icon) marker._icon.classList.remove('marker-pulse');
-                    }, 600);
+                    }, CONFIG.ANIMATION.MARKER_PULSE_MS);
                 }
             };
 
             // Stagger each new marker
             setTimeout(addMarker, staggerDelay);
-            staggerDelay += 50;
+            staggerDelay += CONFIG.ANIMATION.MARKER_STAGGER_MS;
         });
 
         // Don't adjust zoom during progress updates - only at the very end
@@ -826,7 +760,7 @@
             }
 
             // Check cache to estimate how many need geocoding
-            const cache = await loadGeocodeCache();
+            const cache = await CacheManager.load();
             let needsGeocoding = 0;
             for (const restaurant of restaurants) {
                 const cacheKey = restaurant.address.toLowerCase().trim();
@@ -836,7 +770,7 @@
             }
 
             // Nominatim API threshold warning (100+ uncached addresses)
-            if (needsGeocoding >= 100) {
+            if (needsGeocoding >= CONFIG.NOMINATIM.WARNING_THRESHOLD) {
                 const confirmed = confirm(
                     `⚠️ API Usage Notice\n\n` +
                     `You're about to geocode ${needsGeocoding} restaurant addresses using OpenStreetMap's Nominatim API.\n\n` +
@@ -871,11 +805,11 @@
     // Initialize
     function init() {
         // Clean expired cache on startup
-        cleanExpiredCache().catch(err => {
+        CacheManager.cleanExpired().catch(err => {
             console.error('Cache cleanup error:', err);
         });
 
-        setTimeout(injectMapButton, 500);
+        setTimeout(injectMapButton, CONFIG.ANIMATION.BUTTON_INJECT_DELAY_MS);
 
         const observer = new MutationObserver(() => {
             if (!document.getElementById('falter-map-btn-container') && document.getElementById('entries')) {
