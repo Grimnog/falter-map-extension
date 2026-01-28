@@ -22,32 +22,11 @@ An Epic represents a large body of work that can be broken down into smaller tic
 -   **FALTMAP-03:** Refactor `popup.js` and `background.js` to Use `CacheManager`
 -   **FALTMAP-04:** Implement Event Delegation for Restaurant List
 -   **FALTMAP-05:** Cache DOM Element Queries in Variables
+-   **FALTMAP-06:** Implement Visual Progress Bar (previously completed)
 
 ---
 
 ## Backlog
-
-### 🎟️ **TICKET: FALTMAP-06 - Implement Visual Progress Bar**
-- Epic: E01
-- Status: Open
-
-**Objective:** To enhance user experience with a more intuitive visual progress bar during geocoding.
-**Priority:** 🟢 Medium
-
-**Scope of Work:**
-1.  **File to Modify:** `content.js`
-    - Action: In `createModal`, add the HTML for the progress bar structure.
-    - Action: In `updateGeocodeProgress`, add logic to update the width of the progress bar element based on the percentage of completion.
-2.  **File to Modify:** `content.css`
-    - Action: Add the CSS rules for the new progress bar elements as defined in the analysis.
-
-**Acceptance Criteria (AC):**
-- [ ] The progress bar HTML is present in the modal.
-- [ ] The progress bar CSS is added to `content.css`.
-- [ ] During geocoding, a visual bar fills up in the UI.
-- [ ] The status text (e.g., "15/50 located") is still visible.
-- [ ] The commit message follows the format: `feat: add visual progress bar for geocoding`
-- [ ] The ticket is moved to the "Done" section in this document.
 
 ### 🎟️ **TICKET: FALTMAP-07 - Introduce Basic Testing Strategy for Critical Modules**
 - Epic: E01
