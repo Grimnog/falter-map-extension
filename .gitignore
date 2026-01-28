@@ -1,32 +1,31 @@
-# IDE and Editor
+# Windows
+nul
+Thumbs.db
+desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor/IDE
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
 
-# OS Files
-Thumbs.db
-desktop.ini
-.DS_Store
-
-# Claude Code Plans
-.claude/
-
-# Temporary files
-*.log
-*.tmp
-
-# Development tools
-generate-icons.html
-icon-generator.html
-
-# Build artifacts (future-proofing)
+# Development/Testing
 node_modules/
+*.log
+.env
+
+# Build artifacts (if you add build process later)
 dist/
 build/
 *.zip
 
-# Extension packaging
-*.crx
-*.pem
+# Personal notes
+TODO.md
+NOTES.md
