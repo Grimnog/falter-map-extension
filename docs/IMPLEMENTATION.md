@@ -21,31 +21,11 @@ An Epic represents a large body of work that can be broken down into smaller tic
 -   **FALTMAP-02:** Create Shared `CacheManager` Module
 -   **FALTMAP-03:** Refactor `popup.js` and `background.js` to Use `CacheManager`
 -   **FALTMAP-04:** Implement Event Delegation for Restaurant List
+-   **FALTMAP-05:** Cache DOM Element Queries in Variables
 
 ---
 
 ## Backlog
-
-### 🎟️ **TICKET: FALTMAP-05 - Cache DOM Element Queries in Variables**
-- Epic: E01
-- Status: Open
-
-**Objective:** To improve rendering performance by querying for frequently-used DOM elements once and storing their references.
-**Priority:** 🟡 High
-
-**Scope of Work:**
-1.  **File to Modify:** `content.js`
-    - Action: Create a shared object (e.g., `dom`) to hold DOM element references.
-    - Action: In `createModal`, populate this `dom` object by finding each key element *once*.
-    - Action: Replace all `document.getElementById(...)` calls in helper functions with direct references from the `dom` object.
-    - Action: In `closeModal`, reset the `dom` object's properties to `null`.
-
-**Acceptance Criteria (AC):**
-- [ ] Repeated `document.getElementById` calls are removed from helper functions.
-- [ ] A central `dom` object is used to reference modal elements.
-- [ ] The modal UI continues to update correctly.
-- [ ] The commit message follows the format: `refactor(perf): cache DOM element queries`
-- [ ] The ticket is moved to the "Done" section in this document.
 
 ### 🎟️ **TICKET: FALTMAP-06 - Implement Visual Progress Bar**
 - Epic: E01
