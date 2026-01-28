@@ -1,138 +1,64 @@
-# CLAUDE.md
+# Engineering Guide (Falter Map Extension)
+_Last Updated: 2026-01-28_
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This document provides the essential principles, workflows, and knowledge base for any engineer (human or AI) working on this project. Adherence to these guidelines is critical for success.
 
-## Project Overview
+---
 
-**Falter Restaurant Map** is a Chrome extension (Manifest V3) that transforms Falter Lokalführer search results into an interactive map. It geocodes Vienna restaurant addresses using OpenStreetMap Nominatim API with intelligent caching to avoid rate limits.
+## 1. Core Principles
 
-## Key Architecture
+These are the fundamental philosophies that guide our work. They are not optional.
 
-### Extension Components
+### Clean Code Philosophy
+We follow a simple set of principles to ensure our code is maintainable, readable, and robust.
 
-The extension follows Chrome Manifest V3 architecture with three main components:
+-   **Readability is Key:** Write code for humans first. Use clear, descriptive names for variables and functions (e.g., `parseRestaurantsFromDOM` is better than `getData`).
+-   **Single Responsibility Principle (SRP):** Every module and function should have one, and only one, reason to change. `cache-utils.js` handles caching; `dom-parser.js` handles parsing. A function should do one thing well.
+-   **Don't Repeat Yourself (DRY):** Avoid duplicating code. If you find yourself writing the same logic in multiple places, extract it into a shared function or module. The creation of `cache-utils.js` is a primary example of this.
+-   **Keep It Simple (KISS):** Avoid unnecessary complexity. Choose the simplest solution that works. Do not add features or abstractions that are not yet needed.
+-   **Meaningful Comments:** Don't comment on *what* the code is doing (the code should be self-explanatory). Comment on *why* a particular approach was taken if it's not obvious (e.g., `// Delay is required to respect the API rate limit`).
 
-1. **Content Script (`content.js`)**: Runs on `falter.at/lokalfuehrer/suche*` pages. Handles:
-   - Scraping restaurant data from DOM
-   - Multi-page pagination fetching
-   - Geocoding with OpenStreetMap Nominatim API (1 req/sec rate limit)
-   - 30-day TTL cache management in `chrome.storage.local`
-   - Leaflet.js map rendering in a modal overlay
-   - Keyboard navigation (arrow keys, ESC)
+### Test-Aware Development
+While this project doesn't follow a strict Red-Green-Refactor TDD approach, we adhere to "test-aware" development.
 
-2. **Background Service Worker (`background.js`)**: Minimal usage in current version. Originally intended for geocoding but most logic moved to content script for better UX. Handles cache operations via message passing.
+1.  **Write Tests for Bugs:** When fixing a bug, the first step is to write a failing test that reproduces the issue. This proves the bug exists and confirms when it's fixed.
+2.  **Write Tests for Features:** When adding a new feature to a module (e.g., a new function in `cache-utils.js`), write the corresponding tests as you build the feature.
+3.  **Run Tests Often:** After any significant change, run the relevant tests to ensure no existing functionality has been broken (regression).
+4.  **Reference Ticket `FALTMAP-07`** for the initial testing strategy and implementation details.
 
-3. **Popup (`popup.html`, `popup.js`)**: Extension settings interface showing:
-   - Cache statistics (address count, storage size)
-   - Cache clear functionality
-   - User instructions
+---
 
-### Data Flow
+## 2. Project Planning & Workflow
 
-```
-User clicks "Auf Karte anzeigen" button
-  → Fetch all paginated results from Falter.at
-  → Check chrome.storage.local for cached coordinates
-  → Geocode uncached addresses via Nominatim API (1/sec)
-  → Display map modal with Leaflet.js
-  → Allow keyboard navigation between restaurants
-```
+This section defines how we manage our work.
 
-### Geocoding Cache Architecture
+### 2.1. Our Documentation
+-   **`docs/REFACTORING_ANALYSIS.md` (The "Why"):** The strategic architectural blueprint and technical debt registry.
+-   **`docs/IMPLEMENTATION.md` (The "What"):** The tactical sprint backlog, containing all `FALTMAP-XX` tickets.
+-   **`docs/CLAUDE.md` (The "How"):** This engineering guide, defining our processes and principles.
 
-**Critical implementation detail**: Cache uses a new format since v0.3.0:
+### 2.2. Ticket Workflow
+All work must be performed against a ticket from the `IMPLEMENTATION.md` backlog. The goal is to move tickets from "Open" to "Done".
 
-```javascript
-// New format (with TTL expiration)
-{
-  "1010 wien, example strasse 1": {
-    coords: { lat: 48.2082, lng: 16.3719 },
-    cachedAt: 1234567890,
-    expiresAt: 1237159890  // 30 days later
-  }
-}
+### 2.3. Definition of Done (DoD)
+A ticket is considered "Done" ONLY when all the following criteria are met:
+-   [ ] All scope of work for the ticket is complete.
+-   [ ] The code adheres to our Core Principles (Clean Code, Test-Aware).
+-   [ ] All existing and new tests pass.
+-   [ ] The functionality has been manually verified in the browser.
+-   [ ] The final commit is atomic and follows the Conventional Commit standard.
+-   [ ] The ticket has been moved to the "✅ Done" section in `IMPLEMENTATION.md`.
 
-// Old format (no expiration, auto-migrated)
-{
-  "1010 wien, example strasse 1": { lat: 48.2082, lng: 16.3719 }
-}
-```
+---
 
-**Migration strategy**: Both `content.js` and `popup.js` contain `loadGeocodeCache()` functions that:
-- Detect old format (no `expiresAt` field)
-- Auto-migrate to new format with 30-day TTL
-- Filter expired entries on load
+## 3. Git & Commit Guidelines
 
-### Address Geocoding Strategy
-
-Vienna addresses are challenging to geocode. The extension tries multiple variations:
-
-1. Original format: `"Karmelitermarkt Stand 65, 1020 Wien, Austria"`
-2. Without stand number: `"Karmelitermarkt, 1020 Wien, Austria"`
-3. Simplified: `"Karmelitermarkt, Wien, Austria"`
-
-This handles market stalls, unusual numbering, and edge cases.
-
-## Development Commands
-
-### Testing the Extension
-
-1. **Load unpacked extension**:
-   - Navigate to `chrome://extensions/`
-   - Enable "Developer mode"
-   - Click "Load unpacked" and select this directory
-
-2. **Test on Falter.at**:
-   - Go to `https://www.falter.at/lokalfuehrer/suche`
-   - Apply filters (district, cuisine, etc.)
-   - Look for "Auf Karte anzeigen" button injected into page
-   - Click button to open map modal
-
-3. **Check console logs**:
-   - Content script logs: Right-click page → Inspect → Console
-   - Background worker logs: `chrome://extensions/` → "Service worker" link
-   - Popup logs: Right-click extension icon → Inspect popup
-
-### Debugging Geocoding
-
-To test geocoding manually:
-
-```javascript
-// In content script console
-geocodeAddress("1010 Wien, Stephansplatz 1")
-```
-
-Cache inspection:
-
-```javascript
-// Check cache contents
-chrome.storage.local.get(['geocodeCache'], (result) => {
-  console.log(Object.keys(result.geocodeCache || {}).length, 'cached addresses');
-  console.log(result.geocodeCache);
-});
-
-// Check storage usage
-chrome.storage.local.getBytesInUse(['geocodeCache'], (bytes) => {
-  console.log((bytes / 1024).toFixed(2), 'KB');
-});
-```
-
-### Version Updates
-
-Update version in three places:
-1. `manifest.json` - `"version": "X.Y.Z"`
-2. `popup.html` - `<div class="version">vX.Y.Z</div>`
-3. `README.md` - Version History section
-
-## Git Workflow
-
-### Atomic Commits
-
+### 3.1. Atomic Commits
 This project follows **atomic commit** principles. Each commit should:
 
-1. **Be self-contained**: Represent one logical change
-2. **Be functional**: Not break the build or functionality
-3. **Have clear scope**: Focus on a single purpose
+1.  **Be self-contained**: Represent one logical change.
+2.  **Be functional**: Not break the build or functionality.
+3.  **Have clear scope**: Focus on a single purpose.
 
 **Good atomic commits:**
 ```bash
@@ -144,9 +70,6 @@ git commit -m "fix: handle uppercase pagination text (SEITE vs Seite)"
 
 # ✅ Single refactor
 git commit -m "refactor: extract cache utilities to shared module"
-
-# ✅ Related documentation
-git commit -m "docs: update CLAUDE.md with atomic commit workflow"
 ```
 
 **Bad non-atomic commits:**
@@ -154,224 +77,33 @@ git commit -m "docs: update CLAUDE.md with atomic commit workflow"
 # ❌ Multiple unrelated changes
 git commit -m "fix pagination bug, add progress bar, update docs"
 
-# ❌ Partial feature (breaks functionality)
-git commit -m "feat: start adding dark mode (incomplete)"
-
 # ❌ Vague scope
 git commit -m "various updates and improvements"
 ```
 
-### Commit Message Format
+### 3.2. Conventional Commit Messages
+All commit messages MUST follow the [Conventional Commits](https://www.conventionalcommits.org/) standard.
+-   **Format:** `<type>: <description>` (e.g., `feat: add user login form`).
+-   **Types:** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `style`, `perf`.
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
+---
 
-```
-<type>: <description>
+## 4. Project Knowledge Base
 
-[optional body]
+This is a reference for critical project-specific information.
 
-[optional footer]
-```
+### 4.1. Current Architecture
+The extension uses a modular architecture where `content.js` acts as a coordinator for various service modules. For the full blueprint and target architecture, see `docs/REFACTORING_ANALYSIS.md`.
 
-**Types:**
-- `feat`: New feature
-- `fix`: Bug fix
-- `refactor`: Code restructuring without behavior change
-- `docs`: Documentation only
-- `style`: Formatting, missing semicolons (no code change)
-- `test`: Adding tests
-- `chore`: Maintenance tasks (dependencies, build config)
-- `perf`: Performance improvements
+### 4.2. Error Handling Philosophy
+-   **Fail Gracefully:** The extension must never crash the host page. All errors should be caught and handled.
+-   **Inform, Don't Interrupt:** For non-critical errors (e.g., a single address failing to geocode), use subtle UI cues. For critical failures (e.g., the geocoding service is down), use a clear, non-modal notification to the user.
 
-**Examples:**
-```bash
-# Simple feature
-git commit -m "feat: add keyboard shortcut help overlay"
+### 4.3. API & Service Policies
+-   **Rate Limiting (Nominatim):** We are strictly limited to **1 request per second**. The `geocoder.js` module respects this. This is a critical constraint.
+-   **Content Security Policy (CSP):** The `manifest.json` restricts external connections. Any new service requires a CSP update.
 
-# Bug fix with explanation
-git commit -m "fix: geocoding fails for market stall addresses
-
-Market stalls like 'Karmelitermarkt Stand 65' were not being
-geocoded properly. Now tries simplified address variation
-without stand numbers.
-
-Fixes issue where 15% of restaurants had no coordinates."
-
-# Breaking change
-git commit -m "refactor!: change cache format to include TTL
-
-BREAKING CHANGE: Old cache format without expiresAt field is
-deprecated. Migration logic automatically converts old entries."
-```
-
-### Commit Co-authorship
-
-When working with AI assistants, use co-authorship:
-
-```bash
-git commit -m "feat: add smart pagination detection
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
-```
-
-### When to Commit
-
-**Commit after:**
-- ✅ Completing a single feature or fix
-- ✅ Making a logical refactoring step
-- ✅ Adding/updating documentation for a specific change
-- ✅ Each successful test run for the change
-
-**Don't commit:**
-- ❌ Work-in-progress (WIP) code that breaks functionality
-- ❌ Multiple unrelated changes together
-- ❌ Debugging code (console.logs, temporary hacks)
-- ❌ Files with merge conflicts
-
-### Rewriting History (Local Only)
-
-Before pushing, you can clean up commits:
-
-```bash
-# Amend the last commit
-git commit --amend
-
-# Interactive rebase to squash/reorder commits
-git rebase -i HEAD~3
-
-# Squash the last 2 commits
-git reset --soft HEAD~2
-git commit -m "feat: complete feature with better message"
-```
-
-**WARNING**: Never rewrite history after pushing to main/shared branches.
-
-### Branch Strategy
-
-For this project (personal/small team):
-
-```bash
-# Work directly on main for small changes
-git checkout main
-git pull
-# ... make atomic changes
-git commit -m "feat: add feature"
-git push
-
-# Use feature branches for larger work
-git checkout -b feature/smart-caching
-# ... multiple atomic commits
-git push -u origin feature/smart-caching
-# Create PR, then merge to main
-```
-
-### Pre-commit Checklist
-
-Before each commit:
-1. ✅ Code works and doesn't break existing functionality
-2. ✅ Tested manually in browser (for extension code)
-3. ✅ No console.log or debugging code left behind
-4. ✅ Only staging files related to this specific change
-5. ✅ Commit message clearly describes the change
-6. ✅ Co-authorship attribution if working with AI
-
-## Critical Implementation Notes
-
-### Rate Limiting (OpenStreetMap Nominatim)
-
-**IMPORTANT**: Nominatim has strict usage policies:
-- 1 request per second maximum
-- User-Agent header required: `'FalterMapExtension/1.0'`
-- Implemented with `await new Promise(resolve => setTimeout(resolve, 1100))`
-- 100+ uncached addresses trigger user confirmation dialog (content.js:839)
-
-### Content Security Policy
-
-The extension uses CSP in `manifest.json` to allow:
-- Leaflet.js map tiles from `*.tile.openstreetmap.org`
-- Nominatim API at `nominatim.openstreetmap.org`
-
-Do not add external script sources without updating CSP.
-
-### Pagination Detection
-
-Falter.at uses both "Seite X/Y" and "SEITE X/Y" text. Detection is case-insensitive:
-
-```javascript
-const pageMatch = pageText.match(/seite\s+(\d+)\s*\/\s*(\d+)/i);
-```
-
-### Keyboard Navigation State Management
-
-`content.js` maintains three navigation state variables:
-- `selectedRestaurantIndex`: Current selection (-1 = none)
-- `navigableRestaurants`: Filtered array of restaurants with coordinates
-- `markers`: Array of Leaflet markers with `restaurantId` property
-
-Reset all three when closing modal to prevent stale state.
-
-### Animation System
-
-The map uses two distinct marker update modes:
-
-1. **Initial load / full refresh** (`animate=false`):
-   - Removes all markers and recreates
-   - Auto-zooms to fit all markers with `map.fitBounds()`
-
-2. **Progressive geocoding** (`animate=true`):
-   - Only adds NEW markers (checks `existingMarkerIds`)
-   - Staggers animation with 50ms delay per marker
-   - Applies `.marker-pulse` CSS class for 600ms
-   - Does NOT auto-zoom (prevents jarring experience)
-
-## File Structure
-
-```
-/
-├── manifest.json          # Extension configuration (Manifest V3)
-├── content.js             # Main logic: scraping, geocoding, map rendering
-├── content.css            # Styles for injected button and map modal
-├── background.js          # Service worker (minimal usage)
-├── popup.html/js          # Extension popup interface
-├── leaflet.js/css         # Map library (vendor, do not modify)
-├── icons/                 # Extension icons (16x16, 48x48, 128x128)
-├── images/                # Assets
-└── icon-generator.html    # Utility for generating icons
-```
-
-## Common Issues
-
-### Geocoding failures
-- Some Vienna addresses don't match OpenStreetMap data exactly
-- Extension tries 3-4 variations before giving up
-- Check console for "No results for any variation" warnings
-
-### Cache not persisting
-- Ensure `chrome.storage.local.set()` callbacks complete
-- Check quota: Chrome allows ~10MB for `storage.local`
-- 5MB warning threshold at content.js:211
-
-### Modal not appearing
-- Button injection delayed by 500ms (`setTimeout(injectMapButton, 500)`)
-- MutationObserver re-injects if button removed
-- Check if `#entries` div exists on page
-
-### Map tiles not loading
-- CSP must allow `https://*.tile.openstreetmap.org/`
-- Check network tab for CORS errors
-- Leaflet.js attribution required by OSM license
-
-## Extension Permissions
-
-```json
-"permissions": ["storage", "activeTab", "tabs"]
-"host_permissions": [
-  "https://www.falter.at/*",
-  "https://nominatim.openstreetmap.org/*"
-]
-```
-
-- `storage`: For geocoding cache
-- `activeTab`: To inject content script
-- `tabs`: To read tab URL for pagination detection
-- Host permissions: Content script injection and API access
+### 4.4. Development & Versioning
+-   **Loading the Extension:** Load as an unpacked extension in `chrome://extensions/`.
+-   **Debugging:** Use the browser console for the content script, service worker logs in `chrome://extensions/`, and the popup console (right-click the icon).
+-   **Versioning:** When updating the version, change it in `manifest.json`, `popup.html`, and `CHANGELOG.md`.
