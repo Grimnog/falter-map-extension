@@ -1,55 +1,22 @@
 // Popup script for Falter Map Extension
+import { CacheManager } from './modules/cache-utils.js';
+
 console.log('=== POPUP SCRIPT LOADED ===');
-
-// Load cached geocode data
-async function loadGeocodeCache() {
-    return new Promise((resolve) => {
-        chrome.storage.local.get(['geocodeCache'], (result) => {
-            const cache = result.geocodeCache || {};
-            const now = Date.now();
-            const validCache = {};
-
-            // Filter out expired entries and migrate old format
-            for (const [address, data] of Object.entries(cache)) {
-                // Handle old format (no expiresAt) - migrate it
-                if (!data.expiresAt) {
-                    // Old format: { lat, lng }
-                    validCache[address] = {
-                        coords: data,
-                        cachedAt: now,
-                        expiresAt: now + (30 * 24 * 60 * 60 * 1000) // 30 days
-                    };
-                } else if (data.expiresAt > now) {
-                    // New format and not expired
-                    validCache[address] = data;
-                }
-                // Skip expired entries (implicit cleanup)
-            }
-
-            resolve(validCache);
-        });
-    });
-}
 
 // Update cache statistics display
 async function updateCacheStats() {
-    const cache = await loadGeocodeCache();
-    const count = Object.keys(cache).length;
+    const stats = await CacheManager.getStats();
 
-    chrome.storage.local.getBytesInUse(['geocodeCache'], (bytes) => {
-        const kb = (bytes / 1024).toFixed(1);
+    const cacheCountEl = document.getElementById('cacheCount');
+    const cacheSizeEl = document.getElementById('cacheSize');
 
-        const cacheCountEl = document.getElementById('cacheCount');
-        const cacheSizeEl = document.getElementById('cacheSize');
+    if (cacheCountEl) {
+        cacheCountEl.textContent = stats.count;
+    }
 
-        if (cacheCountEl) {
-            cacheCountEl.textContent = count;
-        }
-
-        if (cacheSizeEl) {
-            cacheSizeEl.textContent = `${kb} KB`;
-        }
-    });
+    if (cacheSizeEl) {
+        cacheSizeEl.textContent = `${stats.sizeKB} KB`;
+    }
 }
 
 // Clear geocoding cache
@@ -60,11 +27,10 @@ async function clearCache() {
     );
 
     if (confirmed) {
-        chrome.storage.local.remove(['geocodeCache'], () => {
-            console.log('Cache cleared');
-            updateCacheStats();
-            alert('Cache cleared successfully!');
-        });
+        await CacheManager.clear();
+        console.log('Cache cleared');
+        updateCacheStats();
+        alert('Cache cleared successfully!');
     }
 }
 
