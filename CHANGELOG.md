@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-01-28
+
+### Added
+- **Visual progress bar** for geocoding with animated yellow gradient
+- **Keyboard shortcuts help overlay** - Press '?' to see available shortcuts
+- Progress indicator shows both processing status and located count
+
+### Changed
+- Progress bar tracks processing progress (all attempts) rather than just successful locations
+- Progress text differentiates between "Processing X/Y..." and "Complete: Z/Y located"
+- Improved user feedback during geocoding with dual status display
+
+### Fixed
+- Progress bar no longer gets stuck when some restaurants fail to geocode
+- ESC key now closes help overlay before closing modal
+
 ## [0.4.0] - 2025-01-28
 
 ### Changed
@@ -75,6 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local storage for geocoding cache with TTL expiration
 - Address variation strategies for Vienna-specific formatting
 
+[0.5.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.5.0
 [0.4.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.4.0
 [0.3.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.3.0
 [0.2.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.2.0
