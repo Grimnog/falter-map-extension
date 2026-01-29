@@ -19,79 +19,74 @@ This project adheres to a strict "Keep It Simple, Stupid" (KISS) philosophy. We 
 
 ---
 
-## ✅ Completed Sprints (Sprints 1, 2, 3)
+## ✅ Completed Sprints (Sprints 1, 2, 3, 4)
 
+**Sprint 1 & 2:**
 -   **FALTMAP-01-07:** Foundational refactoring and basic testing.
 -   **FALTMAP-08, 09, 11:** UI modularization and error handling.
+
+**Sprint 3:**
 -   **FALTMAP-10:** Comprehensive test suite with 98 tests and 80%+ coverage.
 -   **FALTMAP-13:** Marker Clustering for dense map areas.
+-   **FALTMAP-19:** Full accessibility with ARIA, focus management, screen reader support.
+
+**Sprint 4 (Post-0.6.0 UX Improvements):**
+-   **FALTMAP-21:** Auto-zoom after first 5 geocoded restaurants.
+-   **FALTMAP-22:** Modal header visual redesign with Falter yellow branding.
 
 ---
 
-## 🚀 Final Sprint: Polish & Ship v1.0
+## 📋 Detailed Completed Tickets (Sprint 4)
 
-**Focus:** Add basic accessibility and prepare for release. The completion of this ticket marks the completion of the v1.0 feature set.
-
-### 📋 In Progress (1 ticket):
-
-### 🎟️ **TICKET: FALTMAP-19 - Implement Basic Accessibility**
-- Epic: E05 (Core Feature Enhancements)
-- Status: In Progress
-- Priority: 🔴 Critical
+### 🎟️ **TICKET: FALTMAP-21 - Improve Initial Map Zoom Behavior** ✅
+- Status: Done ✅
+- Priority: 🟢 Medium
 
 **User Story:**
-As a user with accessibility needs, I want the map modal to be usable with keyboard-only navigation and a screen reader so that I can browse restaurants regardless of my abilities.
+As a user, I want the map to automatically zoom to show my filtered restaurants instead of seeing the entire city, so I can immediately see relevant results without manual interaction.
 
 **Context:**
-Basic accessibility is not a "nice-to-have" - it's essential for an inclusive and professional v1.0 release. We need to ensure the modal is announced correctly, interactive elements are labeled, and focus is managed properly.
+Currently the map starts at city-wide zoom (Vienna center, zoom 13) regardless of where restaurants are located. For single-district searches, users want to see that district zoomed in. For multi-district searches, users want to see all results fitted to view.
 
-**Scope of Work:**
-
-1. **Add ARIA Roles to Modal:**
-   - Mark modal as `role="dialog"`
-   - Add `aria-modal="true"`
-   - Add `aria-labelledby` pointing to modal title
-   - Add `aria-describedby` for status information
-
-2. **Add ARIA to Results List:**
-   - Mark results list as `role="listbox"`
-   - Mark each restaurant as `role="option"`
-   - Use `aria-selected` for current selection
-   - Add `aria-label` for screen reader context
-
-3. **Implement Focus Management:**
-   - Trap focus within modal when open
-   - Move focus to modal on open
-   - Restore focus to trigger button on close
-   - Ensure Tab key cycles through interactive elements only
-
-4. **Label Interactive Elements:**
-   - Add `aria-label` to close button
-   - Add `aria-label` to map container
-   - Ensure progress bar has `aria-valuenow`, `aria-valuemin`, `aria-valuemax`
-   - Add screen reader announcements for status updates
-
-5. **Ensure Keyboard Accessibility:**
-   - Verify all interactive elements are keyboard accessible
-   - Ensure visible focus indicators
-   - Test Tab navigation flow
+**Solution:**
+Auto-zoom to fit bounds after first 5 restaurants are geocoded, with 20% padding. One-time zoom to prevent jarring adjustments.
 
 **Acceptance Criteria:**
-- [ ] Modal has `role="dialog"` and `aria-modal="true"`
-- [ ] Modal has `aria-labelledby` pointing to title
-- [ ] Results list has `role="listbox"` with options
-- [ ] Selected restaurant has `aria-selected="true"`
-- [ ] Close button has descriptive `aria-label`
-- [ ] Focus moves to modal on open
-- [ ] Focus returns to trigger button on close
-- [ ] Tab key cycles only through interactive elements (no escape)
-- [ ] ESC key closes modal (already working, verify still works)
-- [ ] Progress bar has proper ARIA attributes
-- [ ] Manual test: Navigate modal with keyboard only (no mouse)
-- [ ] Manual test: Screen reader announces modal correctly
-- [ ] Manual test: Screen reader announces restaurant selection
-- [ ] The commit message follows format: `feat: add basic accessibility with ARIA and focus management`
-- [ ] The ticket is marked Done with all ACs checked
+- [x] Map automatically zooms after first 5 restaurants are located
+- [x] Zoom fits bounds with 20% padding for comfortable viewing
+- [x] Only one zoom adjustment (no continuous re-zooming)
+- [x] Works for both single-district and multi-district searches
+- [x] Add getMarkerClusterGroup() getter method to MapModal
+- [x] Commit message: `feat: add auto-zoom after first 5 geocoded restaurants`
+- [x] Manual testing confirms improved UX
+
+**Commits:** 4cc8908
+
+---
+
+### 🎟️ **TICKET: FALTMAP-22 - Redesign Modal Header Visual Style** ✅
+- Status: Done ✅
+- Priority: 🟢 Medium
+
+**User Story:**
+As a user, I want the modal header to look professional and visually appealing, so the extension feels polished and trustworthy.
+
+**Context:**
+Original header had dark black background with white text, which felt heavy and plain. User requested a cleaner, more professional design with Falter brand colors.
+
+**Solution:**
+Use Falter yellow (#FFD600) background with black text for bold, distinctive branding. Removed icons per user preference.
+
+**Acceptance Criteria:**
+- [x] Header background changed to Falter yellow (#FFD600)
+- [x] All text in black for strong contrast and readability
+- [x] Restaurant count in semi-transparent black (70% opacity)
+- [x] Subtle gray bottom border for visual separation
+- [x] No icons (per user request)
+- [x] Commit message: `style: use Falter yellow background for modal header`
+- [x] Manual testing confirms improved visual appeal
+
+**Commits:** 71bf616, 9db73e9
 
 ---
 
