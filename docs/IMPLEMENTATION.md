@@ -17,7 +17,7 @@ All tickets in this document MUST follow this standardized template. This ensure
 ### 🎟️ **TICKET: FALTMAP-XX - [Title in Imperative Form]**
 - Epic: [E01|E02|E03|E04|E05]
 - Status: [Open|In Progress|Blocked|Done]
-- Story Points: [1|2|3|5|8|13|21]
+- Priority: [🔴 Critical | 🟡 High | 🟢 Medium | ⚪ Low]
 
 **User Story:**
 As a [role/persona], I want [feature/capability] so that [business value/benefit].
@@ -78,29 +78,14 @@ Reference technical debt items from REFACTORING_ANALYSIS.md if applicable.]
 | **Title** | ✅ Yes | Brief summary in imperative mood | Max 60 chars. Format: "Extract MapModal Component" |
 | **Epic** | ✅ Yes | Parent epic reference | Must match an epic defined in Epics section |
 | **Status** | ✅ Yes | Current ticket state | Open → In Progress → Done (or Blocked) |
-| **Story Points** | ✅ Yes | Effort estimation | Use Fibonacci: 1, 2, 3, 5, 8, 13, 21 |
+| **Priority** | ✅ Yes | Business/technical importance | 🔴 Critical, 🟡 High, 🟢 Medium, ⚪ Low |
 | **User Story** | ✅ Yes | Feature description from user perspective | Format: "As a [role], I want [feature] so that [benefit]" |
 | **Context** | ✅ Yes | Background and rationale | 2-4 sentences. Link to tech debt if applicable |
-| **Priority** | ✅ Yes | Business/technical importance | 🔴 Critical, 🟡 High, 🟢 Medium, ⚪ Low |
 | **Technical Debt Reference** | ⚪ Optional | Link to REFACTORING_ANALYSIS.md | Use when ticket resolves documented debt |
 | **Dependencies** | ⚪ Optional | Prerequisite tickets | "Requires FALTMAP-XX to be completed first" |
 | **Scope of Work** | ✅ Yes | Detailed implementation steps | Number each action. Specify exact files and changes |
 | **Manual Testing Checklist** | ✅ Yes | Test scenarios | Must be within Scope of Work. Specific, actionable items |
 | **Acceptance Criteria** | ✅ Yes | Definition of done | Checkbox format. Measurable. Include commit format |
-
----
-
-### **Story Point Guidelines:**
-
-| Points | Complexity | Time Estimate | Example |
-|--------|-----------|---------------|---------|
-| **1** | Trivial | ~1 hour | Update constant value, fix typo in docs |
-| **2** | Simple | ~2-3 hours | Add CSS styling, simple config change |
-| **3** | Easy | ~4-6 hours | Extract small utility function, add simple test |
-| **5** | Medium | ~1-2 days | Create new module, implement feature with tests |
-| **8** | Complex | ~3-4 days | Major refactoring, complex feature with edge cases |
-| **13** | Very Complex | ~5-7 days | Architectural change, multiple modules affected |
-| **21** | Epic-level | ~2 weeks | Consider breaking into smaller tickets |
 
 ---
 
@@ -133,7 +118,7 @@ Reference technical debt items from REFACTORING_ANALYSIS.md if applicable.]
 ❌ Skip the user story or context
 ❌ Forget to specify exact file paths
 ❌ Leave acceptance criteria unmeasurable
-❌ Create tickets larger than 13 story points (split them)
+❌ Create overly complex tickets (split large tickets into smaller ones)
 ❌ Mix multiple unrelated changes in one ticket
 ❌ Forget to update ticket status as work progresses
 
@@ -145,7 +130,7 @@ Reference technical debt items from REFACTORING_ANALYSIS.md if applicable.]
 ### 🎟️ **TICKET: FALTMAP-99 - Add Logging Utility Module**
 - Epic: E01
 - Status: Open
-- Story Points: 2
+- Priority: 🟢 Medium
 
 **User Story:**
 As a developer, I want a centralized logging utility so that I can debug issues consistently across all modules.
@@ -210,12 +195,11 @@ An Epic represents a large body of work that can be broken down into smaller tic
 ## Sprint 2 ✅ Complete
 
 **Focus:** Complete UI modularization and improve error handling
-**Total:** 16 story points (100% complete)
 
-### ✅ Done (16/16 pts):
--   **FALTMAP-08:** Extract MapModal Component from content.js (8 pts, Critical) ✅
--   **FALTMAP-09:** Extract Navigation Module for Keyboard Handling (3 pts, High) ✅
--   **FALTMAP-11:** Implement User-Facing Error Notification System (5 pts, Critical) ✅
+### ✅ Done (3/3 tickets):
+-   **FALTMAP-08:** Extract MapModal Component from content.js (🔴 Critical) ✅
+-   **FALTMAP-09:** Extract Navigation Module for Keyboard Handling (🟡 High) ✅
+-   **FALTMAP-11:** Implement User-Facing Error Notification System (🔴 Critical) ✅
 
 ### ⚠️ Critical Sequencing (from Gemini Review):
 
@@ -235,23 +219,21 @@ An Epic represents a large body of work that can be broken down into smaller tic
 ## Sprint 3 🎯 In Progress
 
 **Focus:** Stability through testing, then critical UX improvements
-**Total:** 18 story points
-**Progress:** 5/18 pts complete (28%)
 
-### ✅ Done (5/18 pts):
--   **FALTMAP-10:** Expand Test Coverage to All Critical Modules (5 pts, High) ✅
+### ✅ Done (1/3 tickets):
+-   **FALTMAP-10:** Expand Test Coverage to All Critical Modules (🟡 High) ✅
     - **Completed:** 98 tests across 4 modules (100% pass rate)
     - **Coverage:** Cache Manager, Geocoder, DOM Parser, Map Modal
     - **Infrastructure:** HTML test runner, shared utilities, comprehensive documentation
 
-### 📋 Remaining (13/18 pts):
+### 📋 Remaining (2/3 tickets):
 
-1. **FALTMAP-13:** Add Marker Clustering for Dense Map Areas (5 pts, Medium)
+1. **FALTMAP-13:** Add Marker Clustering for Dense Map Areas (🟢 Medium)
    - **Why next:** Directly addresses #1 UX pain point (overlapping markers)
    - **Impact:** Makes map usable in dense areas (Innere Stadt)
    - **User Value:** Immediate, tangible improvement
 
-2. **FALTMAP-12:** Implement Virtual Scrolling for Large Result Lists (8 pts, Medium)
+2. **FALTMAP-12:** Implement Virtual Scrolling for Large Result Lists (🟢 Medium)
    - **Why third:** Addresses list performance for large datasets
    - **Impact:** Smooth 60 FPS scrolling with 500+ restaurants
    - **Complexity:** More complex than clustering, benefits from FALTMAP-10 tests
@@ -445,7 +427,7 @@ An Epic represents a large body of work that can be broken down into smaller tic
 ### 🎟️ **TICKET: FALTMAP-08 - Extract MapModal Component from content.js**
 - Epic: E02
 - Status: Done ✅
-- Story Points: 8
+- Priority: 🔴 Critical
 
 **User Story:**
 As a developer, I want the map modal UI logic extracted into a dedicated module so that the codebase has clear separation of concerns and the UI becomes testable.
@@ -547,7 +529,7 @@ Currently, `content.js` (571 lines) contains all UI logic including modal creati
 ### 🎟️ **TICKET: FALTMAP-09 - Extract Navigation Module for Keyboard Handling**
 - Epic: E02
 - Status: Done ✅
-- Story Points: 3
+- Priority: 🟡 High
 
 **User Story:**
 As a developer, I want keyboard navigation logic extracted into a dedicated module so that navigation behavior is isolated, testable, and easy to extend with new shortcuts.
@@ -636,7 +618,7 @@ Keyboard navigation (arrow keys, ESC, '?' help overlay) is currently mixed with 
 ### 🎟️ **TICKET: FALTMAP-10 - Expand Test Coverage to All Critical Modules**
 - Epic: E03
 - Status: Done ✅
-- Story Points: 5
+- Priority: 🟡 High
 
 **User Story:**
 As a developer, I want comprehensive test coverage for all critical modules so that I can refactor with confidence and catch regressions before they reach users.
@@ -731,7 +713,7 @@ Currently, only `cache-utils.js` has tests (implemented in FALTMAP-07). To ensur
 ### 🎟️ **TICKET: FALTMAP-11 - Implement User-Facing Error Notification System**
 - Epic: E03
 - Status: Done ✅
-- Story Points: 5
+- Priority: 🔴 Critical
 
 **User Story:**
 As a user, I want to see clear, actionable error messages when something goes wrong so that I understand what happened and what I can do about it.
@@ -838,7 +820,7 @@ Currently, errors (network failures, API rate limits, geocoding failures) fail s
 ### 🎟️ **TICKET: FALTMAP-12 - Implement Virtual Scrolling for Large Result Lists**
 - Epic: E04
 - Status: Open
-- Story Points: 8
+- Priority: 🟢 Medium
 
 **User Story:**
 As a user viewing 500+ restaurant results, I want the results list to scroll smoothly without lag so that I can browse efficiently.
@@ -921,7 +903,7 @@ When displaying 100+ restaurants, rendering all list items causes UI lag and hig
 ### 🎟️ **TICKET: FALTMAP-13 - Add Marker Clustering for Dense Map Areas**
 - Epic: E04
 - Status: Open
-- Story Points: 5
+- Priority: 🟢 Medium
 
 **User Story:**
 As a user viewing restaurants in dense areas like Innere Stadt, I want overlapping markers to be grouped into clusters so that I can see individual markers clearly when zoomed out and individual restaurants when zoomed in.
@@ -1004,7 +986,7 @@ Vienna's 1st district often has 50+ restaurants in a small area, causing marker 
 ### 🎟️ **TICKET: FALTMAP-14 - Optimize Extension Bundle Size**
 - Epic: E04
 - Status: Open
-- Story Points: 2
+- Priority: ⚪ Low
 
 **User Story:**
 As a user installing the extension, I want it to load quickly so that I can start using it without delay.
@@ -1076,7 +1058,7 @@ The extension currently includes Leaflet.js (147KB unminified) directly. By opti
 ### 🎟️ **TICKET: FALTMAP-15 - Add Filter/Search Functionality in Results List**
 - Epic: E05
 - Status: Open
-- Story Points: 5
+- Priority: 🟢 Medium
 
 **User Story:**
 As a user viewing 200+ restaurants, I want to filter or search the results by name or cuisine so that I can quickly find specific restaurants of interest.
@@ -1156,7 +1138,7 @@ When searches return many results, manually scrolling through the list is tediou
 ### 🎟️ **TICKET: FALTMAP-16 - Add Save Favorites Feature**
 - Epic: E05
 - Status: Open
-- Story Points: 8
+- Priority: ⚪ Low
 
 **User Story:**
 As a frequent user, I want to save my favorite restaurants so that I can quickly access them in future searches without remembering their names.
@@ -1255,7 +1237,7 @@ Power users who regularly search for Vienna restaurants would benefit from a fav
 ### 🎟️ **TICKET: FALTMAP-17 - Add Export Results to CSV/JSON**
 - Epic: E05
 - Status: Open
-- Story Points: 3
+- Priority: ⚪ Low
 
 **User Story:**
 As a power user, I want to export current search results to CSV or JSON so that I can analyze the data externally or share it with others.
@@ -1340,10 +1322,10 @@ This section documents key insights from Gemini's comprehensive review of the im
 
 Gemini's review confirmed:
 - **Strong Foundation:** Engineering principles (CLAUDE.md) and modular architecture are sound
-- **Sprint 2 Scope:** 16 story points is reasonable and well-structured
-- **Story Points:** Current estimates are accurate (with minor adjustments)
+- **Sprint 2 Scope:** Well-structured and reasonable
 - **Ticket Template:** Comprehensive and excellent for consistency
 - **Architecture Direction:** Coordinator pattern with service modules is correct
+- **Priority System:** Focus on what matters (Critical → High → Medium → Low)
 
 ### 🎯 Key Recommendations Adopted
 
@@ -1409,19 +1391,19 @@ The following recommendations from Gemini are **deferred** as they add complexit
 ### **Not Adding Now:**
 
 #### **1. Internationalization (i18n) - Deferred**
-- **What:** FALTMAP-18: Implement i18n framework (5 pts)
+- **What:** FALTMAP-18: Implement i18n framework
 - **Why Deferred:** Vienna-only extension, German UI. No user demand for other languages.
 - **When to Reconsider:** If expanding to other cities or receiving language requests.
 - **KISS Verdict:** YAGNI (You Aren't Gonna Need It)
 
 #### **2. Full ARIA/Accessibility - Deferred**
-- **What:** FALTMAP-19: Full ARIA attributes and screen reader support (5 pts)
+- **What:** FALTMAP-19: Full ARIA attributes and screen reader support
 - **Why Deferred:** Keyboard navigation (FALTMAP-09) covers 80% of accessibility needs.
 - **When to Reconsider:** If receiving accessibility complaints or legal requirements.
 - **KISS Verdict:** Keyboard nav is sufficient for now. Don't over-engineer.
 
 #### **3. Security Audit Ticket - Deferred**
-- **What:** FALTMAP-20: XSS/content injection audit (3 pts)
+- **What:** FALTMAP-20: XSS/content injection audit
 - **Why Deferred:** Scraping from trusted source (Falter.at). Low risk. Can do quick review without full ticket.
 - **When to Reconsider:** If scraping untrusted sources or user-generated content.
 - **KISS Verdict:** Quick review sufficient, not full ticket.
@@ -1433,24 +1415,24 @@ The following recommendations from Gemini are **deferred** as they add complexit
 - **KISS Verdict:** Wait for actual pain. Don't add indirection prematurely.
 
 #### **5. Jest Migration - Deferred**
-- **What:** FALTMAP-24: Migrate from HTML tests to Jest (3 pts)
+- **What:** FALTMAP-24: Migrate from HTML tests to Jest
 - **Why Deferred:** HTML tests work fine. Jest adds Node.js dependency and build complexity.
 - **When to Reconsider:** If HTML tests become truly unwieldy or CI integration needed.
 - **KISS Verdict:** Continue HTML tests. Simple and sufficient.
 
 #### **6. E2E Testing - Deferred**
-- **What:** FALTMAP-25: Playwright/Cypress E2E tests (8 pts)
-- **Why Deferred:** Manual testing is fast and sufficient for a small extension. 8 pts is huge overhead.
+- **What:** FALTMAP-25: Playwright/Cypress E2E tests
+- **Why Deferred:** Manual testing is fast and sufficient for a small extension.
 - **When to Reconsider:** If frequent regressions occur or team grows.
 - **KISS Verdict:** Manual testing sufficient. Don't over-test.
 
 #### **7. Split FALTMAP-16 (Favorites) - Not Doing**
-- **What:** Split into two tickets (5 pts + 3 pts)
-- **Why Not:** 8 pts is manageable. Splitting creates ticket overhead.
+- **What:** Split Favorites into multiple tickets
+- **Why Not:** Ticket is manageable as-is. Splitting creates overhead.
 - **KISS Verdict:** Keep as one cohesive ticket.
 
 #### **8. Bundle Optimization (FALTMAP-14) - Very Low Priority**
-- **What:** Optimize extension size (2 pts)
+- **What:** Optimize extension size
 - **Why Low Priority:** Extensions download once. 150KB Leaflet is not a real problem.
 - **When to Reconsider:** If users complain about load times (unlikely).
 - **KISS Verdict:** Nice-to-have, not urgent.
@@ -1488,10 +1470,10 @@ This is a Chrome extension for Vienna restaurants, not an enterprise SaaS platfo
 - Add complexity only when pain is felt
 
 ### **Total Backlog:**
-- **Sprint 2:** 16 story points (3 tickets)
-- **Sprint 3 (Recommended):** 18 story points (3 tickets)
-- **Remaining Backlog:** 36 story points (7 tickets)
-- **Grand Total:** 70 story points across ~5-6 sprints
+- **Sprint 2:** 3 tickets ✅ Complete
+- **Sprint 3 (In Progress):** 3 tickets (1 done, 2 remaining)
+- **Remaining Backlog:** 7 tickets
+- **Grand Total:** 13 tickets
 
 ---
 
