@@ -2,6 +2,7 @@
 
 import { CONFIG } from './constants.js';
 import { CacheManager } from './cache-utils.js';
+import { ErrorHandler } from './error-handler.js';
 
 /**
  * Geocode a single address using OpenStreetMap Nominatim API
@@ -59,6 +60,14 @@ export async function geocodeAddress(address) {
                 }
             });
 
+            // Handle rate limiting (429 Too Many Requests)
+            if (response.status === 429) {
+                console.warn('Rate limit hit, waiting...');
+                ErrorHandler.showRateLimitError(CONFIG.NOMINATIM.RATE_LIMIT_MS / 1000);
+                await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RATE_LIMIT_MS));
+                continue;
+            }
+
             if (!response.ok) {
                 console.error(`HTTP error: ${response.status}`);
                 continue;
@@ -76,6 +85,8 @@ export async function geocodeAddress(address) {
             }
         } catch (error) {
             console.error('Geocoding error for', formattedAddress, ':', error);
+            // Network errors are silently retried with other variations
+            // Only show error if all variations fail (handled in geocodeRestaurants)
         }
 
         // Small delay between attempts to respect rate limits
@@ -152,6 +163,12 @@ export async function geocodeRestaurants(restaurantList, progressCallback) {
                 await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RATE_LIMIT_MS));
             }
         }
+    }
+
+    // Show error summary if addresses failed to geocode
+    const failedCount = results.filter(r => !r.coords).length;
+    if (failedCount > 0) {
+        ErrorHandler.showGeocodingError(failedCount, results.length);
     }
 
     return results;

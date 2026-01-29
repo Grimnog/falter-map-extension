@@ -4,6 +4,7 @@
  */
 
 import { CONFIG } from './constants.js';
+import { ErrorHandler } from './error-handler.js';
 
 export class MapModal {
     constructor(restaurants) {
@@ -137,12 +138,18 @@ export class MapModal {
      * Initialize the Leaflet map
      */
     initializeMap() {
-        this.map = L.map('modal-map').setView(CONFIG.MAP.DEFAULT_CENTER, CONFIG.MAP.DEFAULT_ZOOM);
+        try {
+            this.map = L.map('modal-map').setView(CONFIG.MAP.DEFAULT_CENTER, CONFIG.MAP.DEFAULT_ZOOM);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(this.map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(this.map);
+        } catch (error) {
+            console.error('Map initialization error:', error);
+            ErrorHandler.showMapError();
+            // Still allow modal to function without map
+        }
     }
 
     /**

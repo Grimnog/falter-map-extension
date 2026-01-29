@@ -1,6 +1,7 @@
 // DOM parsing utilities for extracting restaurant data from Falter pages
 
 import { CONFIG } from './constants.js';
+import { ErrorHandler } from './error-handler.js';
 
 /**
  * Parse restaurant data from DOM
@@ -107,12 +108,26 @@ async function fetchPage(pageNum) {
 
     try {
         const response = await fetch(url);
+
+        if (!response.ok) {
+            console.error(`HTTP error fetching page ${pageNum}: ${response.status}`);
+            ErrorHandler.showToast(`Failed to load page ${pageNum}. Continuing with available data.`, {
+                type: 'warning',
+                duration: 4000
+            });
+            return [];
+        }
+
         const html = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         return parseRestaurantsFromDOM(doc);
     } catch (error) {
         console.error(`Error fetching page ${pageNum}:`, error);
+        ErrorHandler.showToast(`Network error loading page ${pageNum}. Continuing with available data.`, {
+            type: 'warning',
+            duration: 4000
+        });
         return [];
     }
 }
