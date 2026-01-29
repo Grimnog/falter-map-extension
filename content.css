@@ -1,5 +1,11 @@
 /* Falter Map Extension - Content Script Styles */
 
+/* ===== CSS Variables ===== */
+:root {
+    --falter-yellow: #fbe51f; /* Falter brand yellow - update here if CI changes */
+    --falter-yellow-dark: #ffc800; /* Darker yellow for gradients */
+}
+
 /* Button on Falter page - properly aligned */
 #falter-map-btn-container {
     display: flex;
@@ -167,7 +173,7 @@
 
 .modal-header {
     padding: 28px 24px 24px;
-    background: #FFD600;
+    background: var(--falter-yellow);
     position: relative;
     overflow: hidden;
 }

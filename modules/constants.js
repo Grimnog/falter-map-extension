@@ -1,6 +1,11 @@
 // Configuration constants for Falter Map Extension
 
 export const CONFIG = {
+    COLORS: {
+        FALTER_YELLOW: '#fbe51f', // Falter brand yellow - centralized for CI changes
+        FALTER_YELLOW_RGB: 'rgb(251, 229, 31)' // RGB format for consistency
+    },
+
     CACHE: {
         TTL_DAYS: 30,
         TTL_MS: 30 * 24 * 60 * 60 * 1000,
