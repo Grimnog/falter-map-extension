@@ -44,7 +44,7 @@ This project adheres to a strict "Keep It Simple, Stupid" (KISS) philosophy. We 
 
 **Focus:** Complete the essential user experience for v1.0.
 
-### ✅ Complete (1 ticket):
+### ✅ Complete (2 tickets):
 
 **FALTMAP-13: Add Marker Clustering** ✅
 - Dense areas now show clustered markers that split apart on zoom
@@ -52,72 +52,16 @@ This project adheres to a strict "Keep It Simple, Stupid" (KISS) philosophy. We 
 - Leaflet.markercluster v1.5.3 integrated
 - All manual tests passed
 
+**FALTMAP-19: Implement Basic Accessibility** ✅
+- Added ARIA roles (dialog, listbox, option) with proper labels
+- Implemented focus management (trap, restore to trigger button)
+- Added aria-hidden for background content (prevents screen reader escape)
+- Progress bar updates aria-valuenow dynamically
+- Keyboard navigation fully functional (Tab, arrow keys, ESC)
+- Screen reader tested and working correctly
+- All 15 acceptance criteria verified
+
 ---
-
-## 🚀 Final Sprint: Polish & Ship v1.0
-
-**Focus:** Add basic accessibility and prepare for release.
-
-### 📋 In Progress (1 ticket):
-
-### 🎟️ **TICKET: FALTMAP-19 - Implement Basic Accessibility**
-- Epic: E05 (Core Feature Enhancements)
-- Status: In Progress
-- Priority: 🟢 Medium
-
-**User Story:**
-As a user with accessibility needs, I want the map modal to be usable with keyboard-only navigation and a screen reader so that I can browse restaurants regardless of my abilities.
-
-**Context:**
-The extension currently has keyboard navigation (arrow keys, ESC), but lacks proper ARIA attributes and focus management for screen readers. Basic accessibility is not a "nice-to-have" - it's essential for an inclusive user experience. We need to ensure the modal is announced correctly, interactive elements are labeled, and focus is managed properly.
-
-**Scope of Work:**
-
-1. **Add ARIA Roles to Modal:**
-   - Mark modal as `role="dialog"`
-   - Add `aria-modal="true"`
-   - Add `aria-labelledby` pointing to modal title
-   - Add `aria-describedby` for status information
-
-2. **Add ARIA to Results List:**
-   - Mark results list as `role="listbox"`
-   - Mark each restaurant as `role="option"`
-   - Use `aria-selected` for current selection
-   - Add `aria-label` for screen reader context
-
-3. **Implement Focus Management:**
-   - Trap focus within modal when open
-   - Move focus to modal on open
-   - Restore focus to trigger button on close
-   - Ensure Tab key cycles through interactive elements only
-
-4. **Label Interactive Elements:**
-   - Add `aria-label` to close button
-   - Add `aria-label` to map container
-   - Ensure progress bar has `aria-valuenow`, `aria-valuemin`, `aria-valuemax`
-   - Add screen reader announcements for status updates
-
-5. **Ensure Keyboard Accessibility:**
-   - Verify all interactive elements are keyboard accessible
-   - Ensure visible focus indicators
-   - Test Tab navigation flow
-
-**Acceptance Criteria:**
-- [ ] Modal has `role="dialog"` and `aria-modal="true"`
-- [ ] Modal has `aria-labelledby` pointing to title
-- [ ] Results list has `role="listbox"` with options
-- [ ] Selected restaurant has `aria-selected="true"`
-- [ ] Close button has descriptive `aria-label`
-- [ ] Focus moves to modal on open
-- [ ] Focus returns to trigger button on close
-- [ ] Tab key cycles only through interactive elements (no escape)
-- [ ] ESC key closes modal (already working, verify still works)
-- [ ] Progress bar has proper ARIA attributes
-- [ ] Manual test: Navigate modal with keyboard only (no mouse)
-- [ ] Manual test: Screen reader announces modal correctly
-- [ ] Manual test: Screen reader announces restaurant selection
-- [ ] The commit message follows the format: `feat: add basic accessibility with ARIA and focus management`
-- [ ] The ticket is marked Done with all ACs checked
 
 ---
 
