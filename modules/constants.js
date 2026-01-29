@@ -24,7 +24,13 @@ export const CONFIG = {
         DEFAULT_CENTER: [48.2082, 16.3719],
         DEFAULT_ZOOM: 13,
         SELECTED_ZOOM: 16,
-        BOUNDS_PADDING: 0.1
+        BOUNDS_PADDING: 0.1,
+        CLUSTER: {
+            MAX_RADIUS: 80,           // Cluster radius in pixels
+            SPIDERFY: true,           // Spread out overlapping markers on click
+            DISABLE_AT_ZOOM: 18,      // Disable clustering at max zoom
+            SHOW_COVERAGE: false      // Don't show cluster coverage polygon
+        }
     },
 
     ANIMATION: {

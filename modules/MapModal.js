@@ -12,6 +12,7 @@ export class MapModal {
         this.currentRestaurants = []; // Track current list with coords
         this.map = null;
         this.markers = [];
+        this.markerClusterGroup = null; // Cluster group for markers
         this.modalElement = null;
 
         // Cached DOM references
@@ -110,6 +111,12 @@ export class MapModal {
 
         // Clean up Leaflet map to prevent memory leaks (Gemini recommendation)
         if (this.map) {
+            // Clean up cluster group first
+            if (this.markerClusterGroup) {
+                this.markerClusterGroup.clearLayers();
+                this.map.removeLayer(this.markerClusterGroup);
+                this.markerClusterGroup = null;
+            }
             this.map.remove();
             this.map = null;
         }
@@ -145,6 +152,16 @@ export class MapModal {
                 attribution: '&copy; OpenStreetMap contributors',
                 maxZoom: 19
             }).addTo(this.map);
+
+            // Create marker cluster group
+            this.markerClusterGroup = L.markerClusterGroup({
+                maxClusterRadius: CONFIG.MAP.CLUSTER.MAX_RADIUS,
+                spiderfyOnMaxZoom: CONFIG.MAP.CLUSTER.SPIDERFY,
+                disableClusteringAtZoom: CONFIG.MAP.CLUSTER.DISABLE_AT_ZOOM,
+                showCoverageOnHover: CONFIG.MAP.CLUSTER.SHOW_COVERAGE,
+                animateAddingMarkers: true
+            });
+            this.map.addLayer(this.markerClusterGroup);
         } catch (error) {
             console.error('Map initialization error:', error);
             ErrorHandler.showMapError();
@@ -196,7 +213,7 @@ export class MapModal {
         const marker = L.marker([restaurant.coords.lat, restaurant.coords.lng], {
             icon: this.createNumberedMarker(index + 1, isNew)
         })
-            .addTo(this.map)
+            .addTo(this.markerClusterGroup)
             .bindPopup(`
                 <div class="popup-name">${this.escapeHtml(restaurant.name)}</div>
                 <div class="popup-address">${this.escapeHtml(restaurant.address)}</div>
@@ -335,7 +352,10 @@ export class MapModal {
 
         // When animate=false, do a full refresh (remove all and recreate)
         if (!animate) {
-            this.markers.forEach(m => this.map.removeLayer(m));
+            // Clear cluster group
+            if (this.markerClusterGroup) {
+                this.markerClusterGroup.clearLayers();
+            }
             this.markers = [];
 
             restaurantList.forEach((restaurant, index) => {
@@ -343,9 +363,12 @@ export class MapModal {
                 this.addMarker(restaurant, index, false);
             });
 
-            if (this.markers.length > 0) {
-                const group = L.featureGroup(this.markers);
-                this.map.fitBounds(group.getBounds().pad(CONFIG.MAP.BOUNDS_PADDING));
+            // Fit bounds to cluster group
+            if (this.markers.length > 0 && this.markerClusterGroup) {
+                const bounds = this.markerClusterGroup.getBounds();
+                if (bounds.isValid()) {
+                    this.map.fitBounds(bounds.pad(CONFIG.MAP.BOUNDS_PADDING));
+                }
             }
             return;
         }

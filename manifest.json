@@ -42,10 +42,13 @@
       ],
       "js": [
         "leaflet.js",
+        "leaflet.markercluster.js",
         "content.js"
       ],
       "css": [
         "leaflet.css",
+        "leaflet.markercluster.css",
+        "leaflet.markercluster.default.css",
         "content.css"
       ]
     }
