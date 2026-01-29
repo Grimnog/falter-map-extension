@@ -203,11 +203,6 @@ export class MapModal {
      * Update progress bar and status text
      */
     updateProgress(processed, total, located) {
-        // Update status label when complete
-        if (processed === total && this.dom.statusLabel) {
-            this.dom.statusLabel.textContent = 'Suche abgeschlossen';
-        }
-
         // Status shows located count (successful geocoding)
         if (this.dom.geocodeStatus) {
             this.dom.geocodeStatus.textContent = `${located}/${total}`;
@@ -442,10 +437,11 @@ export class MapModal {
     }
 
     /**
-     * Hide loading status
+     * Hide loading status and mark as complete
      */
     hideLoadingStatus() {
         if (this.dom.geocodeStatus) this.dom.geocodeStatus.classList.remove('loading');
+        if (this.dom.statusLabel) this.dom.statusLabel.textContent = 'Suche abgeschlossen';
     }
 
     // ===== Private Helper Methods =====
