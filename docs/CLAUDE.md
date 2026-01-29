@@ -21,10 +21,14 @@ We follow a simple set of principles to ensure our code is maintainable, readabl
 ### Test-Aware Development
 While this project doesn't follow a strict Red-Green-Refactor TDD approach, we adhere to "test-aware" development.
 
-1.  **Write Tests for Bugs:** When fixing a bug, the first step is to write a failing test that reproduces the issue. This proves the bug exists and confirms when it's fixed.
-2.  **Write Tests for Features:** When adding a new feature to a module (e.g., a new function in `cache-utils.js`), write the corresponding tests as you build the feature.
-3.  **Run Tests Often:** After any significant change, run the relevant tests to ensure no existing functionality has been broken (regression).
-4.  **Reference Ticket `FALTMAP-07`** for the initial testing strategy and implementation details.
+1.  **Test Before Commit (CRITICAL):** Manual testing MUST happen before any commit. This is non-negotiable.
+    -   **For UI changes:** Load the extension in the browser and verify all functionality works as expected.
+    -   **For logic changes:** Run automated tests and verify output.
+    -   **Never commit untested code.** If you commit without testing, stop immediately, test, and fix any issues before proceeding.
+2.  **Write Tests for Bugs:** When fixing a bug, the first step is to write a failing test that reproduces the issue. This proves the bug exists and confirms when it's fixed.
+3.  **Write Tests for Features:** When adding a new feature to a module (e.g., a new function in `cache-utils.js`), write the corresponding tests as you build the feature.
+4.  **Run Tests Often:** After any significant change, run the relevant tests to ensure no existing functionality has been broken (regression).
+5.  **Reference Ticket `FALTMAP-07`** for the initial testing strategy and implementation details.
 
 ### Atomic Commits
 This project follows **atomic commit** principles. Each commit should:
