@@ -41,14 +41,14 @@
         "https://www.falter.at/lokalfuehrer/suche*"
       ],
       "js": [
-        "leaflet.js",
-        "leaflet.markercluster.js",
+        "vendor/leaflet/leaflet.js",
+        "vendor/leaflet/leaflet.markercluster.js",
         "content.js"
       ],
       "css": [
-        "leaflet.css",
-        "leaflet.markercluster.css",
-        "leaflet.markercluster.default.css",
+        "vendor/leaflet/leaflet.css",
+        "vendor/leaflet/leaflet.markercluster.css",
+        "vendor/leaflet/leaflet.markercluster.default.css",
         "content.css"
       ]
     }

@@ -7,9 +7,12 @@ This document provides the essential principles, workflows, and knowledge base f
 
 ## Role Definitions:
 
--   **Architect (Gemini):** Responsible for strategic architectural decisions, overall system design, and creating clear, actionable tickets. **My role is strictly limited to planning and documentation.** I define the *what* and the *why*.
+-   **Architect (Gemini):** Responsible for strategic architectural decisions, overall system design, and creating clear, actionable tickets. My role is to provide the vision and the plan (the *what* and the *why*).
 
--   **Engineer (Claude):** Responsible for all implementation work. This includes writing, refactoring, and debugging all JavaScript code, moving files, and executing the technical tasks defined in the tickets. **Claude performs all coding and file manipulation.** He handles the *how*.
+-   **Engineer (Claude):** Responsible for all implementation work. This includes writing, refactoring, and debugging all JavaScript code, moving files, and executing the technical tasks defined in the tickets. The Engineer provides the "ground truth" and pushes back on architectural over-engineering. The Engineer handles the *how*.
+
+### Core Collaboration Principle:
+The Architect proposes, the Engineer disposes. The Engineer's pragmatic feedback on what is practical, simple, and sufficient is critical. We will always favor a working, tested, "good enough" architecture over a "perfect," complex one that provides no immediate user value.
 
 ---
 
@@ -23,16 +26,41 @@ We follow a simple set of principles to ensure our code is maintainable, readabl
 -   **Readability is Key:** Write code for humans first. Use clear, descriptive names for variables and functions (e.g., `parseRestaurantsFromDOM` is better than `getData`).
 -   **Single Responsibility Principle (SRP):** Every module and function should have one, and only one, reason to change. `cache-utils.js` handles caching; `dom-parser.js` handles parsing. A function should do one thing well.
 -   **Don't Repeat Yourself (DRY):** Avoid duplicating code. If you find yourself writing the same logic in multiple places, extract it into a shared function or module. The creation of `cache-utils.js` is a primary example of this.
--   **Keep It Simple (KISS):** Avoid unnecessary complexity. Choose the simplest solution that works. Do not add features or abstractions that are not yet needed.
+-   **Keep It Simple, Stupid (KISS):** Avoid unnecessary complexity. Choose the simplest solution that works. Do not add features or abstractions that are not yet needed. This is our primary guiding philosophy.
 -   **Meaningful Comments:** Don't comment on *what* the code is doing (the code should be self-explanatory). Comment on *why* a particular approach was taken if it's not obvious (e.g., `// Delay is required to respect the API rate limit`).
 
 ### Test-Aware Development
 While this project doesn't follow a strict Red-Green-Refactor TDD approach, we adhere to "test-aware" development.
 
-1.  **Write Tests for Bugs:** When fixing a bug, the first step is to write a failing test that reproduces the issue. This proves the bug exists and confirms when it's fixed.
-2.  **Write Tests for Features:** When adding a new feature to a module (e.g., a new function in `cache-utils.js`), write the corresponding tests as you build the feature.
-3.  **Run Tests Often:** After any significant change, run the relevant tests to ensure no existing functionality has been broken (regression).
-4.  **Reference Ticket `FALTMAP-07`** for the initial testing strategy and implementation details.
+1.  **Test Before Commit (CRITICAL):** Testing MUST happen before any commit. This is non-negotiable.
+    -   **Automated tests:** Run `tests/test-runner.html` and verify all tests pass (100%).
+    -   **For UI changes:** Load the extension in the browser and verify all functionality works as expected.
+    -   **For logic changes:** Verify test output shows expected behavior.
+    -   **Never commit untested code.** If you commit without testing, stop immediately, test, and fix any issues before proceeding.
+
+2.  **Write Tests for All Changes:** When implementing changes, ALWAYS consider what tests need to be added or updated.
+    -   **New Features:** Write tests for new functions, modules, or user-facing features as you implement them.
+    -   **Bug Fixes:** Write a failing test that reproduces the bug BEFORE fixing it. This proves the bug exists and confirms when it's fixed.
+    -   **Refactoring:** Ensure existing tests still pass. Add new tests if refactoring changes behavior or adds new code paths.
+    -   **Edge Cases:** Add tests for edge cases discovered during development or reported by users.
+
+3.  **Test Coverage Targets:**
+    -   **Critical modules** (cache-utils, geocoder, dom-parser, map-modal): Aim for 80%+ line coverage
+    -   **Utility modules:** Aim for 70%+ coverage
+    -   **UI components:** Test all user interactions and state changes
+
+4.  **When to Skip Tests:** Only skip automated tests when:
+    -   The change is purely documentation (e.g., updating README.md)
+    -   The change is configuration-only (e.g., updating .gitignore)
+    -   The change is to test infrastructure itself
+
+5.  **Test Organization:**
+    -   One test file per module: `tests/{module-name}.test.js`
+    -   Group related tests with clear section headers
+    -   Use descriptive test names that explain what is being tested
+    -   See `tests/README.md` for comprehensive testing documentation
+
+6.  **Reference Ticket `FALTMAP-10`** for the complete test suite implementation.
 
 ### Atomic Commits
 This project follows **atomic commit** principles. Each commit should:
@@ -77,18 +105,50 @@ This section defines how we manage our work.
 -   **`docs/REFACTORING_ANALYSIS.md` (The "Why"):** The strategic architectural blueprint and technical debt registry.
 -   **`docs/IMPLEMENTATION.md` (The "What"):** The tactical sprint backlog, containing all `FALTMAP-XX` tickets.
 -   **`docs/CLAUDE.md` (The "How"):** This engineering guide, defining our processes and principles.
--   **`docs/gemini.md` (The "How - Gemini"):** This engineering guide, specifically for Gemini's role as Architect.
 
 ### 2.2. Ticket Workflow
-All work must be performed against a ticket from the `IMPLEMENTATION.md` backlog. The goal is to move tickets from "Open" to "Done".
+
+All work must be performed against a ticket from the `IMPLEMENTATION.md` backlog. Follow this workflow for clear state tracking:
+
+#### **Step 1: Start Work**
+1. Select a ticket from `IMPLEMENTATION.md` (prioritize by: Critical → High → Medium → Low)
+2. Update ticket status: `Status: Open` → `Status: In Progress`
+3. Commit the status change: `docs: start work on FALTMAP-XX`
+
+#### **Step 2: Work Through Acceptance Criteria**
+1. Read all Acceptance Criteria (AC) in the ticket carefully
+2. As you complete each AC item, check it off in the ticket: `- [ ]` → `- [x]`
+3. Commit the AC update: `docs: complete AC for FALTMAP-XX - [description]`
+4. **This creates clear state** - anyone can see exactly what's done and what's left
+
+#### **Step 3: Verify Completion**
+Before marking a ticket as Done, verify:
+- ✅ All Acceptance Criteria boxes are checked `- [x]`
+- ✅ All tests pass (run `tests/test-runner.html`)
+- ✅ Manual testing completed
+- ✅ No console errors or warnings
+- ✅ Code follows conventions
+
+#### **Step 4: Mark Done**
+1. Update ticket status: `Status: In Progress` → `Status: Done ✅`
+2. Move ticket to "✅ Done" section in `IMPLEMENTATION.md`
+3. Commit: `docs: mark FALTMAP-XX as complete`
+
+#### **Important Notes:**
+- **Never skip checking ACs** - This is how we track progress
+- **Don't mark Done if ACs are unchecked** - Incomplete work should stay In Progress
+- **Each AC check is a mini-milestone** - Commit when meaningful progress is made
+- **Clear state = Professional work** - Anyone reading the ticket knows exactly where we are
 
 ### 2.3. Definition of Done (DoD)
 A ticket is considered "Done" ONLY when all the following criteria are met:
+-   [ ] **All Acceptance Criteria in the ticket are checked off** `- [x]`
 -   [ ] All scope of work for the ticket is complete.
 -   [ ] The code adheres to our Core Principles (Clean Code, Test-Aware).
 -   [ ] All existing and new tests pass.
 -   [ ] The functionality has been manually verified in the browser.
 -   [ ] The final commit is atomic and follows the Conventional Commit standard.
+-   [ ] The ticket status is updated to `Status: Done ✅`
 -   [ ] The ticket has been moved to the "✅ Done" section in `IMPLEMENTATION.md`.
 
 ---
@@ -112,14 +172,14 @@ The extension uses a modular architecture where `content.js` acts as a coordinat
 -   **Loading the Extension:** Load as an unpacked extension in `chrome://extensions/`.
 -   **Debugging:** Use the browser console for the content script, service worker logs in `chrome://extensions/`, and the popup console (right-click the icon).
 -   **Versioning:** When updating the version, change it in `manifest.json`, `popup.html`, and `CHANGELOG.md`.
+-   **Running Tests:** See `tests/README.md` for comprehensive testing documentation.
 
 ---
 
 ## 4. Ongoing Architectural Guidance
 
-As the project matures from foundational refactoring to feature implementation, the Architect's role shifts from direct intervention to strategic oversight. My guidance will focus on:
+As the project matures, the Architect's role is to provide strategic oversight and listen to engineering feedback. My guidance will focus on:
 
-1.  **Maintaining Architectural Integrity:** Ensuring that new features do not compromise the modular, single-responsibility principles of the existing architecture.
-2.  **Identifying "Signal" for Increased Complexity:** Watching for specific "pain points" in the code that indicate it's time to adopt more complex patterns (e.g., an EventBus, a build step). The goal is to "wait for the pain" rather than over-engineering.
-3.  **Scalability of New Features:** Reviewing the design of new features (`FALTMAP-XX` tickets) to ensure they are implemented in a way that is maintainable and does not create future technical debt.
-4.  **Long-Term Vision:** Keeping the backlog and sprint planning aligned with the long-term architectural goals, balancing immediate user value with future-proofing.
+1.  **Maintaining Architectural Integrity:** Ensuring new features do not compromise the modular principles of the *existing, stable* architecture.
+2.  **Pragmatism Over Purity:** Watching for "pain points" that indicate a need for more complexity, but always defaulting to the simplest solution. We will not "gold-plate" the architecture.
+3.  **Long-Term Vision:** Keeping the backlog aligned with the project's goals, balancing user value with our core principle of simplicity.
