@@ -99,7 +99,7 @@ Basic accessibility is not a "nice-to-have" - it's essential for an inclusive an
 
 ### 🎟️ **TICKET: FALTMAP-23 - Simplify Header and Add German Status Text**
 - Epic: E05 (Core Feature Enhancements)
-- Status: Open
+- Status: In Progress
 - Priority: 🟢 Medium
 
 **User Story:**
