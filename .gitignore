@@ -29,3 +29,7 @@ build/
 # Personal notes
 TODO.md
 NOTES.md
+
+# Gemini prompt files (not the main docs/gemini.md)
+GEMINI_PROMPT*.md
+GEMINI_REVIEW*.md
