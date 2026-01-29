@@ -212,11 +212,11 @@ An Epic represents a large body of work that can be broken down into smaller tic
 **Focus:** Complete UI modularization and improve error handling
 **Total:** 16 story points
 
-### ✅ Done (8/16 pts):
+### ✅ Done (11/16 pts):
 -   **FALTMAP-08:** Extract MapModal Component from content.js (8 pts, Critical) ✅
+-   **FALTMAP-09:** Extract Navigation Module for Keyboard Handling (3 pts, High) ✅
 
 ### 🔄 Remaining:
--   **FALTMAP-09:** Extract Navigation Module for Keyboard Handling (3 pts, High)
 -   **FALTMAP-11:** Implement User-Facing Error Notification System (5 pts, Critical)
 
 ### ⚠️ Critical Sequencing (from Gemini Review):
@@ -546,7 +546,7 @@ Currently, `content.js` (571 lines) contains all UI logic including modal creati
 
 ### 🎟️ **TICKET: FALTMAP-09 - Extract Navigation Module for Keyboard Handling**
 - Epic: E02
-- Status: Open
+- Status: Done ✅
 - Story Points: 3
 
 **User Story:**
