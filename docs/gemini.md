@@ -110,3 +110,14 @@ The extension uses a modular architecture where `content.js` acts as a coordinat
 -   **Loading the Extension:** Load as an unpacked extension in `chrome://extensions/`.
 -   **Debugging:** Use the browser console for the content script, service worker logs in `chrome://extensions/`, and the popup console (right-click the icon).
 -   **Versioning:** When updating the version, change it in `manifest.json`, `popup.html`, and `CHANGELOG.md`.
+
+---
+
+## 4. Ongoing Architectural Guidance
+
+As the project matures from foundational refactoring to feature implementation, the Architect's role shifts from direct intervention to strategic oversight. My guidance will focus on:
+
+1.  **Maintaining Architectural Integrity:** Ensuring that new features do not compromise the modular, single-responsibility principles of the existing architecture.
+2.  **Identifying "Signal" for Increased Complexity:** Watching for specific "pain points" in the code that indicate it's time to adopt more complex patterns (e.g., an EventBus, a build step). The goal is to "wait for the pain" rather than over-engineering.
+3.  **Scalability of New Features:** Reviewing the design of new features (`FALTMAP-XX` tickets) to ensure they are implemented in a way that is maintainable and does not create future technical debt.
+4.  **Long-Term Vision:** Keeping the backlog and sprint planning aligned with the long-term architectural goals, balancing immediate user value with future-proofing.
