@@ -97,7 +97,16 @@ This section defines how we manage our work.
 
 ### 2.2. Ticket Workflow
 
+**CRITICAL RULE: NO CODE WITHOUT A TICKET**
+
 All work must be performed against a ticket from the `IMPLEMENTATION.md` backlog. Follow this workflow for clear state tracking:
+
+**Before writing ANY code:**
+1. Create a ticket in `IMPLEMENTATION.md` with clear ACs
+2. Update ticket status to "In Progress"
+3. Commit the ticket creation: `docs: add FALTMAP-XX ticket`
+
+**Never skip this step.** If you implement something without a ticket first, that's sloppy work and violates our process.
 
 #### **Step 1: Start Work**
 1. Select a ticket from `IMPLEMENTATION.md` (prioritize by: Critical → High → Medium → Low)
