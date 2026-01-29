@@ -72,10 +72,11 @@ The modal header currently shows restaurant count and uses English status text. 
 - [x] Restaurant count removed from modal header
 - [x] Status label shows "Suche läuft..." during geocoding
 - [x] Status label changes to "Suche abgeschlossen" when complete
+- [x] Status shows "Suche abgeschlossen" immediately when all cached
 - [x] All counts show just "X/Y" without "gefunden" (cleaner)
 - [x] Status note removed (redundant with label)
-- [ ] Manual testing confirms clean header and German text
-- [ ] Commit message: `feat: simplify header and add German status text`
+- [x] Manual testing confirms clean header and German text
+- [x] Commit message: `feat: simplify header and add German status text`
 - [ ] Ticket marked Done with all ACs checked
 
 ---

@@ -113,6 +113,9 @@
             }
 
             // Don't auto-zoom after geocoding - let user explore or click to zoom
+        } else {
+            // All results cached - mark as complete immediately
+            mapModal.hideLoadingStatus();
         }
     }
 
