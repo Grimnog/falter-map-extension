@@ -5,7 +5,7 @@
 
 This document summarizes the extension's compliance with the Chrome Web Store Program Policies based on the state of the repository as of the review date.
 
-**Overall Finding:** The extension is generally well-behaved and has a clear, single purpose. However, **two significant compliance gaps** were identified that must be addressed before a successful store submission.
+**Overall Finding:** The extension is generally well-behaved and has a clear, single purpose. However, **two significant compliance gaps** were identified that must be addressed before a successful store submission. This document tracks the status of those gaps.
 
 ---
 
@@ -22,14 +22,9 @@ This document summarizes the extension's compliance with the Chrome Web Store Pr
     3.  The `manifest.json` file **lacks a `privacy_policy` field**.
 *   **Conclusion:** This is a **critical violation**. The handling of user-initiated content and its transmission to a third party mandates a privacy policy that clearly discloses what data is collected, why, and how it is used.
 
-**Recommendation:**
-
-1.  **Create a Privacy Policy:** Author a simple, clear privacy policy. It must disclose:
-    *   That the extension sends restaurant addresses to the OpenStreetMap Nominatim API for geocoding purposes.
-    *   That geocoded results are cached locally using `chrome.storage` for performance and to reduce API calls.
-    *   That no other personally identifiable information is collected, stored, or transmitted.
-2.  **Host the Privacy Policy:** Host this policy on a publicly accessible URL (e.g., a GitHub Pages site or a markdown file in the public repository).
-3.  **Update `manifest.json`:** Add a top-level `privacy_policy` field to the manifest, pointing to the URL where the policy is hosted.
+**Status:**
+- **Action Plan:** A ticket has been created to address this issue.
+- **Ticket:** `FALTMAP-21: Add Privacy Policy for Chrome Web Store Compliance`
 
 ---
 
@@ -46,12 +41,9 @@ This document summarizes the extension's compliance with the Chrome Web Store Pr
     3.  While Falter.at is a trusted source, best practice dictates that any content not controlled by the extension must be sanitized before being injected into the DOM to prevent potential XSS attacks.
 *   **Conclusion:** This is a **high-priority issue**. While the immediate risk is low, it is a technical vulnerability that would likely be flagged in a security review.
 
-**Recommendation:**
-
-1.  **Sanitize All Scraped Content:** Before rendering any scraped content, it must be sanitized.
-2.  **Adopt a Sanitization Strategy:**
-    *   **Safest Method:** Prefer using `textContent` instead of `innerHTML` to inject scraped data. This treats all content as plain text and is immune to XSS.
-    - **For HTML Content:** If `innerHTML` is absolutely necessary, use a sanitization library like `DOMPurify` to clean the content before injection.
+**Status:**
+- **Action Plan:** A ticket has been created to address this issue.
+- **Ticket:** `FALTMAP-22: Harden UI Against XSS via DOM Sanitization`
 
 ---
 
@@ -72,7 +64,7 @@ This document summarizes the extension's compliance with the Chrome Web Store Pr
 
 ### Final Checklist for Compliance
 
-- [🔴] **Create and link a privacy policy in `manifest.json`.**
-- [⚠️] **Implement DOM sanitization (prefer `textContent`) for all scraped content.**
+- [🟡] **Create and link a privacy policy in `manifest.json`.** (In Progress via FALTMAP-21)
+- [🟡] **Implement DOM sanitization (prefer `textContent`) for all scraped content.** (In Progress via FALTMAP-22)
 - [✅] Permissions are compliant.
 - [✅] The extension has a single, clear purpose.
