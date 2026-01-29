@@ -209,11 +209,52 @@ An Epic represents a large body of work that can be broken down into smaller tic
 
 ## Sprint 2 📋 Planned
 
-Focus: Complete UI modularization and improve error handling
+**Focus:** Complete UI modularization and improve error handling
+**Total:** 16 story points
 
--   **FALTMAP-08:** Extract MapModal Component from content.js
--   **FALTMAP-09:** Extract Navigation Module for Keyboard Handling
--   **FALTMAP-11:** Implement User-Facing Error Notification System
+### Tickets:
+-   **FALTMAP-08:** Extract MapModal Component from content.js (8 pts, Critical)
+-   **FALTMAP-09:** Extract Navigation Module for Keyboard Handling (3 pts, High)
+-   **FALTMAP-11:** Implement User-Facing Error Notification System (5 pts, Critical)
+
+### ⚠️ Critical Sequencing (from Gemini Review):
+
+**FALTMAP-08 MUST be completed first.** Both FALTMAP-09 and FALTMAP-11 have implicit dependencies on MapModal.js:
+- FALTMAP-09's Navigation constructor takes `mapModal` as an argument
+- FALTMAP-11's ErrorHandler needs to integrate with MapModal for UI alerts/toasts
+
+**Recommended Order:**
+1. **FALTMAP-08** → Complete and stabilize MapModal.js
+2. **FALTMAP-09** → Extract Navigation (depends on stable MapModal API)
+3. **FALTMAP-11** → Integrate ErrorHandler (can start with FALTMAP-09, but UI integration requires MapModal)
+
+**Rationale:** Working on FALTMAP-09 or FALTMAP-11 before FALTMAP-08 is complete will cause inefficiency and rework. Prioritize FALTMAP-08 completion above all else.
+
+---
+
+## Sprint 3 🎯 Recommended (from Gemini Review)
+
+**Focus:** Stability through testing, then critical UX improvements
+**Estimated:** 18 story points
+
+### Recommended Tickets (in priority order):
+
+1. **FALTMAP-10:** Expand Test Coverage to All Critical Modules (5 pts, High)
+   - **Why first:** Provides safety net for all subsequent development
+   - **Impact:** Prevents regressions, enables confident refactoring
+   - **Target:** 80% line coverage for critical modules
+
+2. **FALTMAP-13:** Add Marker Clustering for Dense Map Areas (5 pts, Medium)
+   - **Why second:** Directly addresses #1 UX pain point (overlapping markers)
+   - **Impact:** Makes map usable in dense areas (Innere Stadt)
+   - **User Value:** Immediate, tangible improvement
+
+3. **FALTMAP-12:** Implement Virtual Scrolling for Large Result Lists (8 pts, Medium)
+   - **Why third:** Addresses list performance for large datasets
+   - **Impact:** Smooth 60 FPS scrolling with 500+ restaurants
+   - **Complexity:** More complex than clustering, benefits from FALTMAP-10 tests
+
+**Justification:** Testing first ensures stability before adding complex features. Clustering provides immediate user value. Virtual scrolling complements clustering for complete performance optimization.
 
 ---
 
@@ -437,10 +478,12 @@ Currently, `content.js` (571 lines) contains all UI logic including modal creati
             addMarker(restaurant, index, isNew)
             selectRestaurant(index)
             getMap() // Returns Leaflet map instance
-            onRestaurantClick(callback)
+            onRestaurantClick(callback) // User clicks restaurant in list
+            onMarkerClick(callback) // User clicks marker on map (Gemini refinement)
             onClose(callback)
         }
         ```
+    -   **API Refinement Note (from Gemini Review):** Added `onMarkerClick(callback)` to propagate direct user interaction with map markers back to the coordinator, enabling synchronization between map and results list selection.
 
 2.  **Refactor `content.js`:**
     -   **File to Modify:** `content.js`
@@ -479,9 +522,11 @@ Currently, `content.js` (571 lines) contains all UI logic including modal creati
     -   [ ] Open modal twice in a row (test cleanup)
 
 **Acceptance Criteria (AC):**
-- [ ] `modules/MapModal.js` is created with the specified public API
+- [ ] `modules/MapModal.js` is created with the specified public API (including `onMarkerClick`)
 - [ ] `MapModal` class handles all modal DOM creation and lifecycle
 - [ ] `MapModal` class initializes and manages the Leaflet map instance
+- [ ] `MapModal.destroy()` properly calls `map.remove()` to prevent memory leaks (Gemini warning)
+- [ ] All Leaflet event listeners are cleaned up in `destroy()` method
 - [ ] `MapModal` class handles all marker placement and animations
 - [ ] `MapModal` class handles all results list rendering
 - [ ] `MapModal` class manages progress bar state and updates
@@ -490,6 +535,7 @@ Currently, `content.js` (571 lines) contains all UI logic including modal creati
 - [ ] All existing modal functionality works identically to before
 - [ ] Manual testing checklist is completed with all items passing
 - [ ] No console errors when opening/closing modal
+- [ ] No memory leaks when opening/closing modal repeatedly (test with Chrome DevTools Memory tab)
 - [ ] Code follows existing style conventions (ESLint/Prettier if configured)
 - [ ] The commit message follows the format: `refactor: extract MapModal component from content.js`
 - [ ] The ticket is moved to the "Done" section in this document
@@ -668,6 +714,7 @@ Currently, only `cache-utils.js` has tests (implemented in FALTMAP-07). To ensur
 - [ ] All geocoder tests pass (minimum 7 test cases)
 - [ ] All dom-parser tests pass (minimum 7 test cases)
 - [ ] All map-modal tests pass (minimum 8 test cases)
+- [ ] Test coverage target: 80% line coverage for all critical modules (Gemini recommendation)
 - [ ] Test runner is updated to execute all test suites
 - [ ] Test runner displays aggregate pass/fail statistics
 - [ ] HTML fixtures are created in `tests/fixtures/` directory
@@ -1281,3 +1328,169 @@ Some users may want to perform custom analysis on restaurant data, create custom
 - [ ] No memory leaks (object URLs cleaned up)
 - [ ] The commit message follows the format: `feat: add export results to CSV/JSON`
 - [ ] The ticket is moved to the "Done" section in this document
+---
+
+## 📋 Gemini Review Insights (2026-01-29)
+
+This section documents key insights from Gemini's comprehensive review of the implementation plan, filtered through a KISS (Keep It Simple, Stupid) lens appropriate for a Chrome extension.
+
+### ✅ Validated Approach
+
+Gemini's review confirmed:
+- **Strong Foundation:** Engineering principles (CLAUDE.md) and modular architecture are sound
+- **Sprint 2 Scope:** 16 story points is reasonable and well-structured
+- **Story Points:** Current estimates are accurate (with minor adjustments)
+- **Ticket Template:** Comprehensive and excellent for consistency
+- **Architecture Direction:** Coordinator pattern with service modules is correct
+
+### 🎯 Key Recommendations Adopted
+
+#### **1. Sprint 2 Sequencing (Critical)**
+- FALTMAP-08 MUST complete first before FALTMAP-09 and FALTMAP-11
+- Both tickets have implicit dependencies on MapModal.js
+- Working out of order causes inefficiency and rework
+
+#### **2. Sprint 3 Priority**
+Recommended order (see Sprint 3 section above):
+1. FALTMAP-10: Testing (provides safety net)
+2. FALTMAP-13: Marker Clustering (critical UX fix)
+3. FALTMAP-12: Virtual Scrolling (performance optimization)
+
+**Justification:** Testing first enables confident development. Clustering addresses the #1 UX pain point. Virtual scrolling complements clustering for complete performance optimization.
+
+#### **3. MapModal API Refinement**
+- Added `onMarkerClick(callback)` to MapModal public API
+- Enables synchronization between map clicks and results list
+- See FALTMAP-08 for details
+
+#### **4. Leaflet Memory Leak Warning**
+- FALTMAP-08 acceptance criteria now includes explicit cleanup verification
+- `destroy()` must call `map.remove()` and clean up all event listeners
+- Test with Chrome DevTools Memory tab
+
+#### **5. Test Coverage Target**
+- Aim for 80% line coverage for critical modules
+- Focus on meaningful coverage (logic paths, branches, error conditions)
+- See FALTMAP-10 for details
+
+#### **6. UX Priority Ranking**
+Based on user impact and addressing fundamental issues:
+1. **Marker Clustering (FALTMAP-13)** - Makes map usable in dense areas
+2. **Error Notifications (FALTMAP-11)** - Builds user trust and transparency
+3. **Virtual Scrolling (FALTMAP-12)** - Smooth performance with large datasets
+4. **Filter/Search (FALTMAP-15)** - Convenience feature for efficiency
+
+**Rationale:** Foundation first (clustering, errors) before convenience features (filtering).
+
+### ⚠️ Architecture Warnings
+
+#### **Avoid Premature Complexity:**
+- **No EventBus/PubSub yet:** Direct method calls are simpler for 3-4 modules. Only add if coordination becomes painful.
+- **No Redux/Zustand:** Overkill for a Chrome extension. Vanilla JS with clear APIs is sufficient.
+- **Watch MapModal complexity:** If it exceeds 500 lines, consider subdividing into smaller components.
+- **Monitor content.js:** Should remain a coordinator. If it becomes a "god object," reassess architecture.
+
+#### **When to Add Complexity:**
+Only introduce EventBus/PubSub or state management if:
+1. Global state becomes deeply nested and hard to trace
+2. Many components need to react to identical state changes simultaneously
+3. Debugging state-related issues becomes excessively time-consuming
+
+**Philosophy:** Wait for pain, don't add before you need it.
+
+---
+
+## 🚫 Deferred Considerations (KISS Filter Applied)
+
+The following recommendations from Gemini are **deferred** as they add complexity without proportional value for a Chrome extension. Document here for future reference if needs change.
+
+### **Not Adding Now:**
+
+#### **1. Internationalization (i18n) - Deferred**
+- **What:** FALTMAP-18: Implement i18n framework (5 pts)
+- **Why Deferred:** Vienna-only extension, German UI. No user demand for other languages.
+- **When to Reconsider:** If expanding to other cities or receiving language requests.
+- **KISS Verdict:** YAGNI (You Aren't Gonna Need It)
+
+#### **2. Full ARIA/Accessibility - Deferred**
+- **What:** FALTMAP-19: Full ARIA attributes and screen reader support (5 pts)
+- **Why Deferred:** Keyboard navigation (FALTMAP-09) covers 80% of accessibility needs.
+- **When to Reconsider:** If receiving accessibility complaints or legal requirements.
+- **KISS Verdict:** Keyboard nav is sufficient for now. Don't over-engineer.
+
+#### **3. Security Audit Ticket - Deferred**
+- **What:** FALTMAP-20: XSS/content injection audit (3 pts)
+- **Why Deferred:** Scraping from trusted source (Falter.at). Low risk. Can do quick review without full ticket.
+- **When to Reconsider:** If scraping untrusted sources or user-generated content.
+- **KISS Verdict:** Quick review sufficient, not full ticket.
+
+#### **4. EventBus/PubSub Pattern - Deferred**
+- **What:** Central event bus for module communication
+- **Why Deferred:** Direct method calls are simpler and more debuggable for 3-4 modules.
+- **When to Reconsider:** If coordination becomes fragile or state management painful.
+- **KISS Verdict:** Wait for actual pain. Don't add indirection prematurely.
+
+#### **5. Jest Migration - Deferred**
+- **What:** FALTMAP-24: Migrate from HTML tests to Jest (3 pts)
+- **Why Deferred:** HTML tests work fine. Jest adds Node.js dependency and build complexity.
+- **When to Reconsider:** If HTML tests become truly unwieldy or CI integration needed.
+- **KISS Verdict:** Continue HTML tests. Simple and sufficient.
+
+#### **6. E2E Testing - Deferred**
+- **What:** FALTMAP-25: Playwright/Cypress E2E tests (8 pts)
+- **Why Deferred:** Manual testing is fast and sufficient for a small extension. 8 pts is huge overhead.
+- **When to Reconsider:** If frequent regressions occur or team grows.
+- **KISS Verdict:** Manual testing sufficient. Don't over-test.
+
+#### **7. Split FALTMAP-16 (Favorites) - Not Doing**
+- **What:** Split into two tickets (5 pts + 3 pts)
+- **Why Not:** 8 pts is manageable. Splitting creates ticket overhead.
+- **KISS Verdict:** Keep as one cohesive ticket.
+
+#### **8. Bundle Optimization (FALTMAP-14) - Very Low Priority**
+- **What:** Optimize extension size (2 pts)
+- **Why Low Priority:** Extensions download once. 150KB Leaflet is not a real problem.
+- **When to Reconsider:** If users complain about load times (unlikely).
+- **KISS Verdict:** Nice-to-have, not urgent.
+
+### **New Epics NOT Created:**
+- **E06: Internationalization & Localization** - No tickets to fill it
+- **E08: Security & Privacy** - Handled with quick reviews, not full tickets
+
+---
+
+## 🎯 Post-Gemini Review Summary
+
+### **What Changed:**
+✅ Added Sprint 2 sequencing guidance (FALTMAP-08 first!)
+✅ Added Sprint 3 recommendations (Testing → Clustering → Virtual Scroll)
+✅ Refined MapModal API with `onMarkerClick(callback)`
+✅ Added Leaflet memory leak warnings to FALTMAP-08
+✅ Added 80% test coverage target to FALTMAP-10
+✅ Documented UX priority ranking for future reference
+✅ Documented architecture warnings (avoid premature complexity)
+
+### **What We Kept Simple:**
+❌ No new tickets for i18n, full ARIA, security audit, Jest, E2E
+❌ No EventBus/PubSub architecture (yet)
+❌ No Redux/Zustand state management
+❌ No splitting FALTMAP-16
+❌ No new Epics E06, E08
+
+### **Philosophy:**
+This is a Chrome extension for Vienna restaurants, not an enterprise SaaS platform. We adopt Gemini's strategic wisdom while maintaining KISS principles appropriate for:
+- Solo developer + AI assistance
+- Small, focused use case
+- Quality over complexity
+- Ship features users want
+- Add complexity only when pain is felt
+
+### **Total Backlog:**
+- **Sprint 2:** 16 story points (3 tickets)
+- **Sprint 3 (Recommended):** 18 story points (3 tickets)
+- **Remaining Backlog:** 36 story points (7 tickets)
+- **Grand Total:** 70 story points across ~5-6 sprints
+
+---
+
+**Last Updated:** 2026-01-29 (Post-Gemini Review with KISS Filter)
