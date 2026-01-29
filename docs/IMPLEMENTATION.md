@@ -123,10 +123,10 @@ The modal header currently shows restaurant count and uses English status text. 
 - `modules/MapModal.js` (remove restaurant count, update status text)
 
 **Acceptance Criteria:**
-- [ ] Restaurant count removed from modal header
-- [ ] Status label shows "Suche läuft..." instead of "Geocoding"
-- [ ] Progress text shows "X/Y gefunden" instead of "X/Y located"
-- [ ] Completion text shows "Abgeschlossen: X/Y gefunden" instead of "Complete: X/Y located"
+- [x] Restaurant count removed from modal header
+- [x] Status label shows "Suche läuft..." instead of "Geocoding"
+- [x] Progress text shows "X/Y gefunden" instead of "X/Y located"
+- [x] Completion text shows "Abgeschlossen: X/Y gefunden" instead of "Complete: X/Y located"
 - [ ] Manual testing confirms clean header and German text
 - [ ] Commit message: `feat: simplify header and add German status text`
 - [ ] Ticket marked Done with all ACs checked

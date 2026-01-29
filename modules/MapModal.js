@@ -61,18 +61,17 @@ export class MapModal {
                     <aside class="modal-sidebar">
                         <div class="modal-header">
                             <h1 id="modal-title"><span class="falter-brand">Falter</span> Restaurant Map</h1>
-                            <p id="modal-info">${this.restaurants.length} restaurants</p>
                         </div>
                         <div class="modal-status">
                             <div class="status-row">
-                                <span class="status-label">Geocoding</span>
-                                <span class="status-value" id="modal-geocode-status" aria-live="polite">Starting...</span>
+                                <span class="status-label">Suche läuft...</span>
+                                <span class="status-value" id="modal-geocode-status" aria-live="polite">Starte...</span>
                             </div>
                             <div class="progress-container">
                                 <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                <div class="progress-text" id="progress-text" aria-live="polite">0/0 located</div>
+                                <div class="progress-text" id="progress-text" aria-live="polite">0/0 gefunden</div>
                             </div>
-                            <div class="status-note" id="status-note" style="display: none;">Addresses are being located, this may take a moment...</div>
+                            <div class="status-note" id="status-note" style="display: none;">Adressen werden gesucht, das kann einen Moment dauern...</div>
                         </div>
                         <div class="modal-results" id="modal-results" role="listbox" aria-label="Restaurant list"></div>
                     </aside>
@@ -207,15 +206,15 @@ export class MapModal {
     updateProgress(processed, total, located) {
         // Status shows located count (successful geocoding)
         if (this.dom.geocodeStatus) {
-            this.dom.geocodeStatus.textContent = `${located}/${total} located`;
+            this.dom.geocodeStatus.textContent = `${located}/${total} gefunden`;
         }
 
         // Progress bar shows processed count (all attempts, including failures)
         if (this.dom.progressText) {
             if (processed === total) {
-                this.dom.progressText.textContent = `Complete: ${located}/${total} located`;
+                this.dom.progressText.textContent = `Abgeschlossen: ${located}/${total} gefunden`;
             } else {
-                this.dom.progressText.textContent = `Processing ${processed}/${total}...`;
+                this.dom.progressText.textContent = `Verarbeite ${processed}/${total}...`;
             }
         }
 
