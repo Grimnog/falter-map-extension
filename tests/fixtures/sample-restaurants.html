@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Restaurants</title>
+</head>
+<body>
+    <!-- Sample restaurant entries for testing -->
+    <div id="entries">
+        <!-- Valid restaurant entry -->
+        <a class="group block" href="/lokal/12345/">
+            <h2>Test Restaurant One</h2>
+            <p>1010 Wien, Teststraße 10</p>
+        </a>
+
+        <!-- Valid restaurant entry with different district -->
+        <a class="group block" href="/lokal/67890/">
+            <h2>Test Restaurant Two</h2>
+            <p>1020 Wien, Praterstraße 25</p>
+        </a>
+
+        <!-- Entry with market stall -->
+        <a class="group block" href="/lokal/11111/">
+            <h2>Market Stall</h2>
+            <p>1020 Wien, Karmelitermarkt Stand 5</p>
+        </a>
+
+        <!-- Entry with missing address (should be skipped) -->
+        <a class="group block" href="/lokal/99999/">
+            <h2>Invalid Restaurant</h2>
+            <p>No address here</p>
+        </a>
+    </div>
+
+    <!-- Pagination text -->
+    <div class="pagination">
+        Seite 1 / 3
+    </div>
+</body>
+</html>

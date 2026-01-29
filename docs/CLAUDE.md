@@ -21,14 +21,35 @@ We follow a simple set of principles to ensure our code is maintainable, readabl
 ### Test-Aware Development
 While this project doesn't follow a strict Red-Green-Refactor TDD approach, we adhere to "test-aware" development.
 
-1.  **Test Before Commit (CRITICAL):** Manual testing MUST happen before any commit. This is non-negotiable.
+1.  **Test Before Commit (CRITICAL):** Testing MUST happen before any commit. This is non-negotiable.
+    -   **Automated tests:** Run `tests/test-runner.html` and verify all tests pass (100%).
     -   **For UI changes:** Load the extension in the browser and verify all functionality works as expected.
-    -   **For logic changes:** Run automated tests and verify output.
+    -   **For logic changes:** Verify test output shows expected behavior.
     -   **Never commit untested code.** If you commit without testing, stop immediately, test, and fix any issues before proceeding.
-2.  **Write Tests for Bugs:** When fixing a bug, the first step is to write a failing test that reproduces the issue. This proves the bug exists and confirms when it's fixed.
-3.  **Write Tests for Features:** When adding a new feature to a module (e.g., a new function in `cache-utils.js`), write the corresponding tests as you build the feature.
-4.  **Run Tests Often:** After any significant change, run the relevant tests to ensure no existing functionality has been broken (regression).
-5.  **Reference Ticket `FALTMAP-07`** for the initial testing strategy and implementation details.
+
+2.  **Write Tests for All Changes:** When implementing changes, ALWAYS consider what tests need to be added or updated.
+    -   **New Features:** Write tests for new functions, modules, or user-facing features as you implement them.
+    -   **Bug Fixes:** Write a failing test that reproduces the bug BEFORE fixing it. This proves the bug exists and confirms when it's fixed.
+    -   **Refactoring:** Ensure existing tests still pass. Add new tests if refactoring changes behavior or adds new code paths.
+    -   **Edge Cases:** Add tests for edge cases discovered during development or reported by users.
+
+3.  **Test Coverage Targets:**
+    -   **Critical modules** (cache-utils, geocoder, dom-parser, map-modal): Aim for 80%+ line coverage
+    -   **Utility modules:** Aim for 70%+ coverage
+    -   **UI components:** Test all user interactions and state changes
+
+4.  **When to Skip Tests:** Only skip automated tests when:
+    -   The change is purely documentation (e.g., updating README.md)
+    -   The change is configuration-only (e.g., updating .gitignore)
+    -   The change is to test infrastructure itself
+
+5.  **Test Organization:**
+    -   One test file per module: `tests/{module-name}.test.js`
+    -   Group related tests with clear section headers
+    -   Use descriptive test names that explain what is being tested
+    -   See `tests/README.md` for comprehensive testing documentation
+
+6.  **Reference Ticket `FALTMAP-10`** for the complete test suite implementation.
 
 ### Atomic Commits
 This project follows **atomic commit** principles. Each commit should:
@@ -107,3 +128,4 @@ The extension uses a modular architecture where `content.js` acts as a coordinat
 -   **Loading the Extension:** Load as an unpacked extension in `chrome://extensions/`.
 -   **Debugging:** Use the browser console for the content script, service worker logs in `chrome://extensions/`, and the popup console (right-click the icon).
 -   **Versioning:** When updating the version, change it in `manifest.json`, `popup.html`, and `CHANGELOG.md`.
+-   **Running Tests:** See `tests/README.md` for comprehensive testing documentation.
