@@ -26,9 +26,9 @@ export const CONFIG = {
         SELECTED_ZOOM: 16,
         BOUNDS_PADDING: 0.1,
         CLUSTER: {
-            MAX_RADIUS: 80,           // Cluster radius in pixels
+            MAX_RADIUS: 50,           // Cluster radius in pixels (tighter clustering)
             SPIDERFY: true,           // Spread out overlapping markers on click
-            DISABLE_AT_ZOOM: 18,      // Disable clustering at max zoom
+            DISABLE_AT_ZOOM: 16,      // Disable clustering at district-level zoom
             SHOW_COVERAGE: false      // Don't show cluster coverage polygon
         }
     },
