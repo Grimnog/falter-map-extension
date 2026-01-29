@@ -96,15 +96,48 @@ This section defines how we manage our work.
 -   **`docs/CLAUDE.md` (The "How"):** This engineering guide, defining our processes and principles.
 
 ### 2.2. Ticket Workflow
-All work must be performed against a ticket from the `IMPLEMENTATION.md` backlog. The goal is to move tickets from "Open" to "Done".
+
+All work must be performed against a ticket from the `IMPLEMENTATION.md` backlog. Follow this workflow for clear state tracking:
+
+#### **Step 1: Start Work**
+1. Select a ticket from `IMPLEMENTATION.md` (prioritize by: Critical → High → Medium → Low)
+2. Update ticket status: `Status: Open` → `Status: In Progress`
+3. Commit the status change: `docs: start work on FALTMAP-XX`
+
+#### **Step 2: Work Through Acceptance Criteria**
+1. Read all Acceptance Criteria (AC) in the ticket carefully
+2. As you complete each AC item, check it off in the ticket: `- [ ]` → `- [x]`
+3. Commit the AC update: `docs: complete AC for FALTMAP-XX - [description]`
+4. **This creates clear state** - anyone can see exactly what's done and what's left
+
+#### **Step 3: Verify Completion**
+Before marking a ticket as Done, verify:
+- ✅ All Acceptance Criteria boxes are checked `- [x]`
+- ✅ All tests pass (run `tests/test-runner.html`)
+- ✅ Manual testing completed
+- ✅ No console errors or warnings
+- ✅ Code follows conventions
+
+#### **Step 4: Mark Done**
+1. Update ticket status: `Status: In Progress` → `Status: Done ✅`
+2. Move ticket to "✅ Done" section in `IMPLEMENTATION.md`
+3. Commit: `docs: mark FALTMAP-XX as complete`
+
+#### **Important Notes:**
+- **Never skip checking ACs** - This is how we track progress
+- **Don't mark Done if ACs are unchecked** - Incomplete work should stay In Progress
+- **Each AC check is a mini-milestone** - Commit when meaningful progress is made
+- **Clear state = Professional work** - Anyone reading the ticket knows exactly where we are
 
 ### 2.3. Definition of Done (DoD)
 A ticket is considered "Done" ONLY when all the following criteria are met:
+-   [ ] **All Acceptance Criteria in the ticket are checked off** `- [x]`
 -   [ ] All scope of work for the ticket is complete.
 -   [ ] The code adheres to our Core Principles (Clean Code, Test-Aware).
 -   [ ] All existing and new tests pass.
 -   [ ] The functionality has been manually verified in the browser.
 -   [ ] The final commit is atomic and follows the Conventional Commit standard.
+-   [ ] The ticket status is updated to `Status: Done ✅`
 -   [ ] The ticket has been moved to the "✅ Done" section in `IMPLEMENTATION.md`.
 
 ---
