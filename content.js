@@ -16,8 +16,10 @@
     const { parseRestaurantsFromDOM, getPaginationInfo, fetchAllPages } = await import(chrome.runtime.getURL('modules/dom-parser.js'));
     const { geocodeAddress, geocodeRestaurants } = await import(chrome.runtime.getURL('modules/geocoder.js'));
     const { MapModal } = await import(chrome.runtime.getURL('modules/MapModal.js'));
+    const { Navigation } = await import(chrome.runtime.getURL('modules/Navigation.js'));
 
     let mapModal = null;
+    let navigation = null;
 
     // Start geocoding process and display results in the modal
     async function startGeocoding(restaurants) {
@@ -47,6 +49,11 @@
         setTimeout(() => {
             mapModal.updateResultsList(currentResults);
             mapModal.updateMapMarkers(currentResults.filter(r => r.coords), false);
+
+            // Update navigation with current results
+            if (navigation) {
+                navigation.updateNavigableRestaurants(currentResults);
+            }
         }, CONFIG.UI.SKELETON_DELAY_MS);
 
         const initialLocatedCount = currentResults.filter(r => r.coords).length;
@@ -68,6 +75,11 @@
                 mapModal.updateProgress(current, total, locatedCount);
                 mapModal.updateResultsList(progressResults);
 
+                // Update navigation with current results
+                if (navigation) {
+                    navigation.updateNavigableRestaurants(progressResults);
+                }
+
                 // During progress, always animate=true to prevent auto-zoom
                 const newMarkersAdded = locatedCount > lastMarkerCount;
                 if (newMarkersAdded) {
@@ -80,6 +92,11 @@
             mapModal.updateProgress(restaurants.length, restaurants.length, locatedCount);
             mapModal.hideLoadingStatus();
             mapModal.updateResultsList(results);
+
+            // Update navigation with final results
+            if (navigation) {
+                navigation.updateNavigableRestaurants(results);
+            }
 
             // Don't auto-zoom after geocoding - let user explore or click to zoom
         }
@@ -199,9 +216,31 @@
             mapModal = new MapModal(restaurants);
             mapModal.show();
 
+            // Create and enable navigation
+            navigation = new Navigation(restaurants, mapModal);
+            navigation.enable();
+
+            // Register navigation callbacks
+            navigation.onClose(() => {
+                navigation.destroy();
+                navigation = null;
+                mapModal.destroy();
+            });
+
             // Register callback for modal close
             mapModal.onClose(() => {
+                if (navigation) {
+                    navigation.destroy();
+                    navigation = null;
+                }
                 mapModal = null;
+            });
+
+            // Register callback for restaurant list clicks to sync with navigation
+            mapModal.onRestaurantClick((restaurant, navigableIndex) => {
+                if (navigation) {
+                    navigation.setIndex(navigableIndex);
+                }
             });
 
             // Start geocoding process

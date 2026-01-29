@@ -8,11 +8,10 @@ import { CONFIG } from './constants.js';
 export class MapModal {
     constructor(restaurants) {
         this.restaurants = restaurants;
+        this.currentRestaurants = []; // Track current list with coords
         this.map = null;
         this.markers = [];
         this.modalElement = null;
-        this.selectedRestaurantIndex = -1;
-        this.navigableRestaurants = [];
 
         // Cached DOM references
         this.dom = {
@@ -30,7 +29,6 @@ export class MapModal {
 
         // Bind methods for event listeners
         this.handleClose = this.handleClose.bind(this);
-        this.handleKeyboardNavigation = this.handleKeyboardNavigation.bind(this);
         this.handleResultsClick = this.handleResultsClick.bind(this);
     }
 
@@ -89,7 +87,6 @@ export class MapModal {
         this.modalElement.querySelector('.modal-close').addEventListener('click', this.handleClose);
         this.modalElement.querySelector('.modal-overlay').addEventListener('click', this.handleClose);
         this.dom.results.addEventListener('click', this.handleResultsClick);
-        document.addEventListener('keydown', this.handleKeyboardNavigation);
 
         // Initialize map after a short delay
         setTimeout(() => {
@@ -110,9 +107,6 @@ export class MapModal {
     destroy() {
         if (!this.modalElement) return;
 
-        // Remove keyboard listener
-        document.removeEventListener('keydown', this.handleKeyboardNavigation);
-
         // Clean up Leaflet map to prevent memory leaks (Gemini recommendation)
         if (this.map) {
             this.map.remove();
@@ -125,8 +119,6 @@ export class MapModal {
 
         // Reset state
         this.markers = [];
-        this.selectedRestaurantIndex = -1;
-        this.navigableRestaurants = [];
 
         // Clear cached DOM references
         this.dom.geocodeStatus = null;
@@ -230,13 +222,11 @@ export class MapModal {
     }
 
     /**
-     * Select a restaurant by index
+     * Select a restaurant by index (called by Navigation module)
      */
-    selectRestaurant(index) {
+    selectRestaurant(index, restaurant) {
         const items = document.querySelectorAll('#modal-results .result-item:not(.no-coords)');
         if (index < 0 || index >= items.length) return;
-
-        this.selectedRestaurantIndex = index;
 
         // Update visual state
         items.forEach((item, i) => {
@@ -251,7 +241,6 @@ export class MapModal {
         });
 
         // Zoom map to selected restaurant
-        const restaurant = this.navigableRestaurants[index];
         if (restaurant && restaurant.coords) {
             this.map.setView([restaurant.coords.lat, restaurant.coords.lng], CONFIG.MAP.SELECTED_ZOOM);
             const marker = this.markers.find(m => m.restaurantId === restaurant.id);
@@ -293,6 +282,9 @@ export class MapModal {
     updateResultsList(restaurantList) {
         if (!this.dom.results) return;
 
+        // Store current restaurant list for click handling
+        this.currentRestaurants = restaurantList;
+
         // Show skeleton if list is empty (during initial load)
         if (restaurantList.length === 0) {
             this.dom.results.innerHTML = this.createLoadingSkeleton(8);
@@ -300,9 +292,6 @@ export class MapModal {
         }
 
         this.dom.results.innerHTML = '';
-
-        // Reset navigable restaurants array
-        this.navigableRestaurants = [];
 
         restaurantList.forEach((restaurant, index) => {
             const item = document.createElement('div');
@@ -322,11 +311,6 @@ export class MapModal {
                     <div class="result-address">${this.escapeHtml(restaurant.address)}</div>
                 </div>
             `;
-
-            if (restaurant.coords) {
-                // Track for keyboard navigation
-                this.navigableRestaurants.push(restaurant);
-            }
 
             this.dom.results.appendChild(item);
         });
@@ -407,149 +391,46 @@ export class MapModal {
 
     /**
      * Handle results list clicks (event delegation)
+     * Coordinator (content.js) will sync with Navigation module
      */
     handleResultsClick(event) {
         // Find the clicked result item (handle clicks on child elements)
         const item = event.target.closest('.result-item');
         if (!item || item.classList.contains('no-coords')) return;
 
-        // Clear active state from all items
-        document.querySelectorAll('.result-item').forEach(el => {
-            el.classList.remove('active');
-            el.setAttribute('aria-selected', 'false');
-        });
-
-        // Set active state on clicked item
-        item.classList.add('active');
-        item.setAttribute('aria-selected', 'true');
-
-        // Find the index among navigable items
+        // Find the index among all items and navigable items
+        const allItems = Array.from(document.querySelectorAll('#modal-results .result-item'));
         const navigableItems = Array.from(document.querySelectorAll('#modal-results .result-item:not(.no-coords)'));
-        this.selectedRestaurantIndex = navigableItems.indexOf(item);
+        const allIndex = allItems.indexOf(item);
+        const navigableIndex = navigableItems.indexOf(item);
 
-        // Get the corresponding restaurant
-        const restaurant = this.navigableRestaurants[this.selectedRestaurantIndex];
+        // Get the corresponding restaurant from current list
+        const restaurant = this.currentRestaurants[allIndex];
+
         if (restaurant && restaurant.coords) {
+            // Clear active state from all items
+            document.querySelectorAll('.result-item').forEach(el => {
+                el.classList.remove('active');
+                el.setAttribute('aria-selected', 'false');
+            });
+
+            // Set active state on clicked item
+            item.classList.add('active');
+            item.setAttribute('aria-selected', 'true');
+
+            // Zoom map to restaurant
             this.map.setView([restaurant.coords.lat, restaurant.coords.lng], CONFIG.MAP.SELECTED_ZOOM);
 
             const marker = this.markers.find(m => m.restaurantId === restaurant.id);
             if (marker) marker.openPopup();
 
-            // Trigger callback
+            // Trigger callback with navigable index
             if (this.onRestaurantClickCallback) {
-                this.onRestaurantClickCallback(restaurant, this.selectedRestaurantIndex);
+                this.onRestaurantClickCallback(restaurant, navigableIndex);
             }
         }
     }
 
-    /**
-     * Handle keyboard navigation
-     */
-    handleKeyboardNavigation(event) {
-        // Only process if modal is open
-        if (!this.modalElement) return;
-
-        // Handle help shortcut (works regardless of items)
-        if (event.key === '?' || event.key === '/') {
-            event.preventDefault();
-            this.showKeyboardHelp();
-            return;
-        }
-
-        // Handle escape (works regardless of items)
-        if (event.key === 'Escape') {
-            event.preventDefault();
-            // Close help overlay if visible
-            const helpOverlay = document.getElementById('keyboard-help-overlay');
-            if (helpOverlay) {
-                helpOverlay.remove();
-                return;
-            }
-            this.destroy();
-            return;
-        }
-
-        // Navigation shortcuts need items
-        const items = document.querySelectorAll('#modal-results .result-item:not(.no-coords)');
-        if (items.length === 0) return;
-
-        switch(event.key) {
-            case 'ArrowDown':
-                event.preventDefault();
-                this.navigateRestaurants(1, items);
-                break;
-            case 'ArrowUp':
-                event.preventDefault();
-                this.navigateRestaurants(-1, items);
-                break;
-        }
-    }
-
-    /**
-     * Navigate through restaurants with arrow keys
-     */
-    navigateRestaurants(direction, items) {
-        // Initialize or update index with wrap-around
-        if (this.selectedRestaurantIndex === -1) {
-            this.selectedRestaurantIndex = direction > 0 ? 0 : items.length - 1;
-        } else {
-            this.selectedRestaurantIndex = (this.selectedRestaurantIndex + direction + items.length) % items.length;
-        }
-
-        // Update visual state and scroll
-        items.forEach((item, index) => {
-            if (index === this.selectedRestaurantIndex) {
-                item.classList.add('active');
-                item.setAttribute('aria-selected', 'true');
-                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            } else {
-                item.classList.remove('active');
-                item.setAttribute('aria-selected', 'false');
-            }
-        });
-
-        // Zoom map to selected restaurant
-        const restaurant = this.navigableRestaurants[this.selectedRestaurantIndex];
-        if (restaurant && restaurant.coords) {
-            this.map.setView([restaurant.coords.lat, restaurant.coords.lng], CONFIG.MAP.SELECTED_ZOOM);
-            const marker = this.markers.find(m => m.restaurantId === restaurant.id);
-            if (marker) marker.openPopup();
-        }
-    }
-
-    /**
-     * Show keyboard shortcuts help overlay
-     */
-    showKeyboardHelp() {
-        // Check if help is already visible
-        if (document.getElementById('keyboard-help-overlay')) return;
-
-        const helpOverlay = document.createElement('div');
-        helpOverlay.id = 'keyboard-help-overlay';
-        helpOverlay.innerHTML = `
-            <div class="keyboard-help">
-                <h3>⌨️ Keyboard Shortcuts</h3>
-                <dl>
-                    <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
-                    <dd>Navigate restaurants</dd>
-                    <dt><kbd>ESC</kbd></dt>
-                    <dd>Close map</dd>
-                    <dt><kbd>?</kbd></dt>
-                    <dd>Show this help</dd>
-                </dl>
-                <p class="help-hint">Press any key to close</p>
-            </div>
-        `;
-
-        this.modalElement.appendChild(helpOverlay);
-
-        // Close help on any key press
-        const closeHelp = () => {
-            helpOverlay.remove();
-            document.removeEventListener('keydown', closeHelp);
-        };
-        setTimeout(() => document.addEventListener('keydown', closeHelp), 100);
-    }
 
     /**
      * Create numbered marker icon
