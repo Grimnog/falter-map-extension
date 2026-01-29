@@ -14,6 +14,7 @@ export class MapModal {
         this.markers = [];
         this.markerClusterGroup = null; // Cluster group for markers
         this.modalElement = null;
+        this.triggerElement = null; // Store trigger for focus restoration
 
         // Cached DOM references
         this.dom = {
@@ -32,12 +33,17 @@ export class MapModal {
         // Bind methods for event listeners
         this.handleClose = this.handleClose.bind(this);
         this.handleResultsClick = this.handleResultsClick.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
     }
 
     /**
      * Show the modal and initialize the map
+     * @param {HTMLElement} triggerElement - The element that triggered the modal (for focus restoration)
      */
-    show() {
+    show(triggerElement = null) {
+        // Store trigger element for focus restoration
+        this.triggerElement = triggerElement;
+
         // Remove existing modal if any
         if (this.modalElement) {
             this.destroy();
@@ -48,29 +54,29 @@ export class MapModal {
         this.modalElement.id = 'falter-map-modal';
         this.modalElement.innerHTML = `
             <div class="modal-overlay"></div>
-            <div class="modal-content">
-                <button class="modal-close" title="Close">&times;</button>
+            <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-info">
+                <button class="modal-close" title="Close" aria-label="Close restaurant map">&times;</button>
                 <div class="modal-body">
                     <aside class="modal-sidebar">
                         <div class="modal-header">
-                            <h1>Falter Restaurant Map</h1>
+                            <h1 id="modal-title">Falter Restaurant Map</h1>
                             <p id="modal-info">${this.restaurants.length} restaurants</p>
                         </div>
                         <div class="modal-status">
                             <div class="status-row">
                                 <span class="status-label">Geocoding</span>
-                                <span class="status-value" id="modal-geocode-status">Starting...</span>
+                                <span class="status-value" id="modal-geocode-status" aria-live="polite">Starting...</span>
                             </div>
                             <div class="progress-container">
-                                <div class="progress-bar" id="progress-bar"></div>
-                                <div class="progress-text" id="progress-text">0/0 located</div>
+                                <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-text" id="progress-text" aria-live="polite">0/0 located</div>
                             </div>
                             <div class="status-note" id="status-note" style="display: none;">Addresses are being located, this may take a moment...</div>
                         </div>
-                        <div class="modal-results" id="modal-results"></div>
+                        <div class="modal-results" id="modal-results" role="listbox" aria-label="Restaurant list"></div>
                     </aside>
                     <div class="modal-map-container">
-                        <div id="modal-map"></div>
+                        <div id="modal-map" aria-label="Interactive map showing restaurant locations"></div>
                     </div>
                 </div>
             </div>
@@ -89,6 +95,16 @@ export class MapModal {
         this.modalElement.querySelector('.modal-close').addEventListener('click', this.handleClose);
         this.modalElement.querySelector('.modal-overlay').addEventListener('click', this.handleClose);
         this.dom.results.addEventListener('click', this.handleResultsClick);
+
+        // Add keyboard event listener for focus trap
+        document.addEventListener('keydown', this.handleKeyDown);
+
+        // Move focus to modal content for accessibility
+        const modalContent = this.modalElement.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.setAttribute('tabindex', '-1');
+            modalContent.focus();
+        }
 
         // Initialize map after a short delay
         setTimeout(() => {
@@ -109,6 +125,14 @@ export class MapModal {
     destroy() {
         if (!this.modalElement) return;
 
+        // Remove keyboard event listener
+        document.removeEventListener('keydown', this.handleKeyDown);
+
+        // Restore focus to trigger element
+        if (this.triggerElement && typeof this.triggerElement.focus === 'function') {
+            this.triggerElement.focus();
+        }
+
         // Clean up Leaflet map to prevent memory leaks (Gemini recommendation)
         if (this.map) {
             // Clean up cluster group first
@@ -127,6 +151,7 @@ export class MapModal {
 
         // Reset state
         this.markers = [];
+        this.triggerElement = null;
 
         // Clear cached DOM references
         this.dom.geocodeStatus = null;
@@ -190,6 +215,7 @@ export class MapModal {
         if (this.dom.progressBar) {
             const percentage = total > 0 ? (processed / total) * 100 : 0;
             this.dom.progressBar.style.width = `${percentage}%`;
+            this.dom.progressBar.setAttribute('aria-valuenow', Math.round(percentage));
         }
     }
 
@@ -457,6 +483,41 @@ export class MapModal {
             // Trigger callback with navigable index
             if (this.onRestaurantClickCallback) {
                 this.onRestaurantClickCallback(restaurant, navigableIndex);
+            }
+        }
+    }
+
+    /**
+     * Handle keyboard events for focus trap
+     */
+    handleKeyDown(event) {
+        // Only handle Tab key for focus trap
+        if (event.key !== 'Tab') return;
+
+        if (!this.modalElement) return;
+
+        // Get all focusable elements within the modal
+        const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        const focusableElements = this.modalElement.querySelectorAll(focusableSelector);
+        const focusableArray = Array.from(focusableElements);
+
+        if (focusableArray.length === 0) return;
+
+        const firstFocusable = focusableArray[0];
+        const lastFocusable = focusableArray[focusableArray.length - 1];
+
+        // Shift+Tab: moving backwards
+        if (event.shiftKey) {
+            if (document.activeElement === firstFocusable) {
+                event.preventDefault();
+                lastFocusable.focus();
+            }
+        }
+        // Tab: moving forwards
+        else {
+            if (document.activeElement === lastFocusable) {
+                event.preventDefault();
+                firstFocusable.focus();
             }
         }
     }

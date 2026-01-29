@@ -214,7 +214,7 @@
 
             // Create and show modal with map
             mapModal = new MapModal(restaurants);
-            mapModal.show();
+            mapModal.show(btn);
 
             // Create and enable navigation
             navigation = new Navigation(restaurants, mapModal);
