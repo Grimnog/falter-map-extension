@@ -60,7 +60,7 @@ export class MapModal {
                 <div class="modal-body">
                     <aside class="modal-sidebar">
                         <div class="modal-header">
-                            <h1 id="modal-title">Falter Restaurant Map</h1>
+                            <h1 id="modal-title"><span class="falter-brand">Falter</span> Restaurant Map</h1>
                             <p id="modal-info">${this.restaurants.length} restaurants</p>
                         </div>
                         <div class="modal-status">
@@ -310,6 +310,13 @@ export class MapModal {
      */
     getMap() {
         return this.map;
+    }
+
+    /**
+     * Get the marker cluster group
+     */
+    getMarkerClusterGroup() {
+        return this.markerClusterGroup;
     }
 
     /**

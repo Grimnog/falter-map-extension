@@ -69,6 +69,7 @@
             mapModal.showLoadingStatus();
 
             let lastMarkerCount = currentResults.filter(r => r.coords).length;
+            let hasAutoZoomed = false; // Track if we've done initial auto-zoom
 
             const results = await geocodeRestaurants(restaurants, (current, total, progressResults) => {
                 const locatedCount = progressResults.filter(r => r.coords).length;
@@ -86,6 +87,19 @@
                     mapModal.updateMapMarkers(progressResults.filter(r => r.coords), true);
                 }
                 lastMarkerCount = locatedCount;
+
+                // Auto-zoom after first 5 restaurants for better initial view
+                if (!hasAutoZoomed && locatedCount >= 5) {
+                    hasAutoZoomed = true;
+                    const map = mapModal.getMap();
+                    const markerClusterGroup = mapModal.getMarkerClusterGroup();
+                    if (map && markerClusterGroup) {
+                        const bounds = markerClusterGroup.getBounds();
+                        if (bounds.isValid()) {
+                            map.fitBounds(bounds.pad(0.2)); // 20% padding for breathing room
+                        }
+                    }
+                }
             });
 
             const locatedCount = results.filter(r => r.coords).length;
