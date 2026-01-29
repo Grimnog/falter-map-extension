@@ -207,13 +207,15 @@ An Epic represents a large body of work that can be broken down into smaller tic
 
 ---
 
-## Sprint 2 📋 Planned
+## Sprint 2 📋 In Progress
 
 **Focus:** Complete UI modularization and improve error handling
 **Total:** 16 story points
 
-### Tickets:
--   **FALTMAP-08:** Extract MapModal Component from content.js (8 pts, Critical)
+### ✅ Done (8/16 pts):
+-   **FALTMAP-08:** Extract MapModal Component from content.js (8 pts, Critical) ✅
+
+### 🔄 Remaining:
 -   **FALTMAP-09:** Extract Navigation Module for Keyboard Handling (3 pts, High)
 -   **FALTMAP-11:** Implement User-Facing Error Notification System (5 pts, Critical)
 
@@ -442,7 +444,7 @@ An Epic represents a large body of work that can be broken down into smaller tic
 
 ### 🎟️ **TICKET: FALTMAP-08 - Extract MapModal Component from content.js**
 - Epic: E02
-- Status: Open
+- Status: Done ✅
 - Story Points: 8
 
 **User Story:**
