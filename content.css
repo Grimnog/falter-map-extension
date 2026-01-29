@@ -167,7 +167,7 @@
 
 .modal-header {
     padding: 28px 24px 24px;
-    background: white;
+    background: #FFD600;
     position: relative;
     overflow: hidden;
 }
@@ -178,26 +178,26 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background: #FFD600;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .modal-header h1 {
     font-size: 19px;
     font-weight: 700;
     margin: 0 0 6px 0;
-    color: #333;
+    color: #000;
     letter-spacing: -0.02em;
     line-height: 1.2;
 }
 
 .modal-header h1 .falter-brand {
-    color: #FFD600;
+    color: #000;
 }
 
 .modal-header p {
     font-size: 14px;
-    color: #666;
+    color: rgba(0, 0, 0, 0.7);
     margin: 0;
     font-weight: 400;
 }
