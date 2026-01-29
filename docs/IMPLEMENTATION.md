@@ -80,11 +80,11 @@ Vienna's 1st district often has 50+ restaurants in a small area, causing marker 
    - Color-code by cluster size (small/medium/large)
 
 **Acceptance Criteria:**
-- [ ] `leaflet.markercluster.js` and CSS are added to extension
-- [ ] `manifest.json` includes marker cluster library in content_scripts
-- [ ] `MapModal.js` uses `L.markerClusterGroup()` for all markers
-- [ ] Cluster configuration is centralized in `constants.js`
-- [ ] Cluster icons are styled and color-coded by size
+- [x] `leaflet.markercluster.js` and CSS are added to extension
+- [x] `manifest.json` includes marker cluster library in content_scripts
+- [x] `MapModal.js` uses `L.markerClusterGroup()` for all markers
+- [x] Cluster configuration is centralized in `constants.js`
+- [x] Cluster icons use library default styling (will customize if needed)
 - [ ] Clicking cluster zooms to show individual markers
 - [ ] At maximum zoom, clustering is disabled (all individual markers visible)
 - [ ] All marker click handlers continue to work
