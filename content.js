@@ -1,5 +1,5 @@
 // Content script for Falter Lokalführer pages
-// Extracts restaurant data and displays map modal
+// Coordinates restaurant data fetching and map display
 
 (async function() {
     'use strict';
@@ -15,289 +15,11 @@
     const { CacheManager } = await import(chrome.runtime.getURL('modules/cache-utils.js'));
     const { parseRestaurantsFromDOM, getPaginationInfo, fetchAllPages } = await import(chrome.runtime.getURL('modules/dom-parser.js'));
     const { geocodeAddress, geocodeRestaurants } = await import(chrome.runtime.getURL('modules/geocoder.js'));
+    const { MapModal } = await import(chrome.runtime.getURL('modules/MapModal.js'));
 
-    let map = null;
-    let markers = [];
     let mapModal = null;
-    let selectedRestaurantIndex = -1;
-    let navigableRestaurants = [];
 
-    // Cached DOM references for modal elements
-    const dom = {
-        geocodeStatus: null,
-        progressBar: null,
-        progressText: null,
-        statusNote: null,
-        results: null
-    };
-
-    // Map marker functions
-    // Create numbered marker
-    function createNumberedMarker(number, isNew = false) {
-        const pinClass = isNew ? 'marker-pin marker-new' : 'marker-pin';
-        return L.divIcon({
-            className: 'custom-marker',
-            html: `<div class="${pinClass}">
-                <div class="marker-number">${number}</div>
-            </div>`,
-            iconSize: [40, 50],
-            iconAnchor: [20, 46],
-            popupAnchor: [0, -48]
-        });
-    }
-
-    // Escape HTML
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    // Create and show map modal
-    function createMapModal(restaurants) {
-        // Remove existing modal if any
-        if (mapModal) {
-            mapModal.remove();
-            map = null;
-            markers = [];
-        }
-
-        // Create modal HTML
-        mapModal = document.createElement('div');
-        mapModal.id = 'falter-map-modal';
-        mapModal.innerHTML = `
-            <div class="modal-overlay"></div>
-            <div class="modal-content">
-                <button class="modal-close" title="Close">&times;</button>
-                <div class="modal-body">
-                    <aside class="modal-sidebar">
-                        <div class="modal-header">
-                            <h1>Falter Restaurant Map</h1>
-                            <p id="modal-info">${restaurants.length} restaurants</p>
-                        </div>
-                        <div class="modal-status">
-                            <div class="status-row">
-                                <span class="status-label">Geocoding</span>
-                                <span class="status-value" id="modal-geocode-status">Starting...</span>
-                            </div>
-                            <div class="progress-container">
-                                <div class="progress-bar" id="progress-bar"></div>
-                                <div class="progress-text" id="progress-text">0/0 located</div>
-                            </div>
-                            <div class="status-note" id="status-note" style="display: none;">Addresses are being located, this may take a moment...</div>
-                        </div>
-                        <div class="modal-results" id="modal-results"></div>
-                    </aside>
-                    <div class="modal-map-container">
-                        <div id="modal-map"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(mapModal);
-
-        // Cache DOM element references
-        dom.geocodeStatus = document.getElementById('modal-geocode-status');
-        dom.progressBar = document.getElementById('progress-bar');
-        dom.progressText = document.getElementById('progress-text');
-        dom.statusNote = document.getElementById('status-note');
-        dom.results = document.getElementById('modal-results');
-
-        // Close button handler
-        mapModal.querySelector('.modal-close').addEventListener('click', closeMapModal);
-        mapModal.querySelector('.modal-overlay').addEventListener('click', closeMapModal);
-
-        // Add event delegation for result item clicks
-        dom.results.addEventListener('click', (event) => {
-            // Find the clicked result item (handle clicks on child elements)
-            const item = event.target.closest('.result-item');
-            if (!item || item.classList.contains('no-coords')) return;
-
-            // Clear active state from all items
-            document.querySelectorAll('.result-item').forEach(el => {
-                el.classList.remove('active');
-                el.setAttribute('aria-selected', 'false');
-            });
-
-            // Set active state on clicked item
-            item.classList.add('active');
-            item.setAttribute('aria-selected', 'true');
-
-            // Find the index among navigable items
-            const navigableItems = Array.from(document.querySelectorAll('#modal-results .result-item:not(.no-coords)'));
-            selectedRestaurantIndex = navigableItems.indexOf(item);
-
-            // Get the corresponding restaurant
-            const restaurant = navigableRestaurants[selectedRestaurantIndex];
-            if (restaurant && restaurant.coords) {
-                map.setView([restaurant.coords.lat, restaurant.coords.lng], CONFIG.MAP.SELECTED_ZOOM);
-
-                const marker = markers.find(m => m.restaurantId === restaurant.id);
-                if (marker) {
-                    marker.openPopup();
-                }
-            }
-        });
-
-        // Add keyboard navigation listener
-        document.addEventListener('keydown', handleKeyboardNavigation);
-
-        // Initialize map
-        setTimeout(() => {
-            map = L.map('modal-map').setView(CONFIG.MAP.DEFAULT_CENTER, CONFIG.MAP.DEFAULT_ZOOM);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors',
-                maxZoom: 19
-            }).addTo(map);
-
-            // Start geocoding
-            startGeocoding(restaurants);
-        }, CONFIG.ANIMATION.MODAL_INIT_DELAY_MS);
-    }
-
-    function closeMapModal() {
-        if (mapModal) {
-            // Remove keyboard listener and reset state
-            document.removeEventListener('keydown', handleKeyboardNavigation);
-
-            mapModal.remove();
-            mapModal = null;
-            map = null;
-            markers = [];
-            selectedRestaurantIndex = -1;
-            navigableRestaurants = [];
-
-            // Clear cached DOM references
-            dom.geocodeStatus = null;
-            dom.progressBar = null;
-            dom.progressText = null;
-            dom.statusNote = null;
-            dom.results = null;
-        }
-    }
-
-    function showKeyboardHelp() {
-        // Check if help is already visible
-        if (document.getElementById('keyboard-help-overlay')) return;
-
-        const helpOverlay = document.createElement('div');
-        helpOverlay.id = 'keyboard-help-overlay';
-        helpOverlay.innerHTML = `
-            <div class="keyboard-help">
-                <h3>⌨️ Keyboard Shortcuts</h3>
-                <dl>
-                    <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
-                    <dd>Navigate restaurants</dd>
-                    <dt><kbd>ESC</kbd></dt>
-                    <dd>Close map</dd>
-                    <dt><kbd>?</kbd></dt>
-                    <dd>Show this help</dd>
-                </dl>
-                <p class="help-hint">Press any key to close</p>
-            </div>
-        `;
-
-        mapModal.appendChild(helpOverlay);
-
-        // Close help on any key press
-        const closeHelp = () => {
-            helpOverlay.remove();
-            document.removeEventListener('keydown', closeHelp);
-        };
-        setTimeout(() => document.addEventListener('keydown', closeHelp), 100);
-    }
-
-    function handleKeyboardNavigation(event) {
-        // Only process if modal is open
-        if (!mapModal) return;
-
-        // Handle help shortcut (works regardless of items)
-        if (event.key === '?' || event.key === '/') {
-            event.preventDefault();
-            showKeyboardHelp();
-            return;
-        }
-
-        // Handle escape (works regardless of items)
-        if (event.key === 'Escape') {
-            event.preventDefault();
-            // Close help overlay if visible
-            const helpOverlay = document.getElementById('keyboard-help-overlay');
-            if (helpOverlay) {
-                helpOverlay.remove();
-                return;
-            }
-            closeMapModal();
-            return;
-        }
-
-        // Navigation shortcuts need items
-        const items = document.querySelectorAll('#modal-results .result-item:not(.no-coords)');
-        if (items.length === 0) return;
-
-        switch(event.key) {
-            case 'ArrowDown':
-                event.preventDefault();
-                navigateRestaurants(1, items);
-                break;
-            case 'ArrowUp':
-                event.preventDefault();
-                navigateRestaurants(-1, items);
-                break;
-        }
-    }
-
-    function navigateRestaurants(direction, items) {
-        // Initialize or update index with wrap-around
-        if (selectedRestaurantIndex === -1) {
-            selectedRestaurantIndex = direction > 0 ? 0 : items.length - 1;
-        } else {
-            selectedRestaurantIndex = (selectedRestaurantIndex + direction + items.length) % items.length;
-        }
-
-        // Update visual state and scroll
-        items.forEach((item, index) => {
-            if (index === selectedRestaurantIndex) {
-                item.classList.add('active');
-                item.setAttribute('aria-selected', 'true');
-                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            } else {
-                item.classList.remove('active');
-                item.setAttribute('aria-selected', 'false');
-            }
-        });
-
-        // Zoom map to selected restaurant
-        const restaurant = navigableRestaurants[selectedRestaurantIndex];
-        if (restaurant && restaurant.coords) {
-            map.setView([restaurant.coords.lat, restaurant.coords.lng], CONFIG.MAP.SELECTED_ZOOM);
-            const marker = markers.find(m => m.restaurantId === restaurant.id);
-            if (marker) marker.openPopup();
-        }
-    }
-
-    // Helper function to update both status text and progress bar
-    function updateProgress(current, total, locatedCount) {
-        // Status shows located count (successful geocoding)
-        if (dom.geocodeStatus) dom.geocodeStatus.textContent = `${locatedCount}/${total} located`;
-
-        // Progress bar shows processed count (all attempts, including failures)
-        if (dom.progressText) {
-            if (current === total) {
-                dom.progressText.textContent = `Complete: ${locatedCount}/${total} located`;
-            } else {
-                dom.progressText.textContent = `Processing ${current}/${total}...`;
-            }
-        }
-
-        if (dom.progressBar) {
-            const percentage = total > 0 ? (current / total) * 100 : 0;
-            dom.progressBar.style.width = `${percentage}%`;
-        }
-    }
-
+    // Start geocoding process and display results in the modal
     async function startGeocoding(restaurants) {
         // Show initial state
         const cache = await CacheManager.load();
@@ -321,14 +43,14 @@
         }
 
         // Display initial results with skeleton
-        updateResultsList([]);
+        mapModal.updateResultsList([]);
         setTimeout(() => {
-            updateResultsList(currentResults);
-            updateMapMarkers(currentResults.filter(r => r.coords), false);
+            mapModal.updateResultsList(currentResults);
+            mapModal.updateMapMarkers(currentResults.filter(r => r.coords), false);
         }, CONFIG.UI.SKELETON_DELAY_MS);
 
         const initialLocatedCount = currentResults.filter(r => r.coords).length;
-        updateProgress(restaurants.length, restaurants.length, initialLocatedCount);
+        mapModal.updateProgress(restaurants.length, restaurants.length, initialLocatedCount);
 
         // Check if we need to geocode anything
         const needsGeocoding = restaurants.filter(r => {
@@ -337,180 +59,30 @@
         });
 
         if (needsGeocoding.length > 0) {
-            dom.statusNote.style.display = 'block';
-            dom.geocodeStatus.classList.add('loading');
+            mapModal.showLoadingStatus();
 
             let lastMarkerCount = currentResults.filter(r => r.coords).length;
 
             const results = await geocodeRestaurants(restaurants, (current, total, progressResults) => {
                 const locatedCount = progressResults.filter(r => r.coords).length;
-                updateProgress(current, total, locatedCount);
-                updateResultsList(progressResults);
+                mapModal.updateProgress(current, total, locatedCount);
+                mapModal.updateResultsList(progressResults);
 
                 // During progress, always animate=true to prevent auto-zoom
                 const newMarkersAdded = locatedCount > lastMarkerCount;
                 if (newMarkersAdded) {
-                    updateMapMarkers(progressResults.filter(r => r.coords), true);
+                    mapModal.updateMapMarkers(progressResults.filter(r => r.coords), true);
                 }
                 lastMarkerCount = locatedCount;
             });
 
             const locatedCount = results.filter(r => r.coords).length;
-            updateProgress(restaurants.length, restaurants.length, locatedCount);
-            dom.geocodeStatus.classList.remove('loading');
-            dom.statusNote.style.display = 'none';
-            updateResultsList(results);
+            mapModal.updateProgress(restaurants.length, restaurants.length, locatedCount);
+            mapModal.hideLoadingStatus();
+            mapModal.updateResultsList(results);
 
             // Don't auto-zoom after geocoding - let user explore or click to zoom
         }
-    }
-
-    // Create loading skeleton
-    function createLoadingSkeleton(count = 5) {
-        let html = '';
-        for (let i = 0; i < count; i++) {
-            html += `
-                <div class="skeleton-item">
-                    <div class="skeleton skeleton-number"></div>
-                    <div class="skeleton-content">
-                        <div class="skeleton skeleton-title"></div>
-                        <div class="skeleton skeleton-subtitle"></div>
-                    </div>
-                </div>
-            `;
-        }
-        return html;
-    }
-
-    function updateResultsList(restaurantList) {
-        if (!dom.results) return;
-
-        // Show skeleton if list is empty (during initial load)
-        if (restaurantList.length === 0) {
-            dom.results.innerHTML = createLoadingSkeleton(8);
-            return;
-        }
-
-        dom.results.innerHTML = '';
-
-        // Reset navigable restaurants array
-        navigableRestaurants = [];
-
-        restaurantList.forEach((restaurant, index) => {
-            const item = document.createElement('div');
-            item.className = 'result-item' + (restaurant.coords ? '' : ' no-coords');
-
-            // Add ARIA attributes
-            if (restaurant.coords) {
-                item.setAttribute('role', 'option');
-                item.setAttribute('aria-selected', 'false');
-                item.setAttribute('tabindex', '-1');
-            }
-
-            item.innerHTML = `
-                <div class="result-number">${index + 1}</div>
-                <div class="result-content">
-                    <div class="result-name">${escapeHtml(restaurant.name)}</div>
-                    <div class="result-address">${escapeHtml(restaurant.address)}</div>
-                </div>
-            `;
-
-            if (restaurant.coords) {
-                // Track for keyboard navigation
-                navigableRestaurants.push(restaurant);
-            }
-
-            dom.results.appendChild(item);
-        });
-
-        // Add ARIA role to container
-        dom.results.setAttribute('role', 'listbox');
-        dom.results.setAttribute('aria-label', 'Restaurant list');
-    }
-
-    function updateMapMarkers(restaurantList, animate = false) {
-        if (!map) return;
-
-        // When animate=false, do a full refresh (remove all and recreate)
-        if (!animate) {
-            markers.forEach(m => map.removeLayer(m));
-            markers = [];
-
-            restaurantList.forEach((restaurant, index) => {
-                if (!restaurant.coords) return;
-
-                const googleMapsQuery = encodeURIComponent(`${restaurant.name}, ${restaurant.address}, Austria`);
-                const marker = L.marker([restaurant.coords.lat, restaurant.coords.lng], {
-                    icon: createNumberedMarker(index + 1, false)
-                })
-                    .addTo(map)
-                    .bindPopup(`
-                        <div class="popup-name">${escapeHtml(restaurant.name)}</div>
-                        <div class="popup-address">${escapeHtml(restaurant.address)}</div>
-                        <div class="popup-links">
-                            <a href="${restaurant.url}" target="_blank">Falter</a>
-                            <a href="https://www.google.com/maps/search/?api=1&query=${googleMapsQuery}" target="_blank">Google Maps</a>
-                        </div>
-                    `);
-
-                marker.restaurantId = restaurant.id;
-                markers.push(marker);
-            });
-
-            if (markers.length > 0) {
-                const group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(CONFIG.MAP.BOUNDS_PADDING));
-            }
-            return;
-        }
-
-        // When animate=true, only add NEW markers that don't exist yet
-        const existingMarkerIds = new Set(markers.map(m => m.restaurantId));
-        let staggerDelay = 0;
-
-        restaurantList.forEach((restaurant, index) => {
-            if (!restaurant.coords) return;
-
-            // Skip if marker already exists
-            if (existingMarkerIds.has(restaurant.id)) {
-                return;
-            }
-
-            const googleMapsQuery = encodeURIComponent(`${restaurant.name}, ${restaurant.address}, Austria`);
-
-            // Add new marker with animation
-            const addMarker = () => {
-                const marker = L.marker([restaurant.coords.lat, restaurant.coords.lng], {
-                    icon: createNumberedMarker(index + 1, true)
-                })
-                    .addTo(map)
-                    .bindPopup(`
-                        <div class="popup-name">${escapeHtml(restaurant.name)}</div>
-                        <div class="popup-address">${escapeHtml(restaurant.address)}</div>
-                        <div class="popup-links">
-                            <a href="${restaurant.url}" target="_blank">Falter</a>
-                            <a href="https://www.google.com/maps/search/?api=1&query=${googleMapsQuery}" target="_blank">Google Maps</a>
-                        </div>
-                    `);
-
-                marker.restaurantId = restaurant.id;
-                markers.push(marker);
-
-                // Add pulse class for newly added markers
-                if (marker._icon) {
-                    marker._icon.classList.add('marker-pulse');
-                    setTimeout(() => {
-                        if (marker._icon) marker._icon.classList.remove('marker-pulse');
-                    }, CONFIG.ANIMATION.MARKER_PULSE_MS);
-                }
-            };
-
-            // Stagger each new marker
-            setTimeout(addMarker, staggerDelay);
-            staggerDelay += CONFIG.ANIMATION.MARKER_STAGGER_MS;
-        });
-
-        // Don't adjust zoom during progress updates - only at the very end
     }
 
     // Inject the map button
@@ -623,8 +195,17 @@
                 }
             }
 
-            // Show modal with map
-            createMapModal(restaurants);
+            // Create and show modal with map
+            mapModal = new MapModal(restaurants);
+            mapModal.show();
+
+            // Register callback for modal close
+            mapModal.onClose(() => {
+                mapModal = null;
+            });
+
+            // Start geocoding process
+            startGeocoding(restaurants);
 
             btn.innerHTML = originalHTML;
             btn.disabled = false;
