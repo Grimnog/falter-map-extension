@@ -44,6 +44,89 @@ This project adheres to a strict "Keep It Simple, Stupid" (KISS) philosophy. We 
 
 ---
 
+## 📋 Backlog
+
+### 🎟️ **TICKET: FALTMAP-26 - Support All Austrian Bundesländer (Not Just Vienna)**
+- Epic: E05 (Core Feature Enhancements)
+- Status: Design Phase
+- Priority: 🟡 High
+
+**User Story:**
+As a user searching for restaurants in any Austrian Bundesland (Salzburg, Tirol, Kärnten, etc.), I want the map to work correctly for my region, not just Vienna.
+
+**Context:**
+Currently the extension is Vienna-centric:
+- Default map center hardcoded to Vienna coordinates (48.2082, 16.3719)
+- Default zoom optimized for Vienna city
+- Untested with addresses from other Bundesländer
+
+**Austrian Bundesländer to support:**
+- Wien (currently working)
+- Niederösterreich
+- Oberösterreich
+- Vorarlberg
+- Burgenland
+- Steiermark
+- Tirol
+- Salzburg
+- Kärnten
+
+**Design Ideas & Discussion:**
+
+1. **Dynamic Map Centering:**
+   - **Option A:** Calculate centroid of all successfully geocoded restaurants
+   - **Option B:** Detect Bundesland from addresses and use predefined center coordinates
+   - **Option C:** Let Leaflet's `fitBounds()` handle it automatically (simplest)
+   - **Recommended:** Option C - rely on auto-zoom after first 5 restaurants
+
+2. **Geocoding Compatibility:**
+   - Current approach adds "Austria" to all queries - should work for all Bundesländer
+   - Nominatim should handle addresses from all Austrian states
+   - **Action needed:** Test with addresses from each Bundesland
+
+3. **Initial Map View:**
+   - **Option A:** Keep Vienna as default, rely on auto-zoom to adjust
+   - **Option B:** Detect region from first address and set initial center
+   - **Option C:** Use Austria-wide view (zoom out to show whole country)
+   - **Recommended:** Option A (simplest) or Option C (more neutral)
+
+4. **Zoom Level Considerations:**
+   - Vienna: City-scale searches (small area)
+   - Tirol/Salzburg: Could be state-wide searches (large area)
+   - Current auto-zoom (after 5 restaurants) should handle this automatically
+   - **May not need changes** - test first
+
+5. **Address Format Variations:**
+   - Different Bundesländer may have different address formats
+   - Example: "Hauptstraße 1, 5020 Salzburg" vs "Hauptstraße 1, 1010 Wien"
+   - **Action needed:** Verify Nominatim handles all formats correctly
+
+**Testing Strategy:**
+- Manual test searches in each Bundesland on Falter.at
+- Verify geocoding success rate for each region
+- Check map centering and zoom levels
+- Test edge cases: multi-Bundesland searches (e.g., cuisine filter across states)
+
+**Acceptance Criteria (TBD after design review):**
+- [ ] Extension works for searches in all 9 Bundesländer
+- [ ] Map centers appropriately based on search results location
+- [ ] Geocoding succeeds for addresses in all regions
+- [ ] Auto-zoom handles both city-level and state-level searches
+- [ ] Default map view is neutral (not Vienna-centric)
+- [ ] Manual testing confirms functionality in each Bundesland
+- [ ] Update CONFIG.MAP.DEFAULT_CENTER if needed
+- [ ] Update documentation to reflect Austria-wide support
+
+**Open Questions:**
+1. Should default center be Austria-wide or keep Vienna? (Most users are in Vienna)
+2. Do we need Bundesland-specific geocoding hints/optimizations?
+3. Should we detect and display which Bundesland(er) restaurants are from?
+4. How to handle edge case: search spans multiple Bundesländer?
+
+**Implementation Complexity:** Medium (mostly testing, minimal code changes)
+
+---
+
 ## 📋 Backlog (Chrome Web Store Compliance)
 
 ### 🎟️ **TICKET: FALTMAP-24 - Add Privacy Policy for Chrome Web Store Compliance**
