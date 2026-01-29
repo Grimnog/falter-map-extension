@@ -15,6 +15,7 @@ export class MapModal {
         this.markerClusterGroup = null; // Cluster group for markers
         this.modalElement = null;
         this.triggerElement = null; // Store trigger for focus restoration
+        this.hiddenElements = []; // Track elements hidden from screen readers
 
         // Cached DOM references
         this.dom = {
@@ -99,6 +100,9 @@ export class MapModal {
         // Add keyboard event listener for focus trap
         document.addEventListener('keydown', this.handleKeyDown);
 
+        // Hide background content from screen readers
+        this.hideBackgroundFromScreenReaders();
+
         // Move focus to modal content for accessibility
         const modalContent = this.modalElement.querySelector('.modal-content');
         if (modalContent) {
@@ -127,6 +131,9 @@ export class MapModal {
 
         // Remove keyboard event listener
         document.removeEventListener('keydown', this.handleKeyDown);
+
+        // Restore background content for screen readers
+        this.restoreBackgroundForScreenReaders();
 
         // Restore focus to trigger element
         if (this.triggerElement && typeof this.triggerElement.focus === 'function') {
@@ -365,9 +372,10 @@ export class MapModal {
             this.dom.results.appendChild(item);
         });
 
-        // Add ARIA role to container
+        // Add ARIA role to container and make it tab-focusable
         this.dom.results.setAttribute('role', 'listbox');
         this.dom.results.setAttribute('aria-label', 'Restaurant list');
+        this.dom.results.setAttribute('tabindex', '0');
     }
 
     /**
@@ -520,6 +528,31 @@ export class MapModal {
                 firstFocusable.focus();
             }
         }
+    }
+
+    /**
+     * Hide background content from screen readers
+     */
+    hideBackgroundFromScreenReaders() {
+        // Hide all direct children of body except our modal
+        const bodyChildren = Array.from(document.body.children);
+        bodyChildren.forEach(element => {
+            if (element !== this.modalElement && !element.hasAttribute('aria-hidden')) {
+                element.setAttribute('aria-hidden', 'true');
+                this.hiddenElements.push(element);
+            }
+        });
+    }
+
+    /**
+     * Restore background content for screen readers
+     */
+    restoreBackgroundForScreenReaders() {
+        // Remove aria-hidden from elements we added it to
+        this.hiddenElements.forEach(element => {
+            element.removeAttribute('aria-hidden');
+        });
+        this.hiddenElements = [];
     }
 
 
