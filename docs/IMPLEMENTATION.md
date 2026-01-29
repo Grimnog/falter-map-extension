@@ -33,51 +33,14 @@ This project adheres to a strict "Keep It Simple, Stupid" (KISS) philosophy. We 
 **Sprint 4 (Post-0.6.0 UX Improvements):**
 -   **FALTMAP-21:** Auto-zoom after first 5 geocoded restaurants for better initial view. ✅
 -   **FALTMAP-22:** Modal header redesign with Falter yellow branding and black text. ✅
+-   **FALTMAP-23:** German UI text throughout modal, cleaner header design. ✅
 
 ---
 
 ## 🚀 Current Sprint: Final Polish
 
-**Focus:** Complete German UI and prepare for 1.0 release.
+**Focus:** Prepare for 1.0 release.
 
-### 📋 In Progress (1 ticket):
-
-### 🎟️ **TICKET: FALTMAP-23 - Simplify Header and Add German Status Text**
-- Epic: E05 (Core Feature Enhancements)
-- Status: In Progress
-- Priority: 🟢 Medium
-
-
-**User Story:**
-As a German-speaking user, I want the extension UI in German and a cleaner header design, so the experience feels native and professional.
-
-**Context:**
-The modal header currently shows restaurant count and uses English status text. Since Falter.at is a German-language site with German-speaking users, the UI should be in German. Additionally, the restaurant count in the header is redundant and adds visual clutter.
-
-**Scope of Work:**
-
-1. **Remove Restaurant Count from Header:**
-   - Remove the `<p id="modal-info">${this.restaurants.length} restaurants</p>` line from MapModal.js
-   - Update CSS if needed to adjust spacing
-
-2. **Translate Status Text to German:**
-   - Change "Geocoding" label → "Suche läuft..."
-   - Change "X/Y located" → "X/Y gefunden"
-   - Update all related status text in MapModal.js
-
-**Files to Modify:**
-- `modules/MapModal.js` (remove restaurant count, update status text)
-
-**Acceptance Criteria:**
-- [x] Restaurant count removed from modal header
-- [x] Status label shows "Suche läuft..." during geocoding
-- [x] Status label changes to "Suche abgeschlossen" when complete
-- [x] Status shows "Suche abgeschlossen" immediately when all cached
-- [x] All counts show just "X/Y" without "gefunden" (cleaner)
-- [x] Status note removed (redundant with label)
-- [x] Manual testing confirms clean header and German text
-- [x] Commit message: `feat: simplify header and add German status text`
-- [ ] Ticket marked Done with all ACs checked
 
 ---
 
