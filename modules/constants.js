@@ -3,7 +3,9 @@
 export const CONFIG = {
     COLORS: {
         FALTER_YELLOW: '#fbe51f', // Falter brand yellow - centralized for CI changes
-        FALTER_YELLOW_RGB: 'rgb(251, 229, 31)' // RGB format for consistency
+        FALTER_YELLOW_RGB: 'rgb(251, 229, 31)', // RGB format for consistency
+        FALTER_BLACK: '#190f0b', // Falter brand black - centralized for CI changes
+        FALTER_BLACK_RGB: 'rgb(25, 15, 11)' // RGB format for consistency
     },
 
     CACHE: {
