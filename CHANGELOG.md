@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-01-29
+
+### Added
+- **Marker clustering** for dense map areas - clusters automatically split apart when zooming in
+- **Full accessibility support** - modal now fully usable with keyboard and screen readers
+- ARIA roles and labels throughout modal interface (dialog, listbox, options)
+- Focus management - focus moves to modal on open and returns to trigger button on close
+- Focus trap - Tab key cycles only through interactive elements within modal
+- Screen reader announcements for status updates and navigation
+
+### Changed
+- Organized third-party libraries into `vendor/leaflet/` directory
+- Cleaned up project structure - removed empty directories
+- Tuned clustering for district-level filtering (radius: 50px, disable at zoom 16)
+- Results list container now tab-focusable for keyboard navigation
+- Background content hidden from screen readers when modal is open
+
+### Technical
+- Integrated Leaflet.markercluster v1.5.3 library
+- Implemented WCAG 2.1 compliant focus management
+- Added `aria-hidden` management for modal backdrop
+- Progress bar now updates `aria-valuenow` dynamically
+- All interactive elements have proper ARIA labels and roles
+- Comprehensive test suite with 98 tests and 80%+ coverage
+
 ## [0.5.0] - 2025-01-28
 
 ### Added
@@ -91,6 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local storage for geocoding cache with TTL expiration
 - Address variation strategies for Vienna-specific formatting
 
+[0.6.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.6.0
 [0.5.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.5.0
 [0.4.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.4.0
 [0.3.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.3.0
