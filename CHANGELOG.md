@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-01-29
+
+### Added
+- **Auto-zoom** after first 5 geocoded restaurants for better initial map view
+- **German UI text** throughout modal (status labels, progress text)
+- Centralized Falter brand colors (yellow #fbe51f, black #190f0b) as CSS variables
+
+### Changed
+- Modal header redesigned with Falter yellow background and black text
+- Removed restaurant count from header for cleaner design
+- Status label changes from "Suche läuft..." to "Suche abgeschlossen" when complete
+- All progress counts show clean "X/Y" format without "gefunden"
+- Brand colors now centralized in CSS variables and constants.js
+
+### Fixed
+- Corrected Falter yellow from #FFD600 to #fbe51f (accurate brand color)
+- Modal header text now uses Falter black #190f0b instead of pure black
+- Status label no longer shows "abgeschlossen" prematurely on initial load
+
+### Technical
+- Added `getMarkerClusterGroup()` getter method to MapModal
+- CSS custom properties for easy brand color updates
+- CONFIG.COLORS in constants.js for centralized color definitions
+
 ## [0.6.0] - 2026-01-29
 
 ### Added
@@ -116,6 +140,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local storage for geocoding cache with TTL expiration
 - Address variation strategies for Vienna-specific formatting
 
+[0.7.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.7.0
 [0.6.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.6.0
 [0.5.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.5.0
 [0.4.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.4.0
