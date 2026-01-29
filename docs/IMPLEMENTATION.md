@@ -44,15 +44,11 @@ This project adheres to a strict "Keep It Simple, Stupid" (KISS) philosophy. We 
 
 **Focus:** Complete the essential user experience for v1.0.
 
-### 📋 In Progress (2 tickets):
+### 📋 In Progress (1 ticket):
 
 1. **FALTMAP-13: Add Marker Clustering for Dense Map Areas** (🟢 Medium)
    - **Why:** The single most critical UX improvement remaining. A map with overlapping pins is a broken map. This makes the core feature usable.
    - **Status:** In Progress
-
-2. **FALTMAP-15: Add Filter/Search Functionality in Results List** (🟢 Medium)
-   - **Why:** The most natural feature after seeing a list of items. It's a high-value, expected piece of functionality that makes the extension significantly more usable with large lists.
-   - **Status:** Open
 
 ---
 
@@ -78,6 +74,10 @@ The following tickets are explicitly **out of scope for v1.0**. They represent g
 ### 🎟️ **TICKET: FALTMAP-12 - Implement Virtual Scrolling for Large Result Lists**
 - **Status:** 🚫 Deferred
 - **Reason:** Over-engineered for the current problem. A simpler pagination approach would be preferred if list performance becomes a real-world issue. Adds too much complexity.
+
+### 🎟️ **TICKET: FALTMAP-15 - Add Filter/Search Functionality in Results List**
+- **Status:** 🚫 Deferred
+- **Reason:** The Falter website already provides robust filtering capabilities. Adding a secondary filter within the extension's UI is redundant and adds unnecessary complexity for a "map layer" extension focused on displaying pre-filtered results.
 
 ### 🎟️ **TICKET: FALTMAP-16 - Add Save Favorites Feature**
 - **Status:** 🚫 Deferred
