@@ -232,24 +232,26 @@ An Epic represents a large body of work that can be broken down into smaller tic
 
 ---
 
-## Sprint 3 🎯 Recommended (from Gemini Review)
+## Sprint 3 🎯 In Progress
 
 **Focus:** Stability through testing, then critical UX improvements
-**Estimated:** 18 story points
+**Total:** 18 story points
+**Progress:** 5/18 pts complete (28%)
 
-### Recommended Tickets (in priority order):
+### ✅ Done (5/18 pts):
+-   **FALTMAP-10:** Expand Test Coverage to All Critical Modules (5 pts, High) ✅
+    - **Completed:** 98 tests across 4 modules (100% pass rate)
+    - **Coverage:** Cache Manager, Geocoder, DOM Parser, Map Modal
+    - **Infrastructure:** HTML test runner, shared utilities, comprehensive documentation
 
-1. **FALTMAP-10:** Expand Test Coverage to All Critical Modules (5 pts, High)
-   - **Why first:** Provides safety net for all subsequent development
-   - **Impact:** Prevents regressions, enables confident refactoring
-   - **Target:** 80% line coverage for critical modules
+### 📋 Remaining (13/18 pts):
 
-2. **FALTMAP-13:** Add Marker Clustering for Dense Map Areas (5 pts, Medium)
-   - **Why second:** Directly addresses #1 UX pain point (overlapping markers)
+1. **FALTMAP-13:** Add Marker Clustering for Dense Map Areas (5 pts, Medium)
+   - **Why next:** Directly addresses #1 UX pain point (overlapping markers)
    - **Impact:** Makes map usable in dense areas (Innere Stadt)
    - **User Value:** Immediate, tangible improvement
 
-3. **FALTMAP-12:** Implement Virtual Scrolling for Large Result Lists (8 pts, Medium)
+2. **FALTMAP-12:** Implement Virtual Scrolling for Large Result Lists (8 pts, Medium)
    - **Why third:** Addresses list performance for large datasets
    - **Impact:** Smooth 60 FPS scrolling with 500+ restaurants
    - **Complexity:** More complex than clustering, benefits from FALTMAP-10 tests
@@ -633,7 +635,7 @@ Keyboard navigation (arrow keys, ESC, '?' help overlay) is currently mixed with 
 
 ### 🎟️ **TICKET: FALTMAP-10 - Expand Test Coverage to All Critical Modules**
 - Epic: E03
-- Status: Open
+- Status: Done ✅
 - Story Points: 5
 
 **User Story:**
