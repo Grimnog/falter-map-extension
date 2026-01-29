@@ -85,14 +85,14 @@ Vienna's 1st district often has 50+ restaurants in a small area, causing marker 
 - [x] `MapModal.js` uses `L.markerClusterGroup()` for all markers
 - [x] Cluster configuration is centralized in `constants.js`
 - [x] Cluster icons use library default styling (will customize if needed)
-- [ ] Clicking cluster zooms to show individual markers
-- [ ] At maximum zoom, clustering is disabled (all individual markers visible)
-- [ ] All marker click handlers continue to work
-- [ ] New marker animations are preserved
-- [ ] No console errors when markers cluster/uncluster
-- [ ] Manual test: Innere Stadt (50+ restaurants) shows proper clustering
-- [ ] Manual test: Zoom in/out smoothly transitions clusters
-- [ ] Manual test: Performance with 500+ markers is smooth (60 FPS)
+- [x] Clicking cluster zooms to show individual markers
+- [x] At maximum zoom (16+), clustering is disabled (all individual markers visible)
+- [x] All marker click handlers continue to work
+- [x] New marker animations are preserved
+- [x] No console errors when markers cluster/uncluster
+- [x] Manual test: Innere Stadt (50+ restaurants) shows proper clustering
+- [x] Manual test: Zoom in/out smoothly transitions clusters
+- [ ] Manual test: Performance with 500+ markers is smooth (60 FPS) - needs broader search test
 - [ ] The commit message follows format: `feat: add marker clustering for dense map areas`
 - [ ] The ticket is marked Done with all ACs checked
 
