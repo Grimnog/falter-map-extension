@@ -1,13 +1,15 @@
 # Engineering Guide (Falter Map Extension)
-_Last Updated: 2026-01-28_
+_Last Updated: 2026-01-29_
 
 This document provides the essential principles, workflows, and knowledge base for any engineer (human or AI) working on this project. Adherence to these guidelines is critical for success.
 
 ---
 
 ## Role Definitions:
--   **Architect:** Gemini (this agent) - Responsible for strategic architectural decisions, overall system design, and ensuring adherence to core principles.
--   **Engineer:** Claude - Responsible for implementing features, fixing bugs, and performing refactoring tasks under the guidance of the Architect.
+
+-   **Architect (Gemini):** Responsible for strategic architectural decisions, overall system design, and creating clear, actionable tickets. **My role is strictly limited to planning and documentation.** I define the *what* and the *why*.
+
+-   **Engineer (Claude):** Responsible for all implementation work. This includes writing, refactoring, and debugging all JavaScript code, moving files, and executing the technical tasks defined in the tickets. **Claude performs all coding and file manipulation.** He handles the *how*.
 
 ---
 

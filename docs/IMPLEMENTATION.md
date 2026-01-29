@@ -116,8 +116,98 @@ The extension currently has keyboard navigation (arrow keys, ESC), but lacks pro
 - [ ] Manual test: Navigate modal with keyboard only (no mouse)
 - [ ] Manual test: Screen reader announces modal correctly
 - [ ] Manual test: Screen reader announces restaurant selection
-- [ ] The commit message follows format: `feat: add basic accessibility with ARIA and focus management`
+- [ ] The commit message follows the format: `feat: add basic accessibility with ARIA and focus management`
 - [ ] The ticket is marked Done with all ACs checked
+
+---
+
+## Backlog
+
+### 🎟️ **TICKET: FALTMAP-20 - Refactor Project Structure and Centralize App Logic**
+- Epic: E01 (Foundational Refactoring)
+- Status: Open
+- Priority: 🔴 Critical
+
+**User Story:**
+As a developer, I want a clean, intuitive file structure and a central application controller so that the codebase is easy to navigate, and the application logic is clearly separated from the entry point.
+
+**Context:**
+Following our architectural review (`REFACTORING_ANALYSIS.md`), we identified that `content.js` is still doing too much orchestration, and several core files live in the root directory. This ticket implements the final structural cleanup to align with our target architecture before v1.0.
+
+**Technical Debt Reference:** DEBT-05, DEBT-06, DEBT-07
+
+**Scope of Work:**
+
+1.  **Reorganize File Structure:**
+    -   **Action:** Create the following new directories if they don't exist:
+        -   `modules/chrome/`
+        -   `modules/ui/`
+        -   `modules/utils/`
+        -   `vendor/`
+        -   `vendor/leaflet/`
+    -   **Action:** Move the following files:
+        -   `background.js` → `modules/chrome/background.js`
+        -   `popup.js` → `modules/chrome/popup.js`
+        -   `leaflet.js` → `vendor/leaflet/leaflet.js`
+        -   `leaflet.css` → `vendor/leaflet/leaflet.css`
+
+2.  **Update Manifest and HTML Paths:**
+    -   **File to Modify:** `manifest.json`
+    -   **Changes:**
+        -   Update the path for `background.js` script to `modules/chrome/background.js`.
+        -   Update the paths for `leaflet.js` and `leaflet.css` to their new locations in `vendor/leaflet/`.
+    -   **File to Modify:** `popup.html`
+    -   **Changes:**
+        -   Update the `<script>` tag's `src` to point to `modules/chrome/popup.js`.
+
+3.  **Create New Controller and UI Modules:**
+    -   **File to Create:** `modules/App.js` (Central Application Controller)
+    -   **File to Create:** `modules/ui/UIManager.js` (Handles button injection)
+    -   **File to Create:** `modules/utils/UserConsent.js` (Handles API confirmation dialog)
+
+4.  **Refactor `content.js` to be a Pure Entry Point:**
+    -   **File to Modify:** `content.js`
+    -   **Changes:**
+        -   Remove ALL logic except for importing and instantiating `App.js`.
+        -   The final file should look similar to this:
+            ```javascript
+            import { App } from './modules/App.js';
+            (async function() {
+                'use strict';
+                if (window.falterMapExtensionLoaded) return;
+                window.falterMapExtensionLoaded = true;
+                const app = new App();
+                app.init();
+            })();
+            ```
+
+5.  **Implement the New Modules:**
+    -   **`modules/App.js`:**
+        -   Move the orchestration logic from `handleMapButtonClick` and `startGeocoding` into methods of an `App` class.
+        -   Manage `mapModal` and `navigation` as instance properties (`this.mapModal`).
+        -   Instantiate and use the new `UIManager` and `UserConsent` modules.
+    -   **`modules/ui/UIManager.js`:**
+        -   Move the `injectMapButton` function and its related `MutationObserver` logic into this module.
+        -   It should accept a callback in its constructor to be fired on button click.
+    -   **`modules/utils/UserConsent.js`:**
+        -   Create a static method `confirmGeocoding(count)` that contains the `confirm()` dialog logic and returns a Promise.
+    -   **`modules/ErrorHandler.js` (or `MapModal.js`):**
+        -   Move the "No Restaurants Found" modal creation logic into a new static method, e.g., `ErrorHandler.showEmptyState()`.
+
+**Acceptance Criteria (AC):**
+- [ ] New directories (`modules/chrome`, `modules/ui`, `modules/utils`, `vendor`) are created.
+- [ ] All specified files (`background.js`, `popup.js`, `leaflet.js`, `leaflet.css`) are moved to their new locations.
+- [ ] `manifest.json` is updated with the correct paths for background script and content scripts.
+- [ ] `popup.html` is updated with the correct path for its script.
+- [ ] New stub files `App.js`, `UIManager.js`, and `UserConsent.js` are created.
+- [ ] `content.js` is refactored to be a pure entry point (~10 lines).
+- [ ] All application logic is moved from `content.js` to the `App.js` controller.
+-   [ ] The `injectMapButton` logic is moved to `UIManager.js`.
+-   [ ] The `confirm()` dialog logic is moved to `UserConsent.js`.
+-   [ ] The "No Restaurants Found" modal logic is moved to `ErrorHandler.js`.
+- [ ] **CRITICAL:** The extension's functionality is identical to before the refactoring. All manual tests pass.
+- [ ] The commit message follows the format: `refactor: centralize app logic and reorganize file structure`
+- [ ] The ticket is moved to the "Done" section in this document.
 
 ---
 
