@@ -176,32 +176,29 @@
     flex-direction: column;
     overflow: hidden;
     border-right: 1px solid rgb(240, 240, 240);
+    position: relative;
 }
 
 .modal-header {
-    padding: 26px 24px 26px;
+    padding: 18px 24px;
     background: var(--falter-yellow);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    border-bottom: 2px solid var(--falter-black);
 }
 
 .modal-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: rgba(0, 0, 0, 0.1);
+    display: none;
 }
 
 .modal-header h1 {
     font-size: 19px;
     font-weight: 800;
-    margin: 0 0 6px 0;
+    margin: 0 0 4px 0;
     color: var(--falter-black);
     letter-spacing: 0.025em;
     line-height: 1.2;
+    max-width: 180px;
 }
 
 .modal-header h1 .falter-brand {
@@ -217,30 +214,43 @@
 }
 
 .modal-status {
-    padding: 16px 24px 14px;
-    background: white;
-    border-bottom: 1px solid rgb(240, 240, 240);
+    position: absolute;
+    top: 19px;
+    right: 24px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    z-index: 10;
 }
 
 .status-row {
-    display: flex;
-    justify-content: space-between;
+    display: inline-flex;
     align-items: center;
-    font-size: 13px;
+    gap: 6px;
+    font-size: 12px;
 }
 
 .status-label {
-    color: rgb(115, 115, 115);
-    font-weight: 400;
+    display: none;
 }
 
 .status-value {
-    font-weight: 600;
-    color: rgb(26, 26, 26);
-    background: rgb(251, 229, 31);
-    padding: 2px 8px;
-    border-radius: 4px;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    color: var(--falter-black);
+    background: rgba(255, 255, 255, 0.3);
+    padding: 4px 10px;
+    border-radius: 12px;
     font-size: 12px;
+    letter-spacing: 0.01em;
+    backdrop-filter: blur(4px);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1.5px solid var(--falter-black);
 }
 
 .progress-container {
