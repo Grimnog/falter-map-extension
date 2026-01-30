@@ -179,18 +179,21 @@ export class MapModal {
         try {
             this.map = L.map('modal-map').setView(CONFIG.MAP.DEFAULT_CENTER, CONFIG.MAP.DEFAULT_ZOOM);
 
-            // Build attribution text
+            // Build attribution text - keep Leaflet default first
             let attributionText = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-
-            // Add result limiting info if applicable
-            if (this.estimatedTotal && this.estimatedTotal > this.restaurants.length) {
-                attributionText += ` | <strong>${this.restaurants.length} von ${this.estimatedTotal} angezeigt (Limit)</strong> · Mit Filter eingrenzen`;
-            }
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: attributionText,
                 maxZoom: 19
             }).addTo(this.map);
+
+            // Add our custom result limiting info as separate attribution control if applicable
+            if (this.estimatedTotal && this.estimatedTotal > this.restaurants.length) {
+                const customAttribution = `<strong>${this.restaurants.length} von ${this.estimatedTotal} angezeigt (Limit) · Mit Filter eingrenzen</strong>`;
+                L.control.attribution({ prefix: false, position: 'bottomleft' })
+                    .addAttribution(customAttribution)
+                    .addTo(this.map);
+            }
 
             // Create marker cluster group
             this.markerClusterGroup = L.markerClusterGroup({
