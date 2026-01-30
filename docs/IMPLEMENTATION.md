@@ -5,46 +5,113 @@ This document tracks the **current active sprint** for the Falter Map extension 
 **Related Documentation:**
 - **`docs/BACKLOG.md`**: Pool of tickets to draw from for future sprints
 - **`docs/CHANGELOG_TICKETS.md`**: Archive of completed tickets
-- **`docs/CLAUDE.md`**: Engineering guide with principles and workflows
+- **`docs/AGENT.md`**: Engineering guide with principles and workflows
 - **`docs/REFACTORING_ANALYSIS.md`**: Long-term architectural guide and technical debt registry
 
 ---
 
-## 🚀 Current Sprint: Final Polish
+## 🚀 Current Sprint: Reliable Foundation
 
-**Sprint Goal:** Prepare for v1.0 release with core features, polish, and stability.
+**Sprint Goal:** Establish ethical, reliable behavior as foundation for v1.0.
 
-**Sprint Start:** TBD
+**Focus:** Epic E03 (Testing & Reliability) - Be a good web citizen.
+
+**Sprint Start:** 2026-01-30
 **Target End:** TBD
-
-### Active Tickets
-
-_(No tickets assigned to this sprint yet. Review BACKLOG.md to select tickets for the sprint.)_
 
 ---
 
-## Sprint Planning Notes
+### Active Tickets
 
-When planning the next sprint:
-1. Review `docs/BACKLOG.md` for available tickets
-2. Select tickets based on:
-   - Priority (Critical → High → Medium → Low)
-   - Dependencies (blocked/blocking relationships)
-   - Sprint capacity and timeline
-3. Move selected tickets to the "Active Tickets" section above
-4. Update ticket status to "In Progress" in BACKLOG.md when work begins
-5. Move completed tickets to CHANGELOG_TICKETS.md when done
+#### **Phase 1: Critical (Must Do First)**
+
+**🎟️ FALTMAP-34 - Implement Result Limiting to Prevent API Abuse**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🔴 Critical
+- **BLOCKER for FALTMAP-26** (Austria-wide support)
+
+**Summary:** Implement hard cap of 100 geocoded restaurants per search to respect Nominatim TOS and prevent bulk geocoding abuse.
+
+**Key Points:**
+- Hard limit: 100 results
+- Three-tier warning system (≤100, 101-1000, >1000)
+- Handles "Alle Bundesländer" (6952 results) gracefully
+- Non-configurable by users (prevents abuse)
+
+---
+
+#### **Phase 2: High Priority**
+
+**🎟️ FALTMAP-29 - Implement Polite Delays in Pagination Fetching**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🟡 High
+
+**Summary:** Add 300ms delay between pagination page fetches to respect Falter's servers and be a good web citizen.
+
+**Key Points:**
+- Configurable delay (250-500ms, default 300ms)
+- Applied in `fetchAllPages()` function
+- Prevents hammering Falter's backend
+
+---
+
+**🎟️ FALTMAP-31 - Implement Graceful Degradation for API Failures**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🟡 High
+
+**Summary:** Decouple restaurant list from geocoding success so extension provides value even when Nominatim API fails.
+
+**Key Points:**
+- Show modal immediately with restaurant list
+- Geocode in background
+- Display clear error message if geocoding fails
+- List remains functional regardless of API status
+
+---
+
+#### **Phase 3: Medium Priority**
+
+**🎟️ FALTMAP-32 - Optimize Cache Cleaning with Just-in-Time Execution**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🟢 Medium
+
+**Summary:** Move cache cleanup from page load to when extension is actively used (just-in-time).
+
+**Key Points:**
+- Remove `CacheManager.cleanExpired()` from init
+- Add to start of `geocodeRestaurants()`
+- Performance optimization for passive browsing
+
+---
+
+**🎟️ FALTMAP-33 - Add Data Provenance Transparency with Attribution**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🟢 Medium
+
+**Summary:** Add clear attribution for OpenStreetMap and Nominatim to build user trust and give proper credit.
+
+**Key Points:**
+- Verify OSM attribution visible
+- Add "Geocodierung durch Nominatim" text
+- Non-intrusive placement
 
 ---
 
 ## Sprint Workflow
 
 **During the sprint:**
-- Mark tickets as "In Progress" when starting work
-- Check off Acceptance Criteria as you complete them
-- Move completed tickets to `docs/CHANGELOG_TICKETS.md`
-- Update BACKLOG.md to reflect current ticket status
+1. Work through tickets in priority order (Phase 1 → Phase 2 → Phase 3)
+2. Mark ticket as "In Progress" when starting work
+3. Check off Acceptance Criteria as you complete them
+4. Test thoroughly before committing (run `tests/test-runner.html`)
+5. Make atomic commits following conventional commit format
+6. Move completed tickets to `docs/CHANGELOG_TICKETS.md`
 
 **Sprint completion:**
-- When all tickets are done, the sprint is complete
-- Plan the next sprint by selecting new tickets from BACKLOG.md
+- When all 5 tickets are done, sprint is complete
+- Plan next sprint: Austria-wide (FALTMAP-26) or UI Polish (E04)
