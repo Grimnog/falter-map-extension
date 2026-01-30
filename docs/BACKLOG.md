@@ -375,6 +375,7 @@ Currently, README lacks this documentation.
    - Where it goes (Nominatim API)
    - What we store (local cache, 30 days)
    - No tracking, no analytics
+   - Font loading: Uses Bunny Fonts (EU-based, GDPR-compliant) instead of Google Fonts to respect European privacy laws
 
 **Acceptance Criteria:**
 - [ ] "How It Works" section added
