@@ -106,6 +106,11 @@ export async function geocodeAddress(address) {
  * @returns {Promise<Array>} Array of restaurants with coords property added
  */
 export async function geocodeRestaurants(restaurantList, progressCallback) {
+    // Clean expired cache entries just-in-time (only when extension is used)
+    await CacheManager.cleanExpired().catch(err => {
+        console.error('Cache cleanup error:', err);
+    });
+
     const cache = await CacheManager.load();
     const results = [];
     let needsGeocoding = [];

@@ -310,11 +310,6 @@
 
     // Initialize
     function init() {
-        // Clean expired cache on startup
-        CacheManager.cleanExpired().catch(err => {
-            console.error('Cache cleanup error:', err);
-        });
-
         setTimeout(injectMapButton, CONFIG.ANIMATION.BUTTON_INJECT_DELAY_MS);
 
         const observer = new MutationObserver(() => {
