@@ -28,21 +28,6 @@ After completing the "Reliable Foundation" sprint (E03), we now have ethical, re
 
 #### **Phase 1: High Priority**
 
-**🎟️ FALTMAP-27 - Improve Font Readability and Alignment with Falter Style**
-- Epic: E04 (UI/UX Polish)
-- Status: Open
-- Priority: 🟡 High
-
-**Summary:** Improve font readability and align with Falter's visual identity using free font alternatives.
-
-**Key Points:**
-- Research free alternatives to Falter's fonts (Futura Round, Laguna Vintage)
-- Apply to modal UI for improved readability
-- Maintain consistency with Falter's brand aesthetic
-- Test cross-browser compatibility
-
----
-
 **🎟️ FALTMAP-30 - Refactor Popup for Design Consistency and UX Polish**
 - Epic: E04 (UI/UX Polish)
 - Status: Open

@@ -471,6 +471,95 @@ attribution: '© OpenStreetMap contributors | Geocoding via Nominatim'
 
 ---
 
+## Sprint 6: UI/UX Polish
+
+**Started:** 2026-01-30
+
+### FALTMAP-27: Improve Font Readability and Alignment with Falter Style
+- **Status:** Done ✅
+- **Epic:** E04 (UI/UX Polish)
+- **Priority:** High
+- **Completed:** 2026-01-30
+
+**User Story:**
+As a user, I want the extension's text to be clear and readable, with a visual style that feels consistent with Falter's branding.
+
+**Context:**
+The modal used system fonts (San Francisco, Segoe UI, Roboto) which didn't align with Falter's visual identity:
+- Falter uses rounded, geometric fonts (Futura Round, Laguna Vintage)
+- System fonts felt generic and not brand-aligned
+- Readability could be improved with better typography
+
+**Additional Challenge - Privacy Compliance:**
+During implementation, discovered that using Google Fonts violates European privacy laws (GDPR/Austrian data protection). Google Fonts tracks user IP addresses, which has led to actual fines in Austria and Germany.
+
+**Solution Implemented:**
+1. **Font Choice:** Nunito (geometric, rounded sans-serif) via Bunny Fonts
+   - Similar aesthetic to Futura Round (rounded, friendly, modern)
+   - Excellent readability at all sizes
+   - Multiple weights (400, 600, 700, 800) for typography hierarchy
+
+2. **GDPR-Compliant Delivery:** Bunny Fonts (EU-based CDN)
+   - Drop-in replacement for Google Fonts
+   - No IP tracking or data collection
+   - Respects European privacy laws
+   - All fonts open source (SIL Open Font License)
+
+3. **Typography Improvements:**
+   - Letter-spacing increased to 0.025em in modal header (was -0.02em)
+   - Letter-spacing increased to 0.01em in popup header (was -0.03em)
+   - Modal header padding balanced: 26px top/bottom (was 28px/24px asymmetric)
+   - Header font weight increased to 800 for more impact
+
+4. **Applied to All UI Elements:**
+   - Modal content (#falter-map-modal)
+   - Button (#falter-map-btn)
+   - Toast notifications
+   - Alert modals
+   - Popup (letter-spacing only, full popup refactor is FALTMAP-30)
+
+**Technical Implementation:**
+```css
+/* Before: System fonts */
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+/* After: Bunny Fonts with fallbacks */
+@import url('https://fonts.bunny.net/css?family=nunito:400,600,700,800');
+--font-primary: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+```
+
+**Outcome:**
+- ✅ Rounder, friendlier typography aligned with Falter's brand
+- ✅ Improved readability throughout the modal
+- ✅ Better letter-spacing (no longer cramped)
+- ✅ Properly centered header
+- ✅ GDPR-compliant (no Google tracking)
+- ✅ Respects Austrian/European privacy laws
+- ✅ System font fallbacks for reliability
+
+**Acceptance Criteria Completed:**
+- ✅ Free font alternatives identified (Nunito via Bunny Fonts)
+- ✅ Fonts tested for readability and visual appeal
+- ✅ New fonts applied to all modal UI elements
+- ✅ Font sizes and weights consistent throughout
+- ✅ Fonts load correctly with appropriate fallbacks
+- ✅ Manual testing confirmed improved readability
+- ✅ Visual style aligned with Falter's aesthetic
+- ✅ No performance impact from font loading
+- ✅ Privacy-compliant font delivery (Bunny Fonts, not Google Fonts)
+
+**Key Files Modified:**
+- `content.css` - Added Bunny Fonts import, updated all font-family declarations, improved letter-spacing and header padding
+- `popup.html` - Improved letter-spacing for header text
+- `docs/BACKLOG.md` - Updated FALTMAP-35 to document Bunny Fonts usage
+
+**Privacy Compliance Research:**
+- Bunny Fonts: https://fonts.bunny.net/ (EU-based, GDPR-compliant)
+- Austrian data protection warnings about Google Fonts: https://www.wko.at/datenschutz/abmahnungen-google-fonts
+- European alternatives: https://european-alternatives.eu/alternative-to/google-fonts
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.
