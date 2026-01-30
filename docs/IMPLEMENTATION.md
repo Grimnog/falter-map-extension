@@ -59,7 +59,7 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 **🎟️ FALTMAP-31 - Implement Graceful Degradation for API Failures**
 - Epic: E03 (Testing & Reliability)
-- Status: Open
+- Status: Done ✅
 - Priority: 🟡 High
 
 **Summary:** Decouple restaurant list from geocoding success so extension provides value even when Nominatim API fails.
