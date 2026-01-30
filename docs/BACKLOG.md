@@ -484,48 +484,49 @@ As a user, I want to know where the extension's map data comes from, so I can tr
 **Context:**
 Being transparent about data sources builds user trust and is proper "good web citizen" behavior. We use:
 - OpenStreetMap for map tiles
-- Nominatim for geocoding
+- Nominatim for geocoding (which uses OSM data)
 
-Both are free, open services that deserve proper attribution. This also aligns with OpenStreetMap's license requirements.
+Both are free, open services that deserve proper attribution. **This is also a license requirement.**
 
-**Current State:**
-- Leaflet likely shows default "© OpenStreetMap contributors" attribution (need to verify)
-- No mention of Nominatim anywhere in the UI
+**License Requirement (OSM Foundation Attribution Guidelines):**
+> "Geocoders that use OpenStreetMap data must credit OpenStreetMap"
+> "Applications that incorporate such a geocoder must credit OpenStreetMap"
+
+Source: https://osmfoundation.org/wiki/Licence/Attribution_Guidelines
+
+Since we use Nominatim (a geocoder using OSM data), we **must** credit OpenStreetMap for the geocoding service, not just the map tiles.
+
+**Current State (Verified):**
+- ✅ Leaflet shows "© OpenStreetMap contributors" attribution for map tiles (bottom-right)
+- ❌ No attribution for geocoding service (license violation!)
+- ❌ No mention of Nominatim anywhere in the UI
 
 **Proposed Enhancement:**
-Add clear, visible attribution for both data sources directly in the map modal.
+Extend Leaflet attribution to credit both map tiles AND geocoding service, while also mentioning Nominatim for transparency.
 
 **Scope of Work:**
 
-1. **Verify existing attribution:**
-   - Check if Leaflet's default OpenStreetMap attribution is present and visible
-   - If not, ensure it's enabled and displayed
+1. **Update Leaflet attribution in `MapModal.js`:**
+   - Current: `'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'`
+   - New: `'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Geocoding via <a href="https://nominatim.org">Nominatim</a>'`
 
-2. **Add Nominatim attribution:**
-   - In `MapModal.js`, add a small text element near the map controls
-   - Suggested text: "Geocodierung durch Nominatim" or "Geocoding by Nominatim"
-   - Style it to be non-intrusive but readable (similar to Leaflet attribution)
-
-3. **Placement options:**
-   - Bottom-right corner (near Leaflet zoom controls)
-   - Or integrate into existing Leaflet attribution line
-   - Should not obstruct map or restaurant markers
-
-4. **Styling:**
-   - Small, subtle font (10-11px)
-   - Gray color (#666 or similar)
-   - Link "Nominatim" to https://nominatim.openstreetmap.org if possible
+2. **Result:**
+   - Credits OSM for both map tiles AND geocoding (license compliant!)
+   - Credits Nominatim as the specific geocoding service (transparency)
+   - Minimal code change (single line update)
+   - Uses existing Leaflet attribution mechanism (no new UI elements needed)
 
 **Acceptance Criteria:**
-- [ ] OpenStreetMap attribution is visible in map modal
-- [ ] Nominatim attribution added to map modal
-- [ ] Attribution text is in German (or bilingual if appropriate)
-- [ ] Attribution is non-intrusive but clearly readable
-- [ ] Attribution doesn't obstruct map markers or UI elements
-- [ ] Links to sources work correctly (if implemented)
-- [ ] Manual testing confirms visibility on different screen sizes
-- [ ] Styling is consistent with overall modal design
-- [ ] Commit message follows format: `feat: add data provenance attribution for OSM and Nominatim`
+- [ ] Leaflet attribution updated to include both OSM and Nominatim
+- [ ] Attribution text: `"© OpenStreetMap contributors | Geocoding via Nominatim"`
+- [ ] OpenStreetMap link points to `https://www.openstreetmap.org/copyright`
+- [ ] Nominatim link points to `https://nominatim.org`
+- [ ] Attribution is visible in bottom-right corner of map (Leaflet default)
+- [ ] Attribution is clearly readable and non-intrusive
+- [ ] Links work correctly when clicked
+- [ ] Manual testing confirms visibility and functionality
+- [ ] All existing tests still pass
+- [ ] Commit message follows format: `feat: add Nominatim attribution for geocoding compliance`
 
 **Design Considerations:**
 - Keep it simple and subtle
@@ -533,9 +534,12 @@ Add clear, visible attribution for both data sources directly in the map modal.
 - Reinforce trust without cluttering UI
 
 **Technical Notes:**
-- Low effort, high value for ethics and trust
-- OpenStreetMap attribution may already exist (verify first)
-- Good practice for open data usage
+- **License compliance issue** - OSM Foundation guidelines explicitly require geocoding attribution
+- Single line change in MapModal.js (very low effort)
+- High value for ethics, trust, and legal compliance
+- Research sources:
+  - https://osmfoundation.org/wiki/Licence/Attribution_Guidelines
+  - https://wiki.openstreetmap.org/wiki/Attribution
 
 ---
 
