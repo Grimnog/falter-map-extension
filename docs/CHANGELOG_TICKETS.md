@@ -343,6 +343,67 @@ Previously, if the Nominatim geocoding API failed completely (network error, API
 
 ---
 
+### FALTMAP-32: Optimize Cache Cleaning with Just-in-Time Execution
+- **Status:** Done ✅
+- **Epic:** E03 (Testing & Reliability)
+- **Priority:** Medium
+- **Completed:** 2026-01-30
+
+**User Story:**
+As a user browsing Falter.at, I want the extension to only do work when I actually use it, so it doesn't slow down my normal browsing.
+
+**Context:**
+Previously, `CacheManager.cleanExpired()` ran in the `init()` sequence on every page load of a Falter.at search results page. This meant:
+- Extension performed cache cleanup even if user never clicked "Auf Karte anzeigen"
+- Unnecessary work on every page visit
+- Wasted CPU cycles and storage I/O for users just browsing
+
+**Solution Implemented:**
+Moved cache cleanup to just-in-time execution - it now runs only when the user actively uses the extension.
+
+**Technical Implementation:**
+1. **Removed from content.js init():**
+   ```javascript
+   // Removed these lines (313-316):
+   CacheManager.cleanExpired().catch(err => {
+       console.error('Cache cleanup error:', err);
+   });
+   ```
+
+2. **Added to geocoder.js geocodeRestaurants():**
+   ```javascript
+   // Added at start of function (109-113):
+   await CacheManager.cleanExpired().catch(err => {
+       console.error('Cache cleanup error:', err);
+   });
+   ```
+
+**Flow Change:**
+- **Before:** Page loads → init() → CacheManager.cleanExpired() runs (even if user never clicks button)
+- **After:** User clicks "Auf Karte anzeigen" → geocodeRestaurants() → CacheManager.cleanExpired() → geocode
+
+**Outcome:**
+- ✅ Cache cleanup only runs when extension is actively used
+- ✅ Improved performance for passive browsing (no unnecessary work)
+- ✅ No functionality change - cache expiration still 30 days
+- ✅ Aligns with "do work only when needed" principle
+
+**Acceptance Criteria Completed:**
+- ✅ `CacheManager.cleanExpired()` removed from init sequence
+- ✅ `CacheManager.cleanExpired()` added to start of `geocodeRestaurants()`
+- ✅ Cache cleanup only runs when user clicks button
+- ✅ No change in cache expiration behavior (still 30 days)
+- ✅ All existing tests pass (72/72 = 100%)
+- ✅ Manual test: Passive browsing - no cache cleanup logs
+- ✅ Manual test: Active use - cache cleanup runs before geocoding
+- ✅ User verified: Page load feels snappier
+
+**Key Files Modified:**
+- `content.js` - Removed cache cleanup from init()
+- `modules/geocoder.js` - Added cache cleanup to geocodeRestaurants()
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.

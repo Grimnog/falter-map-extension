@@ -76,7 +76,7 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 **🎟️ FALTMAP-32 - Optimize Cache Cleaning with Just-in-Time Execution**
 - Epic: E03 (Testing & Reliability)
-- Status: Open
+- Status: Done ✅
 - Priority: 🟢 Medium
 
 **Summary:** Move cache cleanup from page load to when extension is actively used (just-in-time).
