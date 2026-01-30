@@ -9,7 +9,8 @@ This document contains all backlog tickets that can be drawn from for current an
 ### 🎟️ **TICKET: FALTMAP-26 - Support All Austrian Bundesländer (Not Just Vienna)**
 - Epic: E05 (Core Feature Enhancements)
 - Status: Design Phase
-- Priority: 🔴 Critical
+- Priority: 🟡 High
+- **Depends on:** FALTMAP-34 (Result Limiting) must be completed first
 
 **User Story:**
 As a user searching for restaurants in any Austrian Bundesland (Salzburg, Tirol, Kärnten, etc.), I want the map to work correctly for my region, not just Vienna.
@@ -535,6 +536,145 @@ Add clear, visible attribution for both data sources directly in the map modal.
 - Low effort, high value for ethics and trust
 - OpenStreetMap attribution may already exist (verify first)
 - Good practice for open data usage
+
+---
+
+### 🎟️ **TICKET: FALTMAP-34 - Implement Result Limiting to Prevent API Abuse**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🔴 Critical
+
+**User Story:**
+As a responsible user of open-source infrastructure (Nominatim), I want the extension to limit geocoding to a reasonable number of results, so we don't violate Nominatim's Terms of Service or abuse their free service.
+
+**Context:**
+Nominatim's usage policy explicitly states: **"Nominatim is not suitable for bulk geocoding."** They provide a free service with a 1 req/sec rate limit and expect responsible usage.
+
+**Current Risk:**
+- Falter.at allows searches that return massive result sets
+- "Alle Bundesländer" returns **6952 restaurants**
+- At 1 req/sec, that's **116 minutes** of continuous API calls
+- This violates Nominatim TOS (bulk geocoding)
+- Abuses both Nominatim and Falter's infrastructure
+- Makes us a bad actor in the open-source ecosystem
+
+**Problem Scenarios:**
+1. User selects "Alle Bundesländer" → 6952 results
+2. User selects broad filters in any Bundesland → 500+ results
+3. Extension attempts to geocode everything → API abuse
+
+**Proposed Solution:**
+Implement a **hard cap of 100 geocoded restaurants per search.** This:
+- ✅ Respects Nominatim TOS (not bulk geocoding)
+- ✅ Reasonable wait time (~1 min 40 sec at 1 req/sec)
+- ✅ Still provides value (100 markers is plenty)
+- ✅ Prevents abuse of free infrastructure
+- ✅ Forces users to use filters (better UX anyway)
+- ✅ More conservative than 150 (safer from TOS perspective)
+
+**Scope of Work:**
+
+1. **Add configuration constants:**
+   ```javascript
+   CONFIG.GEOCODING = {
+     MAX_RESULTS: 100,  // Hard limit, non-configurable in UI
+                        // Reason: Respect Nominatim TOS, prevent bulk geocoding
+     EXTREME_RESULT_THRESHOLD: 1000  // Threshold for additional "Alle Bundesländer" tip
+   };
+   ```
+
+2. **Implement three-tier warning logic:**
+
+   **Tier 1: Results ≤ 100**
+   - No warning
+   - Geocode all results
+   - Normal flow
+
+   **Tier 2: Results 101-1000**
+   - Show warning modal before geocoding
+   - Message (German):
+     ```
+     "Große Ergebnismenge: [X] Restaurants gefunden.
+
+     Aus Respekt für die kostenlose Geocodierung-Infrastruktur (Nominatim)
+     zeigen wir maximal 100 Restaurants auf der Karte.
+
+     Bitte nutzen Sie die Filter auf Falter.at für präzisere Ergebnisse.
+
+     [OK] - Erste 100 anzeigen"
+     ```
+   - Geocode only first 100
+
+   **Tier 3: Results > 1000 (e.g., "Alle Bundesländer")**
+   - Show same warning as Tier 2
+   - **Plus additional tip:**
+     ```
+     "Tipp: Wählen Sie ein spezifisches Bundesland statt 'Alle Bundesländer'
+     für bessere und schnellere Ergebnisse."
+     ```
+   - Still geocode only first 100 (limit doesn't change)
+
+3. **Detect large result sets (in `App.js` or `geocoder.js`):**
+   - Before starting geocoding, check total restaurant count
+   - If count > MAX_RESULTS, trigger appropriate warning tier
+
+4. **Implement geocoding limit:**
+   - Slice restaurant array: `restaurants.slice(0, CONFIG.GEOCODING.MAX_RESULTS)`
+   - Geocode only first 100
+   - Show all restaurants in list (non-geocoded items just lack markers)
+
+5. **Visual feedback in modal:**
+   - Show: "🗺️ 100 von [X] auf Karte angezeigt"
+   - Make it clear why (link to "Mehr Filter verwenden" or similar)
+
+6. **Update status messages:**
+   - "Geocodiere 100 von 347 Restaurants..."
+   - Clear communication about what's happening
+
+**Acceptance Criteria:**
+- [ ] Hard limit of 100 added to CONFIG.GEOCODING.MAX_RESULTS
+- [ ] Extreme threshold of 1000 added to CONFIG.GEOCODING.EXTREME_RESULT_THRESHOLD
+- [ ] Three-tier warning logic implemented (≤100, 101-1000, >1000)
+- [ ] Warning modal shows before geocoding starts (if count > 100)
+- [ ] Tier 2 warning message (101-1000) is in German and explains limit
+- [ ] Tier 3 warning (>1000) includes additional "Alle Bundesländer" tip
+- [ ] Geocoding only processes first 100 results (always, regardless of tier)
+- [ ] All restaurants still show in list (non-geocoded items have no markers)
+- [ ] Visual indicator shows "X von Y auf Karte angezeigt"
+- [ ] Status messages reflect limited geocoding ("Geocodiere 100 von 347...")
+- [ ] Manual test: Search with 50 results, verify no warning (Tier 1)
+- [ ] Manual test: Search with 250 results, verify Tier 2 warning shown
+- [ ] Manual test: Search "Alle Bundesländer" (6952 results), verify Tier 3 warning with additional tip
+- [ ] Manual test: Verify only first 100 are geocoded in all scenarios
+- [ ] No way for users to bypass limit in UI (not configurable)
+- [ ] Code comment explains Nominatim TOS rationale
+- [ ] All existing tests pass
+- [ ] Commit message follows format: `feat: add result limiting to respect Nominatim TOS`
+
+**Technical Notes:**
+- **This is about ethics, not just performance**
+- Nominatim is free infrastructure maintained by volunteers
+- We must be responsible users of open-source services
+- Hard limit is intentionally not user-configurable
+- Advanced users can modify unpacked extension code (on them, not us)
+- This ticket is a **blocker** for FALTMAP-26 (Austria-wide support)
+- **100 is more conservative than 150** - prioritizes respect for infrastructure over feature completeness
+
+**Rationale for 100 (not 150):**
+- Most filtered searches (Bundesland + cuisine) return < 100 anyway
+- 1 min 40 sec feels reasonable; 2+ min feels slow
+- More respectful of Nominatim's free service
+- 100 markers on a map is still plenty for UX
+- Hitting the limit signals users to filter more (good behavior)
+
+**Nominatim Usage Policy Reference:**
+> "Nominatim is not suitable for bulk geocoding. If you need to geocode a large number of addresses, please use a commercial service or set up your own instance."
+
+**Our approach respects this by:**
+- Capping at 100 (not "bulk" scale)
+- User-initiated (not automated batch)
+- Rate-limited (1 req/sec)
+- Transparent about limitations
 
 ---
 
