@@ -404,6 +404,73 @@ Moved cache cleanup to just-in-time execution - it now runs only when the user a
 
 ---
 
+### FALTMAP-33: Add Data Provenance Transparency with Attribution
+- **Status:** Done ✅
+- **Epic:** E03 (Testing & Reliability)
+- **Priority:** Medium
+- **Completed:** 2026-01-30
+
+**User Story:**
+As a user, I want to know where the extension's map data comes from, so I can trust the service and understand its sources.
+
+**Context:**
+The extension uses two OpenStreetMap services but only credited one:
+- OpenStreetMap for map tiles ✅ (already attributed via Leaflet)
+- Nominatim for geocoding ❌ (not attributed - **license violation**)
+
+**License Requirement:**
+According to OSM Foundation Attribution Guidelines:
+> "Geocoders that use OpenStreetMap data must credit OpenStreetMap"
+> "Applications that incorporate such a geocoder must credit OpenStreetMap"
+
+Since we use Nominatim (a geocoder using OSM data), we **must** credit OpenStreetMap for the geocoding service, not just the map tiles. This was a compliance issue, not just "nice to have."
+
+**Solution Implemented:**
+Extended Leaflet attribution to credit both services in a single line:
+
+**Before:**
+```javascript
+attribution: '© OpenStreetMap contributors'
+```
+
+**After:**
+```javascript
+attribution: '© OpenStreetMap contributors | Geocoding via Nominatim'
+```
+
+**Technical Implementation:**
+- Single line change in MapModal.js (line 184)
+- Uses existing Leaflet attribution mechanism (bottom-right of map)
+- Both text portions are clickable links:
+  - "OpenStreetMap" → https://www.openstreetmap.org/copyright
+  - "Nominatim" → https://nominatim.org
+
+**Outcome:**
+- ✅ License compliant with OSM Foundation guidelines
+- ✅ Transparent about data sources (map tiles + geocoding)
+- ✅ Credits both free services we depend on
+- ✅ Builds user trust through transparency
+- ✅ Minimal code change (1 line)
+
+**Acceptance Criteria Completed:**
+- ✅ Leaflet attribution updated to include both OSM and Nominatim
+- ✅ Attribution text: `"© OpenStreetMap contributors | Geocoding via Nominatim"`
+- ✅ OpenStreetMap link points to copyright page
+- ✅ Nominatim link points to nominatim.org
+- ✅ Attribution visible in bottom-right corner (Leaflet default)
+- ✅ Attribution clearly readable and non-intrusive
+- ✅ Links work correctly when clicked
+- ✅ User verified visibility and functionality
+
+**Research Sources:**
+- https://osmfoundation.org/wiki/Licence/Attribution_Guidelines
+- https://wiki.openstreetmap.org/wiki/Attribution
+
+**Key Files Modified:**
+- `modules/MapModal.js` - Extended attribution string to include Nominatim
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.

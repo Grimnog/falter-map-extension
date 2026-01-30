@@ -90,7 +90,7 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 **🎟️ FALTMAP-33 - Add Data Provenance Transparency with Attribution**
 - Epic: E03 (Testing & Reliability)
-- Status: Open
+- Status: Done ✅
 - Priority: 🟢 Medium
 
 **Summary:** Add clear attribution for OpenStreetMap and Nominatim to build user trust and give proper credit.
