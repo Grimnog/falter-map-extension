@@ -678,6 +678,65 @@ Implement a **hard cap of 100 geocoded restaurants per search.** This:
 
 ---
 
+### 🎟️ **TICKET: FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug**
+- Epic: E03 (Testing & Reliability)
+- Status: Open (Needs Investigation)
+- Priority: 🟢 Medium
+
+**User Story:**
+As a user, I want the result list in the map modal to display correctly and consistently, so I can browse and select restaurants reliably.
+
+**Context:**
+During testing of FALTMAP-34, inconsistencies were observed in:
+- Result list display behavior
+- Cache behavior and how it affects the list
+- Possible issues with how results are rendered
+
+**Current Status:**
+- Issue observed but not fully explored
+- Needs investigation to understand root cause
+- May be related to caching, rendering, or data flow
+
+**Investigation Tasks:**
+1. **Reproduce the issue:**
+   - Test with cached results
+   - Test with fresh geocoding
+   - Test with mixed (some cached, some new)
+   - Document exact steps to reproduce
+
+2. **Identify symptoms:**
+   - What is displaying incorrectly?
+   - When does it occur? (always, sometimes, specific conditions?)
+   - Does it affect all results or just some?
+
+3. **Analyze potential causes:**
+   - Cache loading logic
+   - Result list rendering in MapModal
+   - Coordinate assignment
+   - DOM updates during geocoding
+
+4. **Determine scope:**
+   - Is it a display bug (cosmetic)?
+   - Is it a data bug (wrong info)?
+   - Does it affect functionality?
+
+**Acceptance Criteria (TBD after investigation):**
+- [ ] Issue fully reproduced and documented
+- [ ] Root cause identified
+- [ ] Fix implemented (or sub-tickets created)
+- [ ] Manual testing confirms fix
+- [ ] No regressions introduced
+
+**Technical Notes:**
+- This ticket is in investigation phase
+- Will be refined once issue is better understood
+- May split into multiple tickets if multiple issues found
+- Priority may change based on severity
+
+---
+
+## Epic E06: Documentation
+
 ### 🎟️ **TICKET: FALTMAP-35 - Improve README Documentation**
 - Epic: E06 (Documentation)
 - Status: Open
@@ -741,63 +800,6 @@ Currently, README lacks this documentation.
 - Focus on clarity and helpfulness
 - Assume user doesn't know about Nominatim or geocoding
 - Make it accessible to non-technical users
-
----
-
-### 🎟️ **TICKET: FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug**
-- Epic: E03 (Testing & Reliability)
-- Status: Open (Needs Investigation)
-- Priority: 🟢 Medium
-
-**User Story:**
-As a user, I want the result list in the map modal to display correctly and consistently, so I can browse and select restaurants reliably.
-
-**Context:**
-During testing of FALTMAP-34, inconsistencies were observed in:
-- Result list display behavior
-- Cache behavior and how it affects the list
-- Possible issues with how results are rendered
-
-**Current Status:**
-- Issue observed but not fully explored
-- Needs investigation to understand root cause
-- May be related to caching, rendering, or data flow
-
-**Investigation Tasks:**
-1. **Reproduce the issue:**
-   - Test with cached results
-   - Test with fresh geocoding
-   - Test with mixed (some cached, some new)
-   - Document exact steps to reproduce
-
-2. **Identify symptoms:**
-   - What is displaying incorrectly?
-   - When does it occur? (always, sometimes, specific conditions?)
-   - Does it affect all results or just some?
-
-3. **Analyze potential causes:**
-   - Cache loading logic
-   - Result list rendering in MapModal
-   - Coordinate assignment
-   - DOM updates during geocoding
-
-4. **Determine scope:**
-   - Is it a display bug (cosmetic)?
-   - Is it a data bug (wrong info)?
-   - Does it affect functionality?
-
-**Acceptance Criteria (TBD after investigation):**
-- [ ] Issue fully reproduced and documented
-- [ ] Root cause identified
-- [ ] Fix implemented (or sub-tickets created)
-- [ ] Manual testing confirms fix
-- [ ] No regressions introduced
-
-**Technical Notes:**
-- This ticket is in investigation phase
-- Will be refined once issue is better understood
-- May split into multiple tickets if multiple issues found
-- Priority may change based on severity
 
 ---
 
