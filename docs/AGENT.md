@@ -16,7 +16,33 @@ The Architect proposes, the Engineer disposes. The Engineer's pragmatic feedback
 
 ---
 
-## 1. Core Principles
+## 1. AI Agent Context Management
+
+**BEFORE conversation compacting occurs, Claude MUST preserve:**
+
+### Critical State Checklist
+- **Current ticket number** being worked on (e.g., "Working on FALTMAP-42")
+- **Ticket status** (Open, In Progress, Blocked)
+- **Which Acceptance Criteria** are checked vs unchecked
+- **Uncommitted changes** or work-in-progress state
+- **Pending questions** waiting for User's response
+- **Architectural decisions** made during the session (summarize in DESIGN.md or ticket if significant)
+
+### After Compacting: Re-establish Context
+When resuming after compacting:
+1. **State current ticket:** "Resuming work on FALTMAP-XX [status]"
+2. **Review recent commits:** `git log --oneline -5`
+3. **Check ticket ACs:** Verify which items are checked in docs/IMPLEMENTATION.md
+4. **Ask if needed:** "Should I continue with FALTMAP-XX or switch to another ticket?"
+
+### Context Preservation Protocol
+- **Document decisions in code comments** or tickets, not just conversation
+- **Keep IMPLEMENTATION.md updated** with real-time AC progress
+- **Commit frequently** so Git history shows current state
+
+---
+
+## 2. Core Principles
 
 These are the fundamental philosophies that guide our work. They are not optional.
 
@@ -97,18 +123,18 @@ All commit messages MUST follow the [Conventional Commits](https://www.conventio
 
 ---
 
-## 2. Project Planning & Workflow
+## 3. Project Planning & Workflow
 
 This section defines how we manage our work.
 
-### 2.1. Our Documentation
+### 3.1. Our Documentation
 -   **`docs/REFACTORING_ANALYSIS.md` (The "Why"):** The strategic architectural blueprint and technical debt registry.
 -   **`docs/BACKLOG.md` (The "Pool"):** All tickets available to draw from, organized by Epic.
 -   **`docs/IMPLEMENTATION.md` (The "What"):** The current active sprint containing tickets being worked on.
 -   **`docs/CHANGELOG_TICKETS.md` (The "History"):** Archive of all completed tickets.
 -   **`docs/AGENT.md` (The "How"):** This engineering guide, defining our processes and principles.
 
-### 2.2. Ticket Workflow
+### 3.2. Ticket Workflow
 
 **CRITICAL RULE: NO CODE WITHOUT A TICKET**
 
@@ -141,10 +167,13 @@ Before marking a ticket as Done, verify:
 - ✅ No console errors or warnings
 - ✅ Code follows conventions
 
-#### **Step 4: Mark Done**
-1. Update ticket status: `Status: In Progress` → `Status: Done ✅`
-2. Move ticket from `docs/IMPLEMENTATION.md` to `docs/CHANGELOG_TICKETS.md`
-3. Commit: `docs: mark FALTMAP-XX as complete`
+#### **Step 4: Request Verification**
+1. **Complete all ACs** and ensure tests pass
+2. **Ask User for verification:** "All ACs complete and tests pass. Ready for you to verify FALTMAP-XX - should I mark as Done?"
+3. **WAIT for User's confirmation**
+4. **After User confirms:** Update status to `Status: Done ✅`
+5. Move ticket from `docs/IMPLEMENTATION.md` to `docs/CHANGELOG_TICKETS.md`
+6. Commit: `docs: mark FALTMAP-XX as complete`
 
 #### **Important Notes:**
 - **Never skip checking ACs** - This is how we track progress
@@ -152,7 +181,28 @@ Before marking a ticket as Done, verify:
 - **Each AC check is a mini-milestone** - Commit when meaningful progress is made
 - **Clear state = Professional work** - Anyone reading the ticket knows exactly where we are
 
-### 2.3. Definition of Done (DoD)
+### 3.3. Human-in-the-Loop Protocol
+
+**CRITICAL: The Engineer (Claude) MUST NOT take these actions without explicit human approval:**
+
+#### **Git Operations**
+- **NEVER push commits to remote** without asking first
+- **ALWAYS show** what will be pushed: `git log origin/main..HEAD --oneline`
+- **WAIT for** explicit "yes, push" or "go ahead" from User before executing `git push`
+- **Example prompt:** "Ready to push 3 commits to GitHub. Should I proceed?"
+
+#### **Ticket Status Changes**
+- **NEVER mark a ticket as `Status: Done ✅`** without User's verification
+- **ALWAYS ask** "All ACs are complete and tests pass. Ready for you to verify - should I mark this as Done?"
+- **WAIT for** User's confirmation that functionality works as expected
+- **Only after** User confirms: update status and move to CHANGELOG
+
+#### **Rationale**
+- **Git push** is irreversible - User may want to review commits or add changes first
+- **Ticket closure** requires human verification that the solution actually solves the problem in the real extension
+- The Engineer provides implementation; User provides acceptance
+
+### 3.4. Definition of Done (DoD)
 A ticket is considered "Done" ONLY when all the following criteria are met:
 -   [ ] **All Acceptance Criteria in the ticket are checked off** `- [x]`
 -   [ ] All scope of work for the ticket is complete.
@@ -165,22 +215,22 @@ A ticket is considered "Done" ONLY when all the following criteria are met:
 
 ---
 
-## 3. Project Knowledge Base
+## 4. Project Knowledge Base
 
 This is a reference for critical project-specific information.
 
-### 3.1. Current Architecture
+### 4.1. Current Architecture
 The extension uses a modular architecture where `content.js` acts as a coordinator for various service modules. For the full blueprint and target architecture, see `docs/REFACTORING_ANALYSIS.md`.
 
-### 3.2. Error Handling Philosophy
+### 4.2. Error Handling Philosophy
 -   **Fail Gracefully:** The extension must never crash the host page. All errors should be caught and handled.
 -   **Inform, Don't Interrupt:** For non-critical errors (e.g., a single address failing to geocode), use subtle UI cues. For critical failures (e.g., the geocoding service is down), use a clear, non-modal notification to the user.
 
-### 3.3. API & Service Policies
+### 4.3. API & Service Policies
 -   **Rate Limiting (Nominatim):** We are strictly limited to **1 request per second**. The `geocoder.js` module respects this. This is a critical constraint.
 -   **Content Security Policy (CSP):** The `manifest.json` restricts external connections. Any new service requires a CSP update.
 
-### 3.4. Development & Versioning
+### 4.4. Development & Versioning
 -   **Loading the Extension:** Load as an unpacked extension in `chrome://extensions/`.
 -   **Debugging:** Use the browser console for the content script, service worker logs in `chrome://extensions/`, and the popup console (right-click the icon).
 -   **Versioning:** When updating the version, change it in `manifest.json`, `popup.html`, and `CHANGELOG.md`.
@@ -188,7 +238,7 @@ The extension uses a modular architecture where `content.js` acts as a coordinat
 
 ---
 
-## 4. Ongoing Architectural Guidance
+## 5. Ongoing Architectural Guidance
 
 As the project matures, the Architect's role is to provide strategic oversight and listen to engineering feedback. Architectural guidance focuses on:
 
