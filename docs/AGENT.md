@@ -158,6 +158,7 @@ All work must be performed against a ticket. Follow this workflow for clear stat
 2. As you complete each AC item, check it off in the ticket: `- [ ]` → `- [x]`
 3. Commit the AC update: `docs: complete AC for FALTMAP-XX - [description]`
 4. **This creates clear state** - anyone can see exactly what's done and what's left
+5. **Make atomic commits:** Each commit should be one logical change (see Section 2: Core Principles). Commit frequently as you complete meaningful units of work.
 
 #### **Step 3: Verify Completion**
 Before marking a ticket as Done, verify:
@@ -187,6 +188,7 @@ Before marking a ticket as Done, verify:
 
 #### **Git Operations**
 - **NEVER push commits to remote** without asking first
+- **ALWAYS use atomic commits:** Each commit = one logical change (refer to Section 2: Core Principles)
 - **ALWAYS show** what will be pushed: `git log origin/main..HEAD --oneline`
 - **WAIT for** explicit "yes, push" or "go ahead" from User before executing `git push`
 - **Example prompt:** "Ready to push 3 commits to GitHub. Should I proceed?"
