@@ -478,6 +478,11 @@
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+.status-value.error {
+    background: rgb(254, 202, 202);
+    color: rgb(153, 27, 27);
+}
+
 /* Map container styling */
 .modal-map-container {
     position: relative;

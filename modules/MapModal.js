@@ -459,6 +459,19 @@ export class MapModal {
         if (this.dom.statusLabel) this.dom.statusLabel.textContent = 'Suche abgeschlossen';
     }
 
+    /**
+     * Show geocoding error status
+     */
+    showGeocodingError(message = 'Geokodierung fehlgeschlagen') {
+        if (this.dom.geocodeStatus) {
+            this.dom.geocodeStatus.classList.remove('loading');
+            this.dom.geocodeStatus.classList.add('error');
+        }
+        if (this.dom.statusLabel) {
+            this.dom.statusLabel.textContent = message;
+        }
+    }
+
     // ===== Private Helper Methods =====
 
     /**

@@ -71,48 +71,80 @@
             let lastMarkerCount = currentResults.filter(r => r.coords).length;
             let hasAutoZoomed = false; // Track if we've done initial auto-zoom
 
-            const results = await geocodeRestaurants(restaurants, (current, total, progressResults) => {
-                const locatedCount = progressResults.filter(r => r.coords).length;
-                mapModal.updateProgress(current, total, locatedCount);
-                mapModal.updateResultsList(progressResults);
+            try {
+                const results = await geocodeRestaurants(restaurants, (current, total, progressResults) => {
+                    const locatedCount = progressResults.filter(r => r.coords).length;
+                    mapModal.updateProgress(current, total, locatedCount);
+                    mapModal.updateResultsList(progressResults);
 
-                // Update navigation with current results
-                if (navigation) {
-                    navigation.updateNavigableRestaurants(progressResults);
-                }
+                    // Update navigation with current results
+                    if (navigation) {
+                        navigation.updateNavigableRestaurants(progressResults);
+                    }
 
-                // During progress, always animate=true to prevent auto-zoom
-                const newMarkersAdded = locatedCount > lastMarkerCount;
-                if (newMarkersAdded) {
-                    mapModal.updateMapMarkers(progressResults.filter(r => r.coords), true);
-                }
-                lastMarkerCount = locatedCount;
+                    // During progress, always animate=true to prevent auto-zoom
+                    const newMarkersAdded = locatedCount > lastMarkerCount;
+                    if (newMarkersAdded) {
+                        mapModal.updateMapMarkers(progressResults.filter(r => r.coords), true);
+                    }
+                    lastMarkerCount = locatedCount;
 
-                // Auto-zoom after first 5 restaurants for better initial view
-                if (!hasAutoZoomed && locatedCount >= 5) {
-                    hasAutoZoomed = true;
-                    const map = mapModal.getMap();
-                    const markerClusterGroup = mapModal.getMarkerClusterGroup();
-                    if (map && markerClusterGroup) {
-                        const bounds = markerClusterGroup.getBounds();
-                        if (bounds.isValid()) {
-                            map.fitBounds(bounds.pad(0.2)); // 20% padding for breathing room
+                    // Auto-zoom after first 5 restaurants for better initial view
+                    if (!hasAutoZoomed && locatedCount >= 5) {
+                        hasAutoZoomed = true;
+                        const map = mapModal.getMap();
+                        const markerClusterGroup = mapModal.getMarkerClusterGroup();
+                        if (map && markerClusterGroup) {
+                            const bounds = markerClusterGroup.getBounds();
+                            if (bounds.isValid()) {
+                                map.fitBounds(bounds.pad(0.2)); // 20% padding for breathing room
+                            }
                         }
                     }
+                });
+
+                const locatedCount = results.filter(r => r.coords).length;
+                mapModal.updateProgress(restaurants.length, restaurants.length, locatedCount);
+                mapModal.hideLoadingStatus();
+                mapModal.updateResultsList(results);
+
+                // Update navigation with final results
+                if (navigation) {
+                    navigation.updateNavigableRestaurants(results);
                 }
-            });
 
-            const locatedCount = results.filter(r => r.coords).length;
-            mapModal.updateProgress(restaurants.length, restaurants.length, locatedCount);
-            mapModal.hideLoadingStatus();
-            mapModal.updateResultsList(results);
+                // Don't auto-zoom after geocoding - let user explore or click to zoom
+            } catch (error) {
+                console.error('Geocoding failed:', error);
 
-            // Update navigation with final results
-            if (navigation) {
-                navigation.updateNavigableRestaurants(results);
+                // Show error status in modal but keep restaurant list functional
+                mapModal.showGeocodingError('Geokodierung fehlgeschlagen');
+
+                // Ensure restaurant list is displayed even without coordinates
+                // (already shown from cache check, but update to show all restaurants)
+                const resultsWithoutCoords = restaurants.map(r => {
+                    const cacheKey = r.address.toLowerCase().trim();
+                    const cached = cache[cacheKey];
+                    return {
+                        ...r,
+                        coords: cached ? (cached.coords || cached) : null
+                    };
+                });
+                mapModal.updateResultsList(resultsWithoutCoords);
+
+                // Update navigation with available results
+                if (navigation) {
+                    navigation.updateNavigableRestaurants(resultsWithoutCoords);
+                }
+
+                // Show user-friendly error notification
+                const { ErrorHandler } = await import(chrome.runtime.getURL('modules/error-handler.js'));
+                const { ERROR_MESSAGES } = await import(chrome.runtime.getURL('modules/error-messages.js'));
+                ErrorHandler.showToast(ERROR_MESSAGES.geocodingCompleteFailure, {
+                    type: 'error',
+                    duration: 8000
+                });
             }
-
-            // Don't auto-zoom after geocoding - let user explore or click to zoom
         } else {
             // All results cached - mark as complete immediately
             mapModal.hideLoadingStatus();
