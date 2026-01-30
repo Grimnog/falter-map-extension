@@ -917,3 +917,18 @@
 .alert-action-primary:hover {
     background: rgb(234, 211, 25);
 }
+
+/* Custom map attribution for result limiting */
+.custom-map-attribution {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2px 8px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #333;
+    border-radius: 0 4px 0 0;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
