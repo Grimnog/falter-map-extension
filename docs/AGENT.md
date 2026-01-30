@@ -88,6 +88,12 @@ While this project doesn't follow a strict Red-Green-Refactor TDD approach, we a
 
 6.  **Reference Ticket `FALTMAP-10`** for the complete test suite implementation.
 
+### Testing Cadence
+- **After each meaningful commit:** Run relevant tests
+- **Before marking AC complete:** Verify affected functionality
+- **Before asking User to verify ticket:** Run full test suite
+- **Never say "tests pass" without actually running them**
+
 ### Atomic Commits
 This project follows **atomic commit** principles. Each commit should:
 
@@ -160,6 +166,14 @@ All work must be performed against a ticket. Follow this workflow for clear stat
 4. **This creates clear state** - anyone can see exactly what's done and what's left
 5. **Make atomic commits:** Each commit should be one logical change (see Section 2: Core Principles). Commit frequently as you complete meaningful units of work.
 
+#### **When Something Doesn't Work**
+If implementation hits an error or unexpected behavior:
+1. **DON'T immediately refactor** - First understand the problem
+2. **Ask User for real-world data:** Console errors, screenshots, HTML structure
+3. **Show your analysis:** What you expected vs what happened
+4. **Propose solution:** Explain approach before implementing
+5. **One fix at a time:** Don't change multiple things simultaneously
+
 #### **Step 3: Verify Completion**
 Before marking a ticket as Done, verify:
 - ✅ All Acceptance Criteria boxes are checked `- [x]`
@@ -205,6 +219,15 @@ Before marking a ticket as Done, verify:
 - The Engineer provides implementation; User provides acceptance
 
 ### 3.4. Definition of Done (DoD)
+
+#### Pre-Verification Checklist (Before asking User)
+Claude should verify these items before requesting User's verification:
+- [ ] All tests pass (`tests/test-runner.html` shows 100%)
+- [ ] No console errors in browser
+- [ ] Functionality works in actual Falter.at page
+- [ ] Code is committed with proper conventional commit message
+- [ ] No TODO comments or debug console.logs left in code
+
 A ticket is considered "Done" ONLY when all the following criteria are met:
 -   [ ] **All Acceptance Criteria in the ticket are checked off** `- [x]`
 -   [ ] All scope of work for the ticket is complete.
@@ -237,6 +260,12 @@ The extension uses a modular architecture where `content.js` acts as a coordinat
 -   **Debugging:** Use the browser console for the content script, service worker logs in `chrome://extensions/`, and the popup console (right-click the icon).
 -   **Versioning:** When updating the version, change it in `manifest.json`, `popup.html`, and `CHANGELOG.md`.
 -   **Running Tests:** See `tests/README.md` for comprehensive testing documentation.
+
+### 4.5. File & Module Management
+- **Before creating new files:** Ask if the new module is necessary or if existing files should be extended
+- **Before major refactors:** Confirm the approach with User - "I'm planning to extract X into Y module, does this make sense?"
+- **Naming conventions:** Use kebab-case for files (`cache-utils.js`), camelCase for functions (`parseRestaurants`)
+- **New dependencies:** Always ask before adding external libraries or modifying `manifest.json`
 
 ---
 
