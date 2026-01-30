@@ -168,6 +168,62 @@ The modal had mixed German and English text, creating an inconsistent and unprof
 
 ---
 
+## Sprint 5: Reliable Foundation
+
+**Completed:** 2026-01-30
+
+### FALTMAP-34: Implement Result Limiting to Prevent API Abuse
+- **Status:** Done ✅
+- **Epic:** E03 (Testing & Reliability)
+- **Priority:** Critical
+
+**User Story:**
+As a responsible user of open-source infrastructure (Nominatim), I want the extension to limit geocoding to a reasonable number of results, so we don't violate Nominatim's Terms of Service or abuse their free service.
+
+**Context:**
+Nominatim's usage policy explicitly states: "Nominatim is not suitable for bulk geocoding." Falter.at allows searches returning massive result sets (e.g., "Alle Bundesländer" = 6952 restaurants). Without limiting, the extension would violate Nominatim TOS and abuse free infrastructure.
+
+**Solution Implemented:**
+- **Hard limit of 100 geocoded restaurants** per search
+- **Silent limiting** (no confirmation popup, automatic)
+- **Smart pagination** (fetches only ~7 pages for 100 results, not all 98 pages)
+- **Early estimation** (checks pagination info from first page, shows warning before fetching)
+- **Transparent UI** (attribution text shows "100 von 4747 angezeigt (Limit) · Mit Filter eingrenzen")
+
+**Technical Implementation:**
+1. Added `CONFIG.GEOCODING.MAX_RESULTS = 100` and `EXTREME_RESULT_THRESHOLD = 1000`
+2. Created `fetchUpToLimit()` function in dom-parser.js for smart pagination
+3. Estimate total from first page, auto-limit if > 100
+4. Show attribution text at bottom-left of map when results are limited
+5. Respect Leaflet OSM attribution (kept separate at bottom-right)
+
+**Outcome:**
+- ✅ Respects Nominatim TOS (no bulk geocoding)
+- ✅ Dramatically faster UX (fetches 7 pages instead of 98)
+- ✅ Transparent to users (attribution explains limitation)
+- ✅ Ethical behavior (good open-source citizen)
+- ✅ Non-intrusive (no popups, silent limiting)
+
+**Acceptance Criteria Completed:**
+- ✅ Hard limit of 100 implemented and configurable
+- ✅ Smart fetching stops pagination early
+- ✅ No confirmation popup (silent limiting)
+- ✅ Attribution text shows when limited (bottom-left)
+- ✅ Both parts of text are bold
+- ✅ OSM attribution respected (bottom-right, separate)
+- ✅ Works for all scenarios (≤100 and >100)
+- ✅ Manual testing confirmed correct behavior
+- ✅ Commits follow atomic commit principles
+
+**Key Files Modified:**
+- `modules/constants.js` - Added GEOCODING config
+- `modules/dom-parser.js` - Added fetchUpToLimit() function
+- `content.js` - Implemented early estimation and smart fetching
+- `modules/MapModal.js` - Added custom attribution div
+- `content.css` - Styled custom attribution element
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.

@@ -27,7 +27,7 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 **🎟️ FALTMAP-34 - Implement Result Limiting to Prevent API Abuse**
 - Epic: E03 (Testing & Reliability)
-- Status: In Progress
+- Status: Done ✅
 - Priority: 🔴 Critical
 - **BLOCKER for FALTMAP-26** (Austria-wide support)
 
