@@ -210,17 +210,29 @@
                 }
             }
 
-            // Nominatim API threshold warning (100+ uncached addresses)
-            if (needsGeocoding >= CONFIG.NOMINATIM.WARNING_THRESHOLD) {
-                const confirmed = confirm(
-                    `⚠️ API Usage Notice\n\n` +
-                    `You're about to geocode ${needsGeocoding} restaurant addresses using OpenStreetMap's Nominatim API.\n\n` +
-                    `To be respectful of this free service:\n` +
-                    `• We'll process 1 address per second\n` +
-                    `• This will take approximately ${Math.ceil(needsGeocoding / 60)} minutes\n` +
-                    `• Results will be cached for 30 days\n\n` +
-                    `Continue with geocoding?`
-                );
+            // Three-tier warning system for large result sets
+            let restaurantsToGeocode = restaurants;
+            const totalResults = restaurants.length;
+
+            if (totalResults > CONFIG.GEOCODING.MAX_RESULTS) {
+                // Limit to first 100 results
+                restaurantsToGeocode = restaurants.slice(0, CONFIG.GEOCODING.MAX_RESULTS);
+
+                // Build warning message
+                let warningMessage =
+                    `Große Ergebnismenge: ${totalResults} Restaurants gefunden.\n\n` +
+                    `Aus Respekt für die kostenlose Geocodierung-Infrastruktur (Nominatim) ` +
+                    `zeigen wir maximal ${CONFIG.GEOCODING.MAX_RESULTS} Restaurants auf der Karte.\n\n` +
+                    `Bitte nutzen Sie die Filter auf Falter.at für präzisere Ergebnisse.`;
+
+                // Add extra tip for extreme cases (e.g., "Alle Bundesländer")
+                if (totalResults > CONFIG.GEOCODING.EXTREME_RESULT_THRESHOLD) {
+                    warningMessage += `\n\n` +
+                        `Tipp: Wählen Sie ein spezifisches Bundesland statt 'Alle Bundesländer' ` +
+                        `für bessere und schnellere Ergebnisse.`;
+                }
+
+                const confirmed = confirm(warningMessage + `\n\nErste ${CONFIG.GEOCODING.MAX_RESULTS} anzeigen?`);
 
                 if (!confirmed) {
                     btn.innerHTML = originalHTML;
@@ -229,12 +241,12 @@
                 }
             }
 
-            // Create and show modal with map
-            mapModal = new MapModal(restaurants);
+            // Create and show modal with map (using limited list)
+            mapModal = new MapModal(restaurantsToGeocode);
             mapModal.show(btn);
 
             // Create and enable navigation
-            navigation = new Navigation(restaurants, mapModal);
+            navigation = new Navigation(restaurantsToGeocode, mapModal);
             navigation.enable();
 
             // Register navigation callbacks
@@ -260,8 +272,14 @@
                 }
             });
 
-            // Start geocoding process
-            startGeocoding(restaurants);
+            // Show visual feedback if we limited results
+            if (totalResults > CONFIG.GEOCODING.MAX_RESULTS) {
+                console.log(`Result limiting: Showing ${CONFIG.GEOCODING.MAX_RESULTS} of ${totalResults} restaurants`);
+                // MapModal will show the count in the UI
+            }
+
+            // Start geocoding process (with limited list)
+            startGeocoding(restaurantsToGeocode);
 
             btn.innerHTML = originalHTML;
             btn.disabled = false;

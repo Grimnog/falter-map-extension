@@ -19,8 +19,12 @@ export const CONFIG = {
         RATE_LIMIT_MS: 1100,
         RETRY_DELAY_MS: 200,
         USER_AGENT: 'FalterMapExtension/1.0',
-        API_URL: 'https://nominatim.openstreetmap.org/search',
-        WARNING_THRESHOLD: 100
+        API_URL: 'https://nominatim.openstreetmap.org/search'
+    },
+
+    GEOCODING: {
+        MAX_RESULTS: 100,  // Hard limit to respect Nominatim TOS (non-configurable in UI)
+        EXTREME_RESULT_THRESHOLD: 1000  // Threshold for additional "Alle Bundesländer" warning tip
     },
 
     PAGINATION: {
