@@ -13,7 +13,7 @@
     // Dynamically import modules
     const { CONFIG } = await import(chrome.runtime.getURL('modules/constants.js'));
     const { CacheManager } = await import(chrome.runtime.getURL('modules/cache-utils.js'));
-    const { parseRestaurantsFromDOM, getPaginationInfo, fetchAllPages } = await import(chrome.runtime.getURL('modules/dom-parser.js'));
+    const { parseRestaurantsFromDOM, getPaginationInfo, fetchAllPages, fetchUpToLimit } = await import(chrome.runtime.getURL('modules/dom-parser.js'));
     const { geocodeAddress, geocodeRestaurants } = await import(chrome.runtime.getURL('modules/geocoder.js'));
     const { MapModal } = await import(chrome.runtime.getURL('modules/MapModal.js'));
     const { Navigation } = await import(chrome.runtime.getURL('modules/Navigation.js'));
@@ -159,13 +159,59 @@
 
         const originalHTML = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = `<span>Loading restaurants...</span>`;
+        btn.innerHTML = `<span>Checking results...</span>`;
 
         try {
-            // Always fetch on-demand
-            const restaurants = await fetchAllPages((current, total) => {
-                btn.innerHTML = `<span>Loading page ${current}/${total}...</span>`;
-            });
+            // Get pagination info to estimate result count
+            const pagination = getPaginationInfo();
+            const currentPageRestaurants = parseRestaurantsFromDOM(document);
+            const avgPerPage = currentPageRestaurants.length || 15;
+            const estimatedTotal = avgPerPage * pagination.total;
+
+            console.log(`Pagination: ${pagination.total} pages, estimated ~${estimatedTotal} restaurants`);
+
+            let shouldLimit = false;
+            let restaurants = [];
+
+            // Show warning IMMEDIATELY if estimated total > limit
+            if (estimatedTotal > CONFIG.GEOCODING.MAX_RESULTS) {
+                shouldLimit = true;
+
+                // Build warning message
+                let warningMessage =
+                    `Große Ergebnismenge: ~${estimatedTotal} Restaurants geschätzt.\n\n` +
+                    `Aus Respekt für die kostenlose Geocodierung-Infrastruktur (Nominatim) ` +
+                    `zeigen wir maximal ${CONFIG.GEOCODING.MAX_RESULTS} Restaurants auf der Karte.\n\n` +
+                    `Bitte nutzen Sie die Filter auf Falter.at für präzisere Ergebnisse.`;
+
+                // Add extra tip for extreme cases (e.g., "Alle Bundesländer")
+                if (estimatedTotal > CONFIG.GEOCODING.EXTREME_RESULT_THRESHOLD) {
+                    warningMessage += `\n\n` +
+                        `Tipp: Wählen Sie ein spezifisches Bundesland statt 'Alle Bundesländer' ` +
+                        `für bessere und schnellere Ergebnisse.`;
+                }
+
+                const confirmed = confirm(warningMessage + `\n\nErste ${CONFIG.GEOCODING.MAX_RESULTS} anzeigen?`);
+
+                if (!confirmed) {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    return;
+                }
+            }
+
+            // Fetch restaurants (limited or all)
+            if (shouldLimit) {
+                const result = await fetchUpToLimit(CONFIG.GEOCODING.MAX_RESULTS, (current, total) => {
+                    btn.innerHTML = `<span>Loading page ${current}/${total}...</span>`;
+                });
+                restaurants = result.restaurants;
+                console.log(`Fetched ${restaurants.length} of estimated ${result.estimatedTotal} total`);
+            } else {
+                restaurants = await fetchAllPages((current, total) => {
+                    btn.innerHTML = `<span>Loading page ${current}/${total}...</span>`;
+                });
+            }
 
             if (restaurants.length === 0) {
                 // Show empty state modal
@@ -210,43 +256,12 @@
                 }
             }
 
-            // Three-tier warning system for large result sets
-            let restaurantsToGeocode = restaurants;
-            const totalResults = restaurants.length;
-
-            if (totalResults > CONFIG.GEOCODING.MAX_RESULTS) {
-                // Limit to first 100 results
-                restaurantsToGeocode = restaurants.slice(0, CONFIG.GEOCODING.MAX_RESULTS);
-
-                // Build warning message
-                let warningMessage =
-                    `Große Ergebnismenge: ${totalResults} Restaurants gefunden.\n\n` +
-                    `Aus Respekt für die kostenlose Geocodierung-Infrastruktur (Nominatim) ` +
-                    `zeigen wir maximal ${CONFIG.GEOCODING.MAX_RESULTS} Restaurants auf der Karte.\n\n` +
-                    `Bitte nutzen Sie die Filter auf Falter.at für präzisere Ergebnisse.`;
-
-                // Add extra tip for extreme cases (e.g., "Alle Bundesländer")
-                if (totalResults > CONFIG.GEOCODING.EXTREME_RESULT_THRESHOLD) {
-                    warningMessage += `\n\n` +
-                        `Tipp: Wählen Sie ein spezifisches Bundesland statt 'Alle Bundesländer' ` +
-                        `für bessere und schnellere Ergebnisse.`;
-                }
-
-                const confirmed = confirm(warningMessage + `\n\nErste ${CONFIG.GEOCODING.MAX_RESULTS} anzeigen?`);
-
-                if (!confirmed) {
-                    btn.innerHTML = originalHTML;
-                    btn.disabled = false;
-                    return;
-                }
-            }
-
-            // Create and show modal with map (using limited list)
-            mapModal = new MapModal(restaurantsToGeocode);
+            // Create and show modal with map
+            mapModal = new MapModal(restaurants);
             mapModal.show(btn);
 
             // Create and enable navigation
-            navigation = new Navigation(restaurantsToGeocode, mapModal);
+            navigation = new Navigation(restaurants, mapModal);
             navigation.enable();
 
             // Register navigation callbacks
@@ -272,14 +287,8 @@
                 }
             });
 
-            // Show visual feedback if we limited results
-            if (totalResults > CONFIG.GEOCODING.MAX_RESULTS) {
-                console.log(`Result limiting: Showing ${CONFIG.GEOCODING.MAX_RESULTS} of ${totalResults} restaurants`);
-                // MapModal will show the count in the UI
-            }
-
-            // Start geocoding process (with limited list)
-            startGeocoding(restaurantsToGeocode);
+            // Start geocoding process
+            startGeocoding(restaurants);
 
             btn.innerHTML = originalHTML;
             btn.disabled = false;

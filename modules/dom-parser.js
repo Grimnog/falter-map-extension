@@ -166,3 +166,61 @@ export async function fetchAllPages(progressCallback) {
     console.log('Total restaurants:', allRestaurants.length);
     return allRestaurants;
 }
+
+/**
+ * Fetch restaurants up to a specified limit
+ * @param {number} maxResults - Maximum number of restaurants to fetch
+ * @param {Function} progressCallback - Optional callback for progress updates
+ * @returns {Promise<Object>} Object with { restaurants: Array, totalPages: number, estimatedTotal: number }
+ */
+export async function fetchUpToLimit(maxResults, progressCallback) {
+    const pagination = getPaginationInfo();
+    console.log('Pagination:', pagination);
+
+    const allRestaurants = [];
+    const seenIds = new Set();
+    let pagesToFetch = pagination.total;
+
+    // Estimate restaurants per page from current page
+    const currentPageRestaurants = parseRestaurantsFromDOM(document);
+    const avgPerPage = currentPageRestaurants.length || 15; // Default estimate if parsing fails
+    const estimatedTotal = avgPerPage * pagination.total;
+
+    // Calculate how many pages we need to fetch to get ~maxResults
+    if (estimatedTotal > maxResults) {
+        pagesToFetch = Math.ceil(maxResults / avgPerPage);
+        console.log(`Limiting fetch: ${pagesToFetch} pages (estimated ${avgPerPage} per page) to get ~${maxResults} results`);
+    }
+
+    for (let page = 1; page <= pagesToFetch && allRestaurants.length < maxResults; page++) {
+        if (progressCallback) progressCallback(page, pagesToFetch);
+
+        const restaurants = (page === pagination.current)
+            ? currentPageRestaurants
+            : await fetchPage(page);
+
+        restaurants.forEach(r => {
+            if (!seenIds.has(r.id) && allRestaurants.length < maxResults) {
+                seenIds.add(r.id);
+                allRestaurants.push(r);
+            }
+        });
+
+        // Stop if we've reached the limit
+        if (allRestaurants.length >= maxResults) {
+            console.log(`Reached limit of ${maxResults} restaurants, stopping fetch`);
+            break;
+        }
+
+        if (page < pagesToFetch) {
+            await new Promise(resolve => setTimeout(resolve, CONFIG.PAGINATION.FETCH_DELAY_MS));
+        }
+    }
+
+    console.log('Total restaurants fetched:', allRestaurants.length);
+    return {
+        restaurants: allRestaurants,
+        totalPages: pagination.total,
+        estimatedTotal: estimatedTotal
+    };
+}
