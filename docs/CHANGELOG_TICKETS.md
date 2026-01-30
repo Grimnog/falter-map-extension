@@ -271,6 +271,78 @@ if (page < pagination.total) {
 
 ---
 
+### FALTMAP-31: Implement Graceful Degradation for API Failures
+- **Status:** Done ✅
+- **Epic:** E03 (Testing & Reliability)
+- **Priority:** High
+- **Completed:** 2026-01-30
+
+**User Story:**
+As a user, I want to see the list of restaurants even if the geocoding service is down, so the extension still provides value when external services fail.
+
+**Context:**
+Previously, if the Nominatim geocoding API failed completely (network error, API down, etc.), the geocoding process would throw an unhandled error. While the modal and list were already shown before geocoding started (good architecture), there was no graceful handling of complete geocoding failures.
+
+**Solution Implemented:**
+- **Added error state handling** to MapModal with `showGeocodingError()` method
+- **Wrapped geocoding in try-catch** in `startGeocoding()` function
+- **Error state styling** (red background) for status indicator
+- **User-friendly error messaging** in German with toast notification
+- **Restaurant list remains functional** even when all geocoding fails
+- **Cached coordinates still used** if available
+
+**Technical Implementation:**
+1. Added `showGeocodingError()` method to MapModal.js (lines 467-476)
+   ```javascript
+   showGeocodingError(message = 'Geokodierung fehlgeschlagen') {
+       if (this.dom.geocodeStatus) {
+           this.dom.geocodeStatus.classList.remove('loading');
+           this.dom.geocodeStatus.classList.add('error');
+       }
+       if (this.dom.statusLabel) {
+           this.dom.statusLabel.textContent = message;
+       }
+   }
+   ```
+
+2. Added error state CSS styling in content.css:
+   ```css
+   .status-value.error {
+       background: rgb(254, 202, 202);
+       color: rgb(153, 27, 27);
+   }
+   ```
+
+3. Wrapped `geocodeRestaurants()` call in try-catch in content.js (lines 74-145):
+   - On error: logs to console, shows error status, displays restaurant list with cached coords
+   - Updates navigation with available results
+   - Shows toast notification with error message from ERROR_MESSAGES
+
+**Outcome:**
+- ✅ Extension provides value even when Nominatim API is down
+- ✅ Restaurant list always visible and functional
+- ✅ Clear, non-alarming error messaging in German
+- ✅ Graceful handling of complete API failures
+- ✅ Cached coordinates still utilized when available
+- ✅ No unhandled errors propagating to user
+
+**Acceptance Criteria Completed:**
+- ✅ Modal shows immediately after restaurant data is fetched (already implemented)
+- ✅ Restaurant list is visible before geocoding completes (already implemented)
+- ✅ Map displays "Geocodierung läuft..." state initially (already implemented)
+- ✅ If geocoding fails completely, map shows clear error message
+- ✅ If geocoding partially fails, successful markers still display (already handled)
+- ✅ Restaurant list remains functional regardless of geocoding outcome
+- ✅ No console errors for API failures (handled gracefully)
+- ✅ Manual testing confirmed graceful degradation
+
+**Key Files Modified:**
+- `modules/MapModal.js` - Added showGeocodingError() method
+- `content.css` - Added error state styling
+- `content.js` - Wrapped geocoding in try-catch with error handling
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.
