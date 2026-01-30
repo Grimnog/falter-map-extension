@@ -678,6 +678,129 @@ Implement a **hard cap of 100 geocoded restaurants per search.** This:
 
 ---
 
+### 🎟️ **TICKET: FALTMAP-35 - Improve README Documentation**
+- Epic: E06 (Documentation)
+- Status: Open
+- Priority: 🟡 High
+
+**User Story:**
+As a user, I want clear documentation about how the extension works and its limitations, so I understand the 100 result limit and how to get better results.
+
+**Context:**
+The extension has important behaviors and limitations that users should know about:
+- 100 result limit (for ethical reasons)
+- Why we limit (Nominatim TOS, good web citizen)
+- How to get better/more relevant results (use filters)
+
+Currently, README lacks this documentation.
+
+**Scope of Work:**
+
+1. **Add "How It Works" section:**
+   - Explain the extension workflow
+   - What it does (scrapes Falter, geocodes, shows on map)
+   - What technologies it uses (Leaflet, Nominatim, Falter.at)
+
+2. **Add "Result Limiting" section:**
+   - Explain 100 result limit
+   - Why we limit:
+     - Respect Nominatim TOS (no bulk geocoding)
+     - Respect Falter's servers (polite pagination)
+     - Good open-source citizen
+   - How it works (automatic, silent limiting)
+
+3. **Add "Getting Better Results" section:**
+   - Use Falter.at filters (Bundesland, cuisine, district)
+   - Narrow search criteria
+   - Benefits: more relevant results, faster loading
+
+4. **Improve formatting:**
+   - Add badges (version, license, etc.)
+   - Better structure with sections
+   - Screenshots/GIFs if useful
+   - Table of contents
+
+5. **Add "Privacy & Data" section:**
+   - What data we process (addresses)
+   - Where it goes (Nominatim API)
+   - What we store (local cache, 30 days)
+   - No tracking, no analytics
+
+**Acceptance Criteria:**
+- [ ] "How It Works" section added
+- [ ] "Result Limiting" section explains 100 limit and why
+- [ ] "Getting Better Results" section guides users on filter usage
+- [ ] README formatting improved (badges, TOC, sections)
+- [ ] "Privacy & Data" section added
+- [ ] Clear, user-friendly language throughout
+- [ ] Proofread for grammar and clarity
+- [ ] Commit message follows format: `docs: improve README with usage guide and limitations`
+
+**Technical Notes:**
+- This is user-facing documentation, not technical docs
+- Focus on clarity and helpfulness
+- Assume user doesn't know about Nominatim or geocoding
+- Make it accessible to non-technical users
+
+---
+
+### 🎟️ **TICKET: FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug**
+- Epic: E03 (Testing & Reliability)
+- Status: Open (Needs Investigation)
+- Priority: 🟢 Medium
+
+**User Story:**
+As a user, I want the result list in the map modal to display correctly and consistently, so I can browse and select restaurants reliably.
+
+**Context:**
+During testing of FALTMAP-34, inconsistencies were observed in:
+- Result list display behavior
+- Cache behavior and how it affects the list
+- Possible issues with how results are rendered
+
+**Current Status:**
+- Issue observed but not fully explored
+- Needs investigation to understand root cause
+- May be related to caching, rendering, or data flow
+
+**Investigation Tasks:**
+1. **Reproduce the issue:**
+   - Test with cached results
+   - Test with fresh geocoding
+   - Test with mixed (some cached, some new)
+   - Document exact steps to reproduce
+
+2. **Identify symptoms:**
+   - What is displaying incorrectly?
+   - When does it occur? (always, sometimes, specific conditions?)
+   - Does it affect all results or just some?
+
+3. **Analyze potential causes:**
+   - Cache loading logic
+   - Result list rendering in MapModal
+   - Coordinate assignment
+   - DOM updates during geocoding
+
+4. **Determine scope:**
+   - Is it a display bug (cosmetic)?
+   - Is it a data bug (wrong info)?
+   - Does it affect functionality?
+
+**Acceptance Criteria (TBD after investigation):**
+- [ ] Issue fully reproduced and documented
+- [ ] Root cause identified
+- [ ] Fix implemented (or sub-tickets created)
+- [ ] Manual testing confirms fix
+- [ ] No regressions introduced
+
+**Technical Notes:**
+- This ticket is in investigation phase
+- Will be refined once issue is better understood
+- May split into multiple tickets if multiple issues found
+- Priority may change based on severity
+
+---
+
 ## 🚫 Deferred / Post-v1.0 Backlog
 
 These tickets are deferred until after v1.0 release, pending decision on Chrome Web Store publication.
