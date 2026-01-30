@@ -21,16 +21,19 @@ async function updateCacheStats() {
 
 // Clear geocoding cache
 async function clearCache() {
-    const confirmed = confirm(
-        'Clear all cached geocoding data?\n\n' +
-        'You can rebuild the cache by using the extension on Falter.at.'
-    );
+    await CacheManager.clear();
+    console.log('Cache cleared');
+    updateCacheStats();
 
-    if (confirmed) {
-        await CacheManager.clear();
-        console.log('Cache cleared');
-        updateCacheStats();
-        alert('Cache cleared successfully!');
+    // Show subtle confirmation message
+    const messageEl = document.getElementById('cacheClearedMessage');
+    if (messageEl) {
+        messageEl.classList.add('show');
+
+        // Hide after 3 seconds
+        setTimeout(() => {
+            messageEl.classList.remove('show');
+        }, 3000);
     }
 }
 

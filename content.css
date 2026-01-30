@@ -2,6 +2,7 @@
 
 /* ===== Bunny Fonts Import (GDPR-compliant, EU-based) ===== */
 /* Using Bunny Fonts instead of Google Fonts to respect European privacy laws */
+/* NOTE: Keep in sync with popup.html */
 @import url('https://fonts.bunny.net/css?family=nunito:400,600,700,800');
 
 /* ===== CSS Variables ===== */
