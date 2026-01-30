@@ -560,6 +560,113 @@ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
 ---
 
+### FALTMAP-30: Refactor Popup for Design Consistency and UX Polish
+- **Status:** Done ✅
+- **Epic:** E04 (UI/UX Polish)
+- **Priority:** High
+- **Completed:** 2026-01-30
+
+**User Story:**
+As a user, I want the extension popup to be clean, professional, and consistent with the modal's design and language.
+
+**Context:**
+The popup (accessed by clicking the extension icon) had several UX issues:
+- Design didn't match the modal (different header, colors, fonts)
+- Mixed English and German text
+- "Clear Cache" button too large/prominent
+- Intrusive browser `alert()` for cache cleared confirmation
+- Inconsistent spacing and styling
+- No clear visual hierarchy
+
+**Solution Implemented:**
+
+1. **Design Alignment with Modal:**
+   - Header now matches modal: yellow background (#fbe51f), same styling
+   - Compact header: 12px padding, 15px font
+   - Removed "Einstellungen" subtitle for cleaner look
+   - Applied Nunito font via Bunny Fonts (GDPR-compliant)
+
+2. **Full German Localization:**
+   - "Extension Settings" → "Einstellungen" (removed)
+   - "How to Use" → "Anleitung"
+   - "Geocoding Cache" → "Geocoding-Cache"
+   - "Cached addresses" → "Gespeicherte Adressen"
+   - "Storage size" → "Speichergröße"
+   - "Expiration" → "Gültigkeit"
+   - "30 days" → "30 Tage"
+   - "Clear Cache" → "Cache leeren"
+
+3. **Unified Design System:**
+   - Instructions box now matches info-card (same background, border, row separators)
+   - Black bullet points (was yellow - better contrast)
+   - All colors use CSS variables (DRY principle)
+   - Uniform text sizing: 12px throughout
+   - Consistent 6px row padding
+
+4. **Compact Layout:**
+   - Width: 288px → 280px
+   - Reduced all padding and margins for tighter UI
+   - Section spacing: 10px
+   - More space-efficient overall
+
+5. **Improved UX:**
+   - Replaced browser `alert()` with subtle green success message
+   - "✓ Cache geleert" appears for 3 seconds with slide-in animation
+   - Added clickable link to Falter Lokalführer (opens in new tab)
+   - Clear blue link color with underline for discoverability
+
+6. **CSS Variables for All Colors:**
+   - Extracted all hardcoded colors to `:root` variables
+   - Added variables: `--text-tertiary`, `--border-light`, `--info-bg-*`, `--success-*`
+   - Easier maintenance and theming
+
+**Technical Implementation:**
+
+```css
+/* Header matches modal */
+.header {
+    padding: 12px 14px;
+    background: var(--accent); /* #fbe51f */
+}
+
+/* Bunny Fonts (GDPR-compliant) */
+@import url('https://fonts.bunny.net/css?family=nunito:400,600,700,800');
+
+/* CSS variables for all colors */
+:root {
+    --success-bg-light: #d4edda;
+    --success-border: #28a745;
+    /* ... */
+}
+```
+
+**Outcome:**
+- ✅ Professional, polished popup aligned with modal design
+- ✅ Fully localized in German
+- ✅ Compact, space-efficient layout
+- ✅ Consistent design language (instructions match info-card)
+- ✅ Non-intrusive confirmation UX (no browser alerts)
+- ✅ GDPR-compliant fonts (Bunny Fonts)
+- ✅ Clickable link for easy access to Lokalführer
+- ✅ DRY color system with CSS variables
+
+**Acceptance Criteria Completed:**
+- ✅ Popup design aligns with modal (colors, fonts, spacing)
+- ✅ All text in German (no English/German mixing)
+- ✅ Clear cache button appropriately sized
+- ✅ Subtle, non-intrusive confirmation (green message, 3-second auto-hide)
+- ✅ Cache usage display remains functional
+- ✅ Professional and consistent feel
+- ✅ User verified all functionality works
+- ✅ Uniform text sizing and spacing throughout
+
+**Key Files Modified:**
+- `popup.html` - Complete redesign: header, layout, German text, CSS variables, clickable link
+- `popup.js` - Removed `alert()`/`confirm()`, added subtle success message
+- `content.css` - Added sync comment for Bunny Fonts URL
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.

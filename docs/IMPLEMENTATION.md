@@ -26,24 +26,6 @@ After completing the "Reliable Foundation" sprint (E03), we now have ethical, re
 
 ### Active Tickets
 
-#### **Phase 1: High Priority**
-
-**🎟️ FALTMAP-30 - Refactor Popup for Design Consistency and UX Polish**
-- Epic: E04 (UI/UX Polish)
-- Status: Open
-- Priority: 🟡 High
-
-**Summary:** Polish the extension popup to be consistent with modal design and fully German.
-
-**Key Points:**
-- Align popup design with modal (colors, fonts, spacing)
-- Convert all English text to German
-- Resize "Clear Cache" button (currently too large)
-- Replace intrusive browser alert with subtle confirmation
-- Professional, consistent feel
-
----
-
 #### **Phase 2: Medium Priority**
 
 **🎟️ FALTMAP-28 - Redesign Status Message to Not Look Like Textbox**
