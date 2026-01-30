@@ -204,6 +204,7 @@ Before marking a ticket as Done, verify:
 - **NEVER push commits to remote** without asking first
 - **ALWAYS use atomic commits:** Each commit = one logical change (refer to Section 2: Core Principles)
 - **ALWAYS show** what will be pushed: `git log origin/main..HEAD --oneline`
+- **Show the diff summary** before pushing: `git diff --stat origin/main..HEAD`
 - **WAIT for** explicit "yes, push" or "go ahead" from User before executing `git push`
 - **Example prompt:** "Ready to push 3 commits to GitHub. Should I proceed?"
 
