@@ -181,7 +181,7 @@ export class MapModal {
 
             // Add tile layer with OSM attribution
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Geocoding via <a href="https://nominatim.org">Nominatim</a>',
                 maxZoom: 19
             }).addTo(this.map);
 
