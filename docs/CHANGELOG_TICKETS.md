@@ -224,6 +224,53 @@ Nominatim's usage policy explicitly states: "Nominatim is not suitable for bulk 
 
 ---
 
+### FALTMAP-29: Implement Polite Delays in Pagination Fetching
+- **Status:** Done ✅ (Already Implemented)
+- **Epic:** E03 (Testing & Reliability)
+- **Priority:** High
+- **Completed:** 2026-01-30
+
+**User Story:**
+As a responsible user of Falter's infrastructure, I want the extension to make requests at a reasonable pace so we don't create unnecessary load on their servers.
+
+**Context:**
+This ticket was created to add polite delays between pagination page fetches to be a "good web citizen" and respect Falter's servers. Upon investigation, this feature was **already fully implemented** in the codebase from the beginning.
+
+**Existing Implementation:**
+- **CONFIG.PAGINATION.FETCH_DELAY_MS = 300ms** (already in constants.js)
+- **fetchAllPages()** already implements delay between pages
+- **fetchUpToLimit()** already implements delay between pages
+- 300ms is the recommended middle ground (250-500ms range)
+
+**Code Found:**
+```javascript
+// In both fetchAllPages() and fetchUpToLimit():
+if (page < pagination.total) {
+    await new Promise(resolve => setTimeout(resolve, CONFIG.PAGINATION.FETCH_DELAY_MS));
+}
+```
+
+**Outcome:**
+- ✅ Polite 300ms delays already present
+- ✅ Configurable via CONFIG object
+- ✅ Respects Falter's servers
+- ✅ Mimics human-like browsing patterns
+- ✅ No code changes needed
+
+**Acceptance Criteria (All Already Met):**
+- ✅ Polite delay (300ms) implemented in fetchAllPages()
+- ✅ Delay value is configurable (CONFIG object)
+- ✅ Multi-page fetching works correctly
+- ✅ Status messages update properly during delays
+- ✅ No degradation in perceived performance
+
+**Technical Notes:**
+- This was already part of the original implementation
+- Good engineering practice from the start
+- Shows respect for Falter's infrastructure
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.

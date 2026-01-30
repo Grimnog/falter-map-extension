@@ -45,7 +45,7 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 **🎟️ FALTMAP-29 - Implement Polite Delays in Pagination Fetching**
 - Epic: E03 (Testing & Reliability)
-- Status: In Progress
+- Status: Done ✅
 - Priority: 🟡 High
 
 **Summary:** Add 300ms delay between pagination page fetches to respect Falter's servers and be a good web citizen.
