@@ -170,38 +170,12 @@
 
             console.log(`Pagination: ${pagination.total} pages, estimated ~${estimatedTotal} restaurants`);
 
-            let shouldLimit = false;
             let restaurants = [];
+            let shouldLimit = estimatedTotal > CONFIG.GEOCODING.MAX_RESULTS;
 
-            // Show warning IMMEDIATELY if estimated total > limit
-            if (estimatedTotal > CONFIG.GEOCODING.MAX_RESULTS) {
-                shouldLimit = true;
-
-                // Build warning message
-                let warningMessage =
-                    `Große Ergebnismenge: ~${estimatedTotal} Restaurants geschätzt.\n\n` +
-                    `Aus Respekt für die kostenlose Geocodierung-Infrastruktur (Nominatim) ` +
-                    `zeigen wir maximal ${CONFIG.GEOCODING.MAX_RESULTS} Restaurants auf der Karte.\n\n` +
-                    `Bitte nutzen Sie die Filter auf Falter.at für präzisere Ergebnisse.`;
-
-                // Add extra tip for extreme cases (e.g., "Alle Bundesländer")
-                if (estimatedTotal > CONFIG.GEOCODING.EXTREME_RESULT_THRESHOLD) {
-                    warningMessage += `\n\n` +
-                        `Tipp: Wählen Sie ein spezifisches Bundesland statt 'Alle Bundesländer' ` +
-                        `für bessere und schnellere Ergebnisse.`;
-                }
-
-                const confirmed = confirm(warningMessage + `\n\nErste ${CONFIG.GEOCODING.MAX_RESULTS} anzeigen?`);
-
-                if (!confirmed) {
-                    btn.innerHTML = originalHTML;
-                    btn.disabled = false;
-                    return;
-                }
-            }
-
-            // Fetch restaurants (limited or all)
+            // Automatically limit if needed (no confirmation popup - silent limiting)
             if (shouldLimit) {
+                console.log(`Auto-limiting: Fetching first ${CONFIG.GEOCODING.MAX_RESULTS} of ~${estimatedTotal} restaurants`);
                 const result = await fetchUpToLimit(CONFIG.GEOCODING.MAX_RESULTS, (current, total) => {
                     btn.innerHTML = `<span>Loading page ${current}/${total}...</span>`;
                 });
