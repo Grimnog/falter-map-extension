@@ -26,20 +26,9 @@ After completing the "Reliable Foundation" sprint (E03), we now have ethical, re
 
 ### Active Tickets
 
-#### **Phase 2: Medium Priority**
+---
 
-**🎟️ FALTMAP-28 - Redesign Status Message to Not Look Like Textbox**
-- Epic: E04 (UI/UX Polish)
-- Status: Open
-- Priority: 🟢 Medium
-
-**Summary:** Redesign status message element so it doesn't resemble an input textbox.
-
-**Key Points:**
-- Current design looks like a textbox (confusing for users)
-- Make it visually distinct as a status indicator
-- Improve visual hierarchy
-- Consider adding icons (loading spinner, checkmark)
+**Sprint Status:** ✅ **COMPLETE** - All 3 tickets done!
 
 ---
 

@@ -667,6 +667,105 @@ The popup (accessed by clicking the extension icon) had several UX issues:
 
 ---
 
+### FALTMAP-28: Redesign Status Message to Not Look Like Textbox
+- **Status:** Done ✅
+- **Epic:** E04 (UI/UX Polish)
+- **Priority:** Medium
+- **Completed:** 2026-01-30
+
+**User Story:**
+As a user, I should clearly understand which UI elements are informational vs. interactive, so I don't try to click or type in status messages.
+
+**Context:**
+The status message element (showing "Suche läuft..." / "Suche abgeschlossen") was confusing users:
+- Looked like a textbox/input field (white background, border, rectangular shape)
+- Created confusion about whether it was interactive
+- Wasted vertical space with its own section
+- Poor visual hierarchy - didn't integrate with the header
+
+**Problem Analysis:**
+- Element had textbox-like styling (border, padding, white background)
+- Separated section created unnecessary white space
+- Not clearly identifiable as a status indicator
+- Users might try to click or type in it
+
+**Solution Implemented:**
+
+**Integrated Header Badge Design:**
+- Moved status INTO the header (eliminated separate section)
+- Right-aligned badge next to "Falter Restaurant Map" title
+- Pill-shaped design with translucent white background
+- Clear black border (2px Falter black) separates header from list
+- Centered vertically with title text baseline
+
+**Technical Implementation:**
+```css
+/* Header gets black bottom border */
+.modal-header {
+    padding: 18px 24px;
+    border-bottom: 2px solid var(--falter-black);
+}
+
+/* Title has max-width to prevent overlap */
+.modal-header h1 {
+    max-width: 180px;  /* Leaves ~90px for badge (enough for "100/100") */
+}
+
+/* Status positioned absolutely in header */
+.modal-status {
+    position: absolute;
+    top: 19px;  /* Center-aligned with h1 baseline */
+    right: 24px;
+}
+
+/* Badge: pill-shaped, translucent, distinct */
+.status-value {
+    background: rgba(255, 255, 255, 0.3);
+    border: 1.5px solid var(--falter-black);
+    border-radius: 12px;
+    padding: 4px 10px;
+    backdrop-filter: blur(4px);
+}
+```
+
+**Design Benefits:**
+1. **No wasted space** - eliminated separate status section
+2. **Clear visual hierarchy** - status is part of header chrome
+3. **Not a textbox** - pill shape, translucent background, clearly non-interactive
+4. **Compact** - reduced header from 26px to 18px padding
+5. **Professional** - Falter black border creates strong separation
+6. **Contextual** - status next to title makes logical sense
+
+**Outcome:**
+- ✅ Status badge clearly distinct from textbox
+- ✅ Integrated into header (no wasted white space)
+- ✅ Strong visual hierarchy: yellow header with black border → white list
+- ✅ Pill-shaped badge is obviously non-interactive
+- ✅ Works for both states ("Suche läuft..." / "Suche abgeschlossen")
+- ✅ Properly aligned with title text (center baseline)
+- ✅ Prevents text overlap (h1 max-width 180px, badge has ~90px space)
+- ✅ Clean, modern, professional design
+
+**Acceptance Criteria Completed:**
+- ✅ Current styling analyzed (textbox appearance identified)
+- ✅ Design alternatives explored (integrated header badge chosen)
+- ✅ Status no longer resembles a textbox
+- ✅ Clear visual hierarchy established
+- ✅ Works for both status states
+- ✅ User verified improved UX
+- ✅ Compact layout without wasted space
+
+**Key Files Modified:**
+- `content.css` - Redesigned modal-header, modal-status, status-value; added positioning and borders
+- `manifest.json` - Version bump to 0.8.0
+- `popup.html` - Version bump to 0.8.0
+
+---
+
+**🎉 Sprint 6 Complete!** All 3 UI/UX Polish tickets done.
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.
