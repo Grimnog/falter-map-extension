@@ -7,8 +7,9 @@ import { CONFIG } from './constants.js';
 import { ErrorHandler } from './error-handler.js';
 
 export class MapModal {
-    constructor(restaurants) {
+    constructor(restaurants, estimatedTotal = null) {
         this.restaurants = restaurants;
+        this.estimatedTotal = estimatedTotal; // Total results before limiting
         this.currentRestaurants = []; // Track current list with coords
         this.map = null;
         this.markers = [];
@@ -178,8 +179,16 @@ export class MapModal {
         try {
             this.map = L.map('modal-map').setView(CONFIG.MAP.DEFAULT_CENTER, CONFIG.MAP.DEFAULT_ZOOM);
 
+            // Build attribution text
+            let attributionText = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+            // Add result limiting info if applicable
+            if (this.estimatedTotal && this.estimatedTotal > this.restaurants.length) {
+                attributionText += ` | <strong>${this.restaurants.length} von ${this.estimatedTotal} angezeigt (Limit)</strong> · Mit Filter eingrenzen`;
+            }
+
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors',
+                attribution: attributionText,
                 maxZoom: 19
             }).addTo(this.map);
 

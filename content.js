@@ -256,8 +256,9 @@
                 }
             }
 
-            // Create and show modal with map
-            mapModal = new MapModal(restaurants);
+            // Create and show modal with map (pass estimatedTotal if we limited results)
+            const displayTotal = (shouldLimit && estimatedTotal) ? estimatedTotal : null;
+            mapModal = new MapModal(restaurants, displayTotal);
             mapModal.show(btn);
 
             // Create and enable navigation
