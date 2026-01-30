@@ -336,6 +336,208 @@ Implement a polite delay (250-500ms) between consecutive page fetches. This:
 
 ---
 
+### 🎟️ **TICKET: FALTMAP-31 - Implement Graceful Degradation for API Failures**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🟡 High
+
+**User Story:**
+As a user, I want to see the list of restaurants even if the geocoding service is down, so the extension still provides value when external services fail.
+
+**Context:**
+Currently, if the Nominatim geocoding API fails, the entire extension appears broken. The modal might not show, or users see only errors. This creates a poor experience and makes the extension seem unreliable, even though we successfully scraped the restaurant data from Falter.
+
+**Proposed Architectural Change:**
+Decouple the restaurant list display from geocoding success. The extension should:
+1. Always show the modal with the full list of restaurants immediately
+2. Display the map in a "loading" state while geocoding
+3. If geocoding succeeds: show markers on the map
+4. If geocoding fails: show a clear, non-alarming message: "Karte momentan nicht verfügbar. Geocodierung-Dienst antwortet nicht."
+
+**Current Flow (coupled):**
+```
+User clicks button → Fetch restaurants → Geocode ALL → Show modal with map
+(If geocoding fails, user sees nothing or error)
+```
+
+**Proposed Flow (decoupled):**
+```
+User clicks button → Fetch restaurants → Show modal immediately with list
+                                      ↓
+                                   Geocode in background
+                                      ↓
+                        Success: Add markers to map
+                        Failure: Show "service unavailable" message
+```
+
+**Scope of Work:**
+
+1. **Refactor `App.js` (`handleMapButtonClick`):**
+   - Instantiate and show `MapModal` immediately after restaurants are fetched
+   - Pass restaurant data to modal before geocoding
+   - Modal displays list right away, map shows loading state
+
+2. **Update `MapModal.js`:**
+   - Add initial state: "Geocodierung läuft..."
+   - Handle two outcomes:
+     - Success: render markers as usual
+     - Failure: display user-friendly error message on map (not console)
+
+3. **Update `modules/geocoder.js`:**
+   - Ensure geocodeRestaurants handles failures gracefully
+   - Return partial results if some geocoding succeeds (don't fail-all)
+
+4. **Error messaging:**
+   - Use German: "Karte momentan nicht verfügbar. Restaurant-Liste unten verfügbar."
+   - Non-alarming, informative tone
+   - Keep list functional regardless of map state
+
+**Acceptance Criteria:**
+- [ ] Modal shows immediately after restaurant data is fetched
+- [ ] Restaurant list is visible before geocoding completes
+- [ ] Map displays "Geocodierung läuft..." state initially
+- [ ] If geocoding fails completely, map shows clear error message
+- [ ] If geocoding partially fails, successful markers still display
+- [ ] Restaurant list remains functional regardless of geocoding outcome
+- [ ] No console errors for API failures (handled gracefully)
+- [ ] Manual test: Disconnect internet, verify list still shows with error message
+- [ ] Manual test: Block Nominatim domain, verify graceful degradation
+- [ ] All existing tests still pass
+- [ ] Commit message follows format: `feat: add graceful degradation for geocoding failures`
+
+**Technical Notes:**
+- This improves perceived reliability significantly
+- Users always get value (restaurant list) even if map fails
+- Aligns with "Fail Gracefully" error handling philosophy in AGENT.md
+
+---
+
+### 🎟️ **TICKET: FALTMAP-32 - Optimize Cache Cleaning with Just-in-Time Execution**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🟢 Medium
+
+**User Story:**
+As a user browsing Falter.at, I want the extension to only do work when I actually use it, so it doesn't slow down my normal browsing.
+
+**Context:**
+Currently, `CacheManager.cleanExpired()` runs in the `init()` sequence on every page load of a Falter.at search results page. This means:
+- The extension performs cache cleanup even if the user never clicks "Auf Karte anzeigen"
+- Unnecessary work on every page visit
+- Wasted CPU cycles and storage I/O for users who are just browsing
+
+**Proposed Optimization:**
+Move cache cleanup to happen just-in-time, right before geocoding starts. Cache cleanup only runs when the extension is actively being used.
+
+**Current Behavior:**
+```
+Page loads → init() → CacheManager.cleanExpired() runs
+(Happens even if user never uses the extension)
+```
+
+**Proposed Behavior:**
+```
+User clicks "Auf Karte anzeigen" → geocodeRestaurants() → CacheManager.cleanExpired() → geocode
+(Only happens when extension is actually used)
+```
+
+**Scope of Work:**
+
+1. **Remove from `App.js`:**
+   - Remove `CacheManager.cleanExpired()` call from `init()` sequence
+
+2. **Add to `modules/geocoder.js`:**
+   - Add `await CacheManager.cleanExpired()` at the start of `geocodeRestaurants()` function
+   - Call it once before the geocoding loop begins
+
+3. **Verify behavior:**
+   - Confirm cache cleanup still happens (just later)
+   - No change in functionality, only timing
+
+**Acceptance Criteria:**
+- [ ] `CacheManager.cleanExpired()` removed from init sequence
+- [ ] `CacheManager.cleanExpired()` added to start of `geocodeRestaurants()`
+- [ ] Cache cleanup only runs when user clicks "Auf Karte anzeigen"
+- [ ] No change in cache expiration behavior (still 30 days)
+- [ ] All existing tests pass
+- [ ] Manual test: Browse Falter without clicking button, verify no cache cleanup
+- [ ] Manual test: Click button, verify cache cleanup happens before geocoding
+- [ ] Performance: Page load feels snappier (no unnecessary work)
+- [ ] Commit message follows format: `perf: optimize cache cleanup to just-in-time execution`
+
+**Technical Notes:**
+- Low-risk refactor (just moving one function call)
+- Improves performance for passive browsing
+- Aligns with "do work only when needed" principle
+
+---
+
+### 🎟️ **TICKET: FALTMAP-33 - Add Data Provenance Transparency with Attribution**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🟢 Medium
+
+**User Story:**
+As a user, I want to know where the extension's map data comes from, so I can trust the service and understand its sources.
+
+**Context:**
+Being transparent about data sources builds user trust and is proper "good web citizen" behavior. We use:
+- OpenStreetMap for map tiles
+- Nominatim for geocoding
+
+Both are free, open services that deserve proper attribution. This also aligns with OpenStreetMap's license requirements.
+
+**Current State:**
+- Leaflet likely shows default "© OpenStreetMap contributors" attribution (need to verify)
+- No mention of Nominatim anywhere in the UI
+
+**Proposed Enhancement:**
+Add clear, visible attribution for both data sources directly in the map modal.
+
+**Scope of Work:**
+
+1. **Verify existing attribution:**
+   - Check if Leaflet's default OpenStreetMap attribution is present and visible
+   - If not, ensure it's enabled and displayed
+
+2. **Add Nominatim attribution:**
+   - In `MapModal.js`, add a small text element near the map controls
+   - Suggested text: "Geocodierung durch Nominatim" or "Geocoding by Nominatim"
+   - Style it to be non-intrusive but readable (similar to Leaflet attribution)
+
+3. **Placement options:**
+   - Bottom-right corner (near Leaflet zoom controls)
+   - Or integrate into existing Leaflet attribution line
+   - Should not obstruct map or restaurant markers
+
+4. **Styling:**
+   - Small, subtle font (10-11px)
+   - Gray color (#666 or similar)
+   - Link "Nominatim" to https://nominatim.openstreetmap.org if possible
+
+**Acceptance Criteria:**
+- [ ] OpenStreetMap attribution is visible in map modal
+- [ ] Nominatim attribution added to map modal
+- [ ] Attribution text is in German (or bilingual if appropriate)
+- [ ] Attribution is non-intrusive but clearly readable
+- [ ] Attribution doesn't obstruct map markers or UI elements
+- [ ] Links to sources work correctly (if implemented)
+- [ ] Manual testing confirms visibility on different screen sizes
+- [ ] Styling is consistent with overall modal design
+- [ ] Commit message follows format: `feat: add data provenance attribution for OSM and Nominatim`
+
+**Design Considerations:**
+- Keep it simple and subtle
+- Should feel like standard map attribution (users are used to this)
+- Reinforce trust without cluttering UI
+
+**Technical Notes:**
+- Low effort, high value for ethics and trust
+- OpenStreetMap attribution may already exist (verify first)
+- Good practice for open data usage
+
+---
+
 ## 🚫 Deferred / Post-v1.0 Backlog
 
 These tickets are deferred until after v1.0 release, pending decision on Chrome Web Store publication.
