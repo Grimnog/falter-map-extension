@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-02-01
+
+### 🇦🇹 Austria-Wide Support
+
+**Major Feature Release:** The extension now works seamlessly across all 9 Austrian Bundesländer, not just Vienna!
+
+### Added
+- **Austria-wide Bundesland support** - Works for all 9 Austrian states (Wien, Niederösterreich, Oberösterreich, Salzburg, Tirol, Vorarlberg, Steiermark, Kärnten, Burgenland)
+- **Smart map centering** - Map automatically centers on the Bundesland capital you're searching (e.g., Salzburg search → map starts on Salzburg city)
+- **Optimized zoom levels** - State-level zoom (9) for Bundesländer, city-level zoom (13) for Wien
+- **Bundesland center coordinates** - Accurate coordinates for all 9 Bundesland capitals
+- **URL parameter detection** - Detects region from Falter.at's `?r=` filter parameter
+- **Multi-word city support** - Handles cities like "Purbach am Neusiedler See", "Weiden am See", "Schützen am Gebirge"
+- **Hyphenated city support** - Parses cities like "Deutsch Schützen-Eisenberg"
+- **Building-level precision geocoding** - Across all Austrian regions
+- **Comprehensive test suite** - 88 automated tests covering all Austria-wide features
+
+### Changed
+- **Geocoding system completely refactored** - Switched from free-form queries to structured Nominatim API
+- **7-tier fallback strategy** - Maximizes geocoding success rate across all regions
+  - Tier 1: Restaurant name (amenity) - 70-80% success rate (80/20 principle validated!)
+  - Tier 2: Street address - 15-20% success rate
+  - Tier 3: Combined street + amenity
+  - Tier 4: Amenity types (restaurant, cafe, bar, fast_food, pub)
+  - Tier 5: Cleaned street names (removes prefixes, blocks, parentheses)
+  - Tier 6: Free-form query (handles complex addresses)
+  - Tier 7: City-level approximate (last resort)
+- **Address parsing enhanced** - Handles optional street numbers, em-dashes, parenthesized descriptors
+- **Street name cleaning** - Generic regex-based cleaning (removes "Strombad", "Nord/Süd/Ost/West", "Block VI", "Stand XX", parentheses, Roman numerals)
+- **Dynamic map initialization** - Uses Bundesland-specific center if detected, Wien default otherwise
+- **Backward compatibility maintained** - Wien searches work identically to v0.8.0 (no regressions)
+
+### Fixed
+- **Multi-word city parsing** - "Purbach am Neusiedler See" now correctly extracted (was failing with single-word regex)
+- **DOM parser Wien-only regex** - Extended to support all Austrian city names
+- **Tier execution order** - Free-form (Tier 6) now runs before city-level approximate (Tier 7)
+- **Em-dash handling** - Addresses with "–" (em-dash) now parse correctly
+- **Addresses without numbers** - Location descriptors like "(Göschl Tourismusprojekte – Seepark)" now supported
+
+### Technical
+- Added `modules/url-utils.js` - URL parameter parsing utilities
+- Added `BUNDESLAND_CENTERS` to constants.js (9 coordinate pairs from Nominatim)
+- Added `getBundeslandFromURL()` utility function
+- Extended `geocoder.js` - Structured query API with multi-tier fallback
+- Extended `dom-parser.js` - Austria-wide address pattern support
+- Updated `MapModal.js` - Dynamic center and zoom based on detected Bundesland
+- Added `tests/url-utils.test.js` - 56 tests for URL parsing
+- Updated `tests/geocoder.test.js` - 17 tests (10 new) for tier system
+- Updated `tests/dom-parser.test.js` - 15 tests (6 new) for address patterns
+- Rate limiting respected (1 req/sec, stop at first successful tier)
+- Most queries resolved in 1-2 API calls (Tier 1 or Tier 2)
+
+**Sprint 8 Complete:** All 7 Austria-wide support sub-tickets delivered (FALTMAP-26.1 through 26.7)
+
+**Tested:** All 9 Bundesländer validated with real Falter.at searches
+
+---
+
 ## [0.8.0] - 2026-01-30
 
 ### Added

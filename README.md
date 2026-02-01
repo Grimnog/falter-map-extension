@@ -18,6 +18,9 @@
 <tr>
 <td width="50%">
 
+### 🗺️ **Austria-Wide Support**
+Works across all 9 Austrian Bundesländer, not just Vienna
+
 ### 🔄 **Smart Pagination**
 Automatically fetches all result pages, not just the first one
 
@@ -26,6 +29,9 @@ Automatically fetches all result pages, not just the first one
 
 </td>
 <td width="50%">
+
+### 🎯 **Smart Map Centering**
+Automatically centers on the Bundesland you're searching
 
 ### ⌨️ **Keyboard Navigation**
 Use arrow keys to navigate restaurants, ESC to close
@@ -58,6 +64,39 @@ Direct links to Falter details and Google Maps
 </table>
 
 > **Note:** Firefox uses a different extension format. This is for Chromium-based browsers only.
+
+---
+
+## 🇦🇹 Austria-Wide Support
+
+The extension works seamlessly across **all 9 Austrian Bundesländer**:
+
+<table>
+<tr>
+<td>
+
+- 🏛️ **Wien** (Vienna)
+- 🌲 **Niederösterreich**
+- 🏔️ **Oberösterreich**
+- 🎵 **Salzburg**
+- ⛷️ **Tirol**
+
+</td>
+<td>
+
+- 🏞️ **Vorarlberg**
+- 🍷 **Steiermark**
+- 🏖️ **Kärnten**
+- 🌾 **Burgenland**
+
+</td>
+</tr>
+</table>
+
+**Smart Features:**
+- 🎯 Map automatically centers on the Bundesland capital you're searching
+- 🔍 Optimized geocoding for Austrian address formats
+- 📍 Building-level precision across all regions
 
 ---
 
@@ -138,6 +177,10 @@ This is normal - some address formats are unusual. The extension tries multiple 
 
 ## 📝 Version History
 
+- **v0.9.0** - **Austria-wide support**: All 9 Bundesländer, smart map centering, optimized geocoding with 7-tier fallback system
+- **v0.8.0** - UI/UX polish: Bunny Fonts (GDPR-compliant), German popup redesign, integrated status badge
+- **v0.7.0** - Result limiting (100 max) to respect Nominatim TOS and be a good open-source citizen
+- **v0.6.0** - Testing infrastructure: comprehensive test suite, automated testing, fixtures
 - **v0.5.0** - UX enhancements: visual progress bar, keyboard shortcuts help overlay, improved feedback
 - **v0.4.0** - Code refactoring: modular architecture, eliminated code duplication, centralized configuration
 - **v0.3.0** - Major UX improvements: loading skeleton, empty states, smooth pin animations, compact popup design
@@ -148,6 +191,6 @@ This is normal - some address formats are unusual. The extension tries multiple 
 
 <div align="center">
 
-Made with ❤️ for Vienna foodies | Powered by OpenStreetMap
+Made with ❤️ for Austrian foodies | Powered by OpenStreetMap
 
 </div>
