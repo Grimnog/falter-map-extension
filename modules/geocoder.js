@@ -129,54 +129,53 @@ export async function geocodeAddress(address, restaurantName = null) {
 
     // Tier 1: Restaurant name (PRIMARY - 80/20 solution! ~70-80% success)
     if (restaurantName) {
-        const url = buildStructuredQueryURL({
+        const amenityQueryURL = buildStructuredQueryURL({
             amenity: restaurantName,
             city: city,
             postalcode: zip
         });
-        const result = await tryGeocodingQuery(url, `Tier 1: amenity="${restaurantName}"`);
-        if (result) return result;
+        const coords = await tryGeocodingQuery(amenityQueryURL, `Tier 1: amenity="${restaurantName}"`);
+        if (coords) return coords;
 
-        // Small delay before next tier
         await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
     }
 
     // Tier 2: Street address (reliable fallback for new/untagged restaurants)
-    const url2 = buildStructuredQueryURL({
+    const streetQueryURL = buildStructuredQueryURL({
         street: street,
         city: city,
         postalcode: zip
     });
-    const result2 = await tryGeocodingQuery(url2, `Tier 2: street="${street}"`);
-    if (result2) return result2;
+    const streetCoords = await tryGeocodingQuery(streetQueryURL, `Tier 2: street="${street}"`);
+    if (streetCoords) return streetCoords;
 
     await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
 
     // Tier 3: Combined street + amenity name (disambiguation)
     if (restaurantName) {
-        const url3 = buildStructuredQueryURL({
+        const combinedQueryURL = buildStructuredQueryURL({
             street: street,
             amenity: restaurantName,
             city: city,
             postalcode: zip
         });
-        const result3 = await tryGeocodingQuery(url3, `Tier 3: street + amenity`);
-        if (result3) return result3;
+        const combinedCoords = await tryGeocodingQuery(combinedQueryURL, `Tier 3: street + amenity`);
+        if (combinedCoords) return combinedCoords;
 
         await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
     }
 
     // Tier 4: Try amenity types (restaurant, cafe, bar, fast_food)
     const amenityTypes = ['restaurant', 'cafe', 'bar', 'fast_food', 'pub'];
-    for (const type of amenityTypes) {
-        const url4 = buildStructuredQueryURL({
+    for (const amenityType of amenityTypes) {
+        const amenityTypeQueryURL = buildStructuredQueryURL({
             street: street,
-            amenity: type,
+            amenity: amenityType,
             city: city,
             postalcode: zip
         });
-        const result4 = await tryGeocodingQuery(url4, `Tier 4: amenity="${type}"`);
-        if (result4) return result4;
+        const amenityTypeCoords = await tryGeocodingQuery(amenityTypeQueryURL, `Tier 4: amenity="${amenityType}"`);
+        if (amenityTypeCoords) return amenityTypeCoords;
 
         await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
     }
@@ -184,36 +183,36 @@ export async function geocodeAddress(address, restaurantName = null) {
     // Tier 5: Cleaned street name (drop prefixes like "Strombad")
     const cleanedStreet = cleanStreetName(street);
     if (cleanedStreet !== street) {
-        const url5 = buildStructuredQueryURL({
+        const cleanedStreetQueryURL = buildStructuredQueryURL({
             street: cleanedStreet,
             city: city,
             postalcode: zip
         });
-        const result5 = await tryGeocodingQuery(url5, `Tier 5: cleaned street="${cleanedStreet}"`);
-        if (result5) return result5;
+        const cleanedStreetCoords = await tryGeocodingQuery(cleanedStreetQueryURL, `Tier 5: cleaned street="${cleanedStreet}"`);
+        if (cleanedStreetCoords) return cleanedStreetCoords;
 
         await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
     }
 
     // Tier 6: City-level only (approximate - last resort)
-    const url6 = buildStructuredQueryURL({
+    const cityQueryURL = buildStructuredQueryURL({
         city: city,
         postalcode: zip
     });
-    const result6 = await tryGeocodingQuery(url6, `Tier 6: city-level (approximate)`);
-    if (result6) {
-        result6.approximate = true; // Flag for user warning
+    const cityCoords = await tryGeocodingQuery(cityQueryURL, `Tier 6: city-level (approximate)`);
+    if (cityCoords) {
+        cityCoords.approximate = true; // Flag for user warning
         console.warn('⚠ Approximate location (city-level) for:', address);
-        return result6;
+        return cityCoords;
     }
 
     await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
 
     // Tier 7: Free-form query (absolute last resort)
-    const query7 = encodeURIComponent(`${address}, Austria`);
-    const url7 = `${CONFIG.NOMINATIM.API_URL}?format=json&q=${query7}&limit=1`;
-    const result7 = await tryGeocodingQuery(url7, `Tier 7: free-form fallback`);
-    if (result7) return result7;
+    const freeFormQuery = encodeURIComponent(`${address}, Austria`);
+    const freeFormQueryURL = `${CONFIG.NOMINATIM.API_URL}?format=json&q=${freeFormQuery}&limit=1`;
+    const freeFormCoords = await tryGeocodingQuery(freeFormQueryURL, `Tier 7: free-form fallback`);
+    if (freeFormCoords) return freeFormCoords;
 
     console.warn('✗ No results for any variation of:', address);
     return null;
