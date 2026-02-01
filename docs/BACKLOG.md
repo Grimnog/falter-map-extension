@@ -261,15 +261,18 @@ async function geocodeAddress(address, restaurantName) {
         if (result) return result;
     }
 
-    // Tier 6: City-level (approximate - last resort)
+    // Tier 6: Free-form fallback (handles complex addresses like "II. Block VI")
+    result = await tryFreeForm(`${address}, Austria`);
+    if (result) return result;
+
+    // Tier 7: City-level (approximate - absolute last resort)
     result = await tryStructured({ city, postalcode: zip });
     if (result) {
         result.approximate = true; // Flag for user warning
         return result;
     }
 
-    // Tier 7: Free-form fallback (absolute last resort)
-    return await tryFreeForm(`${address}, Austria`);
+    return null;
 }
 ```
 
