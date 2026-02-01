@@ -158,11 +158,21 @@ After completing UI/UX polish (Sprint 6), the extension is ready for geographic 
 
 ---
 
-**🎟️ FALTMAP-26.5 - Dynamic Map Initialization**
-- Status: Ready to Start ⏭️
+**🎟️ FALTMAP-26.5 - Dynamic Map Initialization** ✅ **COMPLETE**
+- Status: Done ✅
 - Type: Feature (map initialization logic)
+- Completed: 2026-02-01
 
 **Summary:** Set initial map center based on detected Bundesland, maintain Wien backward compatibility.
+
+**Implementation:**
+- ✅ Integrated `getBundeslandFromURL()` in MapModal.js
+- ✅ Dynamic center lookup from `CONFIG.BUNDESLAND_CENTERS`
+- ✅ Wien fallback for no `?r=` parameter (backward compatible)
+- ✅ Debug logging for initialization
+- ✅ Map now centers on correct Bundesland capital
+
+**User-visible change:** Map no longer always starts on Wien - centers on the searched Bundesland!
 
 ---
 
