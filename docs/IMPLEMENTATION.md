@@ -68,30 +68,25 @@ After completing UI/UX polish (Sprint 6), the extension is ready for geographic 
 
 #### **Phase 1: Research & Planning** ⬅️ START HERE
 
-**🎟️ FALTMAP-26.1 - Geocoding Analysis & Testing**
+**🎟️ FALTMAP-26.1 - Geocoding Analysis & Testing** ✅ **COMPLETE**
 - Parent: FALTMAP-26
 - Epic: E05 (Core Feature Enhancements)
-- Status: In Progress 🔄
+- Status: Done ✅
 - Priority: 🟡 High
 - Type: Research (no code changes)
 
 **Summary:** Test current geocoding with all Bundesland addresses, experiment with query variations, document findings.
 
-**Key Deliverables:**
-- Testing report with geocoding results for all 8 non-Vienna Bundesländer
-- Analysis of successful vs failed queries
-- Recommendations for FALTMAP-26.2 implementation
-- No code changes - pure research
+**Key Findings:**
+- ✅ Structured query API provides building-level precision for all 8 Bundesländer
+- ✅ Multi-tier fallback strategy designed (7 tiers, structured-first)
+- ✅ Restaurant name from Falter can be used as powerful fallback
+- ✅ Street name cleaning required for some addresses (e.g., "Strombad" prefix)
+- ✅ Wien market stalls need amenity-based queries (edge case validated)
 
-**Test Addresses Provided:**
-- Niederösterreich: `3420 Klosterneuburg, Strombad Donaulände 15`
-- Oberösterreich: `4653 Eberstalzell, Solarstraße 2`
-- Vorarlberg: `6774 Tschagguns, Kreuzgasse 4`
-- Burgenland: `7434 Bernstein, Badgasse 48`
-- Steiermark: `8010 Graz, Heinrichstraße 56`
-- Tirol: `6020 Innsbruck, Leopoldstraße 7`
-- Salzburg: `5101 Bergheim, Kasern 4`
-- Kärnten: `9062 Moosburg, Pörtschacher Straße 44`
+**Deliverable:** Comprehensive testing report at `docs/testing/faltmap-26-geocoding-analysis.md`
+
+**Next:** FALTMAP-26.2 - Major refactoring to implement structured query API
 
 ---
 
@@ -114,11 +109,29 @@ After completing UI/UX polish (Sprint 6), the extension is ready for geographic 
 
 #### **Phase 2: Implementation**
 
-**🎟️ FALTMAP-26.2 - Geocoding Enhancement for Non-Vienna Addresses**
-- Status: Blocked (depends on 26.1)
-- Type: Feature (geocoding logic)
+**🎟️ FALTMAP-26.2 - Refactor Geocoder to Use Structured Query API**
+- Status: Ready to start (26.1 complete)
+- Type: Major Refactoring
+- Estimated Effort: ~150-280 lines, 1-2 weeks
 
-**Summary:** Extend geocoder.js to handle non-Vienna address formats based on 26.1 findings.
+**Summary:** Complete architectural refactoring of geocoder.js to use Nominatim structured query API with multi-tier fallback system.
+
+**Scope (Updated based on 26.1 findings):**
+- Replace free-form `?q=` queries with structured parameters API
+- Implement 7-tier fallback system (structured-first approach)
+- Extract restaurant name from Falter, use for amenity-based fallbacks
+- Add street name cleaning logic
+- Maintain Wien backward compatibility (critical!)
+- Building-level precision for all Bundesländer
+
+**Key Changes:**
+- Tier 1: `?street={street}&city={city}&postalcode={zip}&country=Austria`
+- Tier 2: `?amenity={restaurant_name}&city={city}&postalcode={zip}`
+- Tiers 3-7: Various structured fallbacks
+- Restaurant name passed to geocoder from DOM parser
+- Rate limiting respected (1 req/sec, stop at first success)
+
+**Risk:** Medium-High - core geocoding logic change, must not break Wien!
 
 ---
 

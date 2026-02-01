@@ -175,69 +175,241 @@ Kärnten: 9062 Moosburg, Pörtschacher Straße 44
 
 ---
 
-### 🎟️ **SUB-TICKET: FALTMAP-26.2 - Geocoding Enhancement for Non-Vienna Addresses**
+### 🎟️ **SUB-TICKET: FALTMAP-26.2 - Refactor Geocoder to Use Structured Query API**
 - Parent: FALTMAP-26
 - Epic: E05 (Core Feature Enhancements)
-- Status: Blocked (depends on FALTMAP-26.1)
+- Status: Ready to Start (26.1 complete ✅)
 - Priority: 🟡 High
-- Type: Feature (geocoding logic)
+- Type: **Major Refactoring** (not simple enhancement!)
 
 **User Story:**
-As a user searching in Salzburg, Tirol, or any non-Vienna Bundesland, I want my restaurant addresses to be geocoded successfully so I can see them on the map.
+As a user searching in any Austrian Bundesland, I want my restaurant addresses geocoded with building-level precision so I can see exactly where each restaurant is located on the map.
 
 **Context:**
-Based on findings from FALTMAP-26.1, we need to enhance the geocoder to handle non-Vienna address formats. The current geocoder has Vienna-specific logic; we need parallel logic for other Bundesländer.
+FALTMAP-26.1 testing revealed that:
+- ✅ Nominatim **structured query API** provides building-level precision for all 8 Bundesländer
+- ❌ Free-form `?q=` queries are ambiguous and unreliable
+- ✅ Multi-tier fallback strategy needed for edge cases (markets, food halls)
+- ✅ Restaurant name from Falter can be used as powerful fallback
 
-**Scope of Work:**
+**Current approach (inadequate):**
+```javascript
+const url = `${API}?format=json&q=${encodeURIComponent(address)}&limit=1`;
+```
+Problems: Ambiguous, unreliable, city-level precision (not building-level)
 
-1. **Extend geocoder.js for Non-Vienna Addresses:**
-   - Current logic handles Vienna addresses: `"1040 Wien, Street"`
-   - Add logic for other Bundesländer: `"{ZIP} {City}, Street"`
-   - Use findings from 26.1 to determine if Bundesland name should be added
+**Required approach (structured queries):**
+```javascript
+const params = new URLSearchParams({
+    street: street,
+    city: city,
+    postalcode: zip,
+    country: 'Austria',
+    format: 'json',
+    limit: 1
+});
+const url = `${API}?${params}`;
+```
 
-2. **Implement Address Variations:**
-   - Based on 26.1 analysis, add successful query formats
-   - Example approach (if needed):
-     ```javascript
-     // For non-Vienna addresses matching pattern: "{ZIP} {City}, {Street}"
-     const match = address.match(/^(\d{4})\s+([^,]+),\s*(.+)$/);
-     if (match) {
-         const zip = match[1];
-         const city = match[2];
-         const street = match[3];
+---
 
-         // Try variations
-         addressVariations.push(`${street}, ${city}, Austria`);
-         addressVariations.push(`${street}, ${zip} ${city}, Austria`);
-         // Add Bundesland if 26.1 shows it helps
-     }
-     ```
+## Scope of Work
 
-3. **Maintain Backward Compatibility:**
-   - Keep Vienna-specific logic untouched (lines 19-43 in geocoder.js)
-   - Add new logic only for non-Vienna addresses
-   - Ensure Vienna addresses still geocode identically
+### 1. **Refactor to Structured Query API**
 
-4. **Add Tests:**
-   - Add test cases for all 8 Bundesland addresses
-   - Test Vienna addresses still work (no regression)
-   - Add to `tests/geocoder.test.js`
+Replace free-form queries with Nominatim structured parameters:
+- `street` - Street name and number
+- `city` - City name
+- `postalcode` - ZIP code
+- `country` - "Austria"
+- `amenity` - Restaurant name or type (for fallbacks)
 
-**Acceptance Criteria:**
-- [ ] geocoder.js extended with non-Vienna address handling
-- [ ] All 8 test addresses geocode successfully
-- [ ] Vienna addresses still work (no regression - test with existing addresses)
-- [ ] Code follows existing patterns and conventions
-- [ ] Tests added for new address formats
-- [ ] All tests pass (run `tests/test-runner.html`)
-- [ ] Manual testing confirms improvement
-- [ ] Atomic commit: `feat: add geocoding support for all Austrian Bundesländer`
+### 2. **Implement Multi-Tier Fallback System**
+
+**Philosophy:** Exhaust all structured query variations before falling back to free-form.
+
+```javascript
+async function geocodeAddress(address, restaurantName) {
+    const { zip, city, street } = parseAddress(address);
+
+    // Tier 1: Standard street address (PRIMARY - 90%+ success rate)
+    let result = await tryStructured({ street, city, zip });
+    if (result) return result;
+
+    // Tier 2: Amenity name (for markets/food halls - if restaurant name available)
+    if (restaurantName) {
+        result = await tryStructured({ amenity: restaurantName, city, zip });
+        if (result) return result;
+    }
+
+    // Tier 3: Combined street + amenity
+    if (restaurantName) {
+        result = await tryStructured({ street, amenity: restaurantName, city, zip });
+        if (result) return result;
+    }
+
+    // Tier 4: Try amenity types (restaurant, cafe, bar, fast_food)
+    for (const type of ['restaurant', 'cafe', 'bar', 'fast_food', 'pub']) {
+        result = await tryStructured({ street, amenity: type, city, zip });
+        if (result) return result;
+    }
+
+    // Tier 5: Cleaned street name
+    const cleanedStreet = cleanStreetName(street);
+    if (cleanedStreet !== street) {
+        result = await tryStructured({ street: cleanedStreet, city, zip });
+        if (result) return result;
+    }
+
+    // Tier 6: City-level (approximate - last resort)
+    result = await tryStructured({ city, zip });
+    if (result) {
+        result.approximate = true; // Flag for user warning
+        return result;
+    }
+
+    // Tier 7: Free-form fallback (absolute last resort)
+    return await tryFreeForm(`${address}, Austria`);
+}
+```
+
+### 3. **Extract Restaurant Name from Falter**
+
+Integrate with DOM parser to pass restaurant name to geocoder:
+```javascript
+// In dom-parser.js (already extracting name)
+const restaurantData = {
+    name: restaurantName,  // Already available!
+    address: address,
+    url: url
+};
+
+// Pass to geocoder
+const coords = await geocodeAddress(address, restaurantName);
+```
+
+### 4. **Add Street Name Cleaning Logic**
+
+```javascript
+function cleanStreetName(street) {
+    // Drop location prefixes: "Strombad Donaulände 15" → "Donaulände 15"
+    let cleaned = street.replace(/^(Strombad|Nord|Süd|Ost|West)\s+/i, '');
+
+    // Drop market stall designations (but try full name first!)
+    // "Stand 19" only dropped if initial query fails
+
+    return cleaned.trim();
+}
+```
+
+### 5. **Build Structured Query Helper**
+
+```javascript
+async function tryStructured(params) {
+    const queryParams = new URLSearchParams({
+        ...params,
+        country: 'Austria',
+        format: 'json',
+        limit: 1
+    });
+
+    const url = `${CONFIG.NOMINATIM.API_URL}?${queryParams}`;
+
+    // Respect rate limiting (1 req/sec)
+    await rateLimitDelay();
+
+    const response = await fetch(url, {
+        headers: { 'User-Agent': CONFIG.NOMINATIM.USER_AGENT }
+    });
+
+    // ... handle response, return coords or null
+}
+```
+
+### 6. **Maintain Wien Backward Compatibility (CRITICAL!)**
+
+**Option A (Safer):** Keep Vienna-specific logic separate
+- Lines 19-43 in geocoder.js remain untouched
+- New structured query logic only for non-Wien addresses
+- Zero risk of Wien regression
+
+**Option B (Cleaner):** Refactor Vienna to structured queries too
+- More consistent codebase
+- But risky - must test thoroughly!
+
+**Recommendation:** Option A (safer) for initial implementation
+
+### 7. **Rate Limiting & Optimization**
+
+- Respect 1 req/second limit
+- **Stop at first successful tier** - don't try all 7!
+- Add delays between tier attempts
+- Max ~5-7 API calls per address (worst case)
+
+### 8. **Approximate Location Flagging**
+
+```javascript
+// Tier 6 result (city-level)
+if (result.approximate) {
+    // Show user warning: "Approximate location"
+    // Different pin color/style?
+    // Tooltip: "Exact address not found"
+}
+```
+
+---
+
+## Acceptance Criteria
+
+**Geocoding:**
+- [ ] Geocoder refactored to use Nominatim structured query API
+- [ ] Multi-tier fallback system implemented (Tiers 1-7)
+- [ ] All 8 Bundesland test addresses geocode with **building-level precision**
+- [ ] Wien market stall edge case (Mochi Ramen Bar) geocodes successfully
+- [ ] Wien backward compatibility maintained (**NO REGRESSIONS**)
+
+**Restaurant Name Integration:**
+- [ ] Restaurant name extracted from Falter DOM
+- [ ] Restaurant name passed to geocoder as parameter
+- [ ] Amenity-based fallbacks (Tiers 2-4) work correctly
+
+**Street Name Cleaning:**
+- [ ] Street name cleaning logic implemented
+- [ ] Klosterneuburg address works ("Strombad" prefix cleaned)
+- [ ] Try full name first, cleaned version as fallback
+
+**Testing:**
+- [ ] Unit tests added for all fallback tiers
+- [ ] Tests for all 8 Bundesland addresses
+- [ ] Tests for Wien addresses (regression prevention)
+- [ ] All tests pass (`tests/test-runner.html`)
+- [ ] Manual testing on real Falter pages
+
+**Code Quality:**
+- [ ] Code documented with clear comments
+- [ ] Rate limiting respected (1 req/sec)
+- [ ] Approximate location flagging implemented
+- [ ] Error handling for all API failures
+- [ ] Follows existing code patterns and conventions
+
+**Commit:**
+- [ ] Atomic commit(s): `refactor: migrate geocoder to structured query API with multi-tier fallbacks`
 - [ ] User verification complete
 
-**Technical Notes:**
-- Implementation depends on findings from FALTMAP-26.1
-- Approach may vary based on what Nominatim accepts
-- Keep it simple - only add complexity if needed
+---
+
+## Technical Notes
+
+**Estimated Effort:** ~150-280 lines of significant refactoring
+**Timeline:** 1-2 weeks (careful implementation + thorough testing)
+**Risk:** Medium-High - core geocoding logic change
+**Critical:** Wien backward compatibility absolutely required!
+
+**Testing Report:** See `docs/testing/faltmap-26-geocoding-analysis.md` for detailed findings
+
+**Dependencies:**
+- Restaurant name available from DOM parser (already extracted)
+- Nominatim structured query API documentation: https://nominatim.org/release-docs/develop/api/Search/
 
 ---
 
