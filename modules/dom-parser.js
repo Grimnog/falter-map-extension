@@ -45,7 +45,9 @@ export function parseRestaurantsFromDOM(doc) {
         // Examples: "3420 Klosterneuburg, Donaulände 15"
         //           "8010 Graz, Heinrichstraße 56"
         //           "1040 Wien, Rechte Wienzeile 1"
-        const addressMatch = text.match(/(\d{4})\s+([A-Za-zäöüÄÖÜß]+),?\s*([A-Za-zäöüÄÖÜßéèê\s\-\.]+?)\s+(\d+[A-Za-z\/\-]*)/i);
+        //           "7083 Purbach am Neusiedler See, Hauptgasse 64" (multi-word cities)
+        //           "7474 Deutsch Schützen-Eisenberg, Am Ratschen 5" (hyphenated cities)
+        const addressMatch = text.match(/(\d{4})\s+([A-Za-zäöüÄÖÜß][\wäöüÄÖÜß\s\-]*[A-Za-zäöüÄÖÜß]),?\s*([A-Za-zäöüÄÖÜßéèê\s\-\.]+?)\s+(\d+[A-Za-z\/\-]*)/i);
 
         if (name && addressMatch) {
             const zip = addressMatch[1];
