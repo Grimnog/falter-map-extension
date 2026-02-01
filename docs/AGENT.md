@@ -122,6 +122,34 @@ git commit -m "fix pagination bug, add progress bar, update docs"
 git commit -m "various updates and improvements"
 ```
 
+### Staging Discipline
+Atomic commits require controlled staging. Never blindly stage everything at once.
+
+**NEVER use these shortcuts:**
+- `git add .` when multiple logical changes exist
+- `git commit -am "..."` - this auto-stages all modified files
+
+**ALWAYS stage intentionally:**
+```bash
+# ✅ Only stage files belonging to one logical change
+git add geocoder.js
+git commit -m "feat: extend geocoder for multi-region"
+
+git add styles.css
+git commit -m "style: adjust map modal layout"
+```
+
+**ALWAYS show what's staged before committing:**
+```bash
+git status        # what's staged vs unstaged
+git diff --staged # exactly what will be committed
+```
+
+**Before every commit, ask:**
+"Does everything staged belong together as ONE logical change?"
+- Yes → commit
+- No → unstage unrelated files with `git reset HEAD <file>`
+
 ### Conventional Commit Messages
 All commit messages MUST follow the [Conventional Commits](https://www.conventionalcommits.org/) standard.
 -   **Format:** `<type>: <description>` (e.g., `feat: add user login form`).
@@ -203,6 +231,7 @@ Before marking a ticket as Done, verify:
 #### **Git Operations**
 - **NEVER push commits to remote** without asking first
 - **ALWAYS use atomic commits:** Each commit = one logical change (refer to Section 2: Core Principles)
+- **ALWAYS run `git status` before committing** to verify only related files are staged
 - **ALWAYS show** what will be pushed: `git log origin/main..HEAD --oneline`
 - **Show the diff summary** before pushing: `git diff --stat origin/main..HEAD`
 - **WAIT for** explicit "yes, push" or "go ahead" from User before executing `git push`
