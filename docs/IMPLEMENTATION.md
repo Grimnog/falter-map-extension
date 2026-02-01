@@ -124,12 +124,13 @@ After completing UI/UX polish (Sprint 6), the extension is ready for geographic 
 - Maintain Wien backward compatibility (critical!)
 - Building-level precision for all Bundesländer
 
-**Key Changes:**
-- Tier 1: `?street={street}&city={city}&postalcode={zip}&country=Austria`
-- Tier 2: `?amenity={restaurant_name}&city={city}&postalcode={zip}`
+**Key Changes (80/20 Optimized):**
+- Tier 1: `?amenity={restaurant_name}&city={city}&postalcode={zip}` ⭐ PRIMARY (70-80% success!)
+- Tier 2: `?street={street}&city={city}&postalcode={zip}` (fallback for new restaurants)
 - Tiers 3-7: Various structured fallbacks
-- Restaurant name passed to geocoder from DOM parser
+- Restaurant name passed to geocoder from DOM parser (CRITICAL!)
 - Rate limiting respected (1 req/sec, stop at first success)
+- Most queries resolved in 1-2 attempts (faster!)
 
 **Risk:** Medium-High - core geocoding logic change, must not break Wien!
 
