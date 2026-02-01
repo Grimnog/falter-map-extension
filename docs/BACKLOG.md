@@ -972,6 +972,68 @@ During testing of FALTMAP-34, inconsistencies were observed in:
 - Priority may change based on severity
 
 ---
+
+### 🎟️ **TICKET: FALTMAP-38 - Fix MapModal UI Flash (Grey List Before Geocoding)**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🟢 Medium
+
+**User Story:**
+As a user, I want a smooth loading experience when opening the map modal, without seeing a flash of greyed-out entries before the real results appear.
+
+**Context:**
+During testing of FALTMAP-26 (Austria-wide support), a UI bug was observed:
+- When clicking "Auf Karte anzeigen", the MapModal briefly shows a greyed-out list of all restaurant entries
+- This flash lasts for a few seconds
+- Then the geocoding starts and the list populates correctly with clickable entries
+
+This creates a jarring UX - users see a list that appears broken/disabled before it transitions to the working state.
+
+**Steps to Reproduce:**
+1. Visit any Falter.at search with multiple results (e.g., Burgenland with 8 restaurants)
+2. Click "Auf Karte anzeigen" button
+3. Observe the MapModal as it opens
+4. Notice: List shows all entries greyed out for 1-3 seconds
+5. Then: Geocoding starts and entries become active/clickable
+
+**Expected Behavior:**
+- MapModal opens with a loading indicator or empty state
+- Entries appear one-by-one as they are geocoded
+- No flash of greyed-out list
+
+**Actual Behavior:**
+- MapModal opens and immediately shows full list in greyed-out state
+- After brief delay, geocoding starts and list populates properly
+- Creates impression of broken UI
+
+**Potential Causes (to investigate):**
+1. List rendering happens before geocoding starts
+2. CSS state transition not synchronized with data loading
+3. Initial render using all restaurants before coords are available
+4. Race condition in MapModal initialization
+
+**Scope of Work:**
+1. Investigate MapModal.js rendering logic
+2. Identify why greyed-out list appears before geocoding
+3. Fix initialization order or add loading state
+4. Ensure smooth transition from empty → populating list
+5. Test with both cached and uncached results
+
+**Acceptance Criteria:**
+- [ ] MapModal no longer shows flash of greyed-out list
+- [ ] Smooth loading experience (loading indicator or progressive population)
+- [ ] Works correctly with both cached and fresh geocoding
+- [ ] No regression in map functionality
+- [ ] Manual testing across all Bundesländer
+- [ ] Commit message: `fix: remove greyed-out list flash on MapModal open`
+
+**Technical Notes:**
+- Observed during Burgenland testing (8 restaurants)
+- Likely affects all searches, more noticeable with multiple results
+- Related to MapModal initialization timing
+- Medium priority: UX polish, not critical functionality
+
+---
 ## Epic E06: Documentation
 
 ### 🎟️ **TICKET: FALTMAP-35 - Improve README Documentation**
