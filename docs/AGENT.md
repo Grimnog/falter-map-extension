@@ -55,6 +55,55 @@ We follow a simple set of principles to ensure our code is maintainable, readabl
 -   **Keep It Simple, Stupid (KISS):** Avoid unnecessary complexity. Choose the simplest solution that works. Do not add features or abstractions that are not yet needed. This is our primary guiding philosophy.
 -   **Meaningful Comments:** Don't comment on *what* the code is doing (the code should be self-explanatory). Comment on *why* a particular approach was taken if it's not obvious (e.g., `// Delay is required to respect the API rate limit`).
 
+### Variable Naming Rules
+
+**CRITICAL:** Variables must be self-descriptive. Code should read like prose.
+
+**❌ NEVER use numbered variables:**
+```javascript
+// BAD - Fucking ugly antipattern!
+const result = await query1();
+const result2 = await query2();
+const result3 = await query3();
+const url = buildURL1();
+const url2 = buildURL2();
+```
+
+**✅ ALWAYS use descriptive names:**
+```javascript
+// GOOD - Self-explanatory, speaks for itself
+const amenityCoords = await queryByAmenity();
+const streetCoords = await queryByStreet();
+const combinedCoords = await queryByCombined();
+const amenityQueryURL = buildAmenityURL();
+const streetQueryURL = buildStreetURL();
+```
+
+**Naming Guidelines:**
+- Variables describe **WHAT** they represent, not arbitrary numbers
+- Names should be obvious without reading surrounding code
+- Use `camelCase` for variables: `streetCoords`, `restaurantName`, `queryURL`
+- Use `kebab-case` for files: `geocoder.js`, `cache-utils.js`
+- Avoid abbreviations unless universally known: `coords` ✓, `rqst` ✗
+- Boolean variables should be questions: `isValid`, `hasCoords`, `needsGeocoding`
+
+**Examples:**
+```javascript
+// ❌ BAD
+const res = await fetch();
+const data1 = parse(res);
+const arr = [];
+const i = 0;
+
+// ✅ GOOD
+const response = await fetch();
+const parsedRestaurants = parse(response);
+const geocodedResults = [];
+const currentIndex = 0;
+```
+
+**If you catch yourself using numbered variables, STOP and rename them properly.**
+
 ### Test-Aware Development
 While this project doesn't follow a strict Red-Green-Refactor TDD approach, we adhere to "test-aware" development.
 
