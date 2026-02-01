@@ -1,4 +1,4 @@
-// Utility functions for Falter Map Extension
+// URL parsing utilities for extracting Bundesland and page parameters
 
 import { CONFIG } from './constants.js';
 
