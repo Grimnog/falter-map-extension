@@ -10,25 +10,61 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 ---
 
-## 🚀 Current Sprint: UI/UX Polish
+## 🚀 Sprint 6: UI/UX Polish ✅ COMPLETE
 
 **Sprint Goal:** Polish the user interface and experience before expanding to Austria-wide support.
 
 **Focus:** Epic E04 (UI/UX Polish) - Professional, consistent, delightful UX.
 
 **Sprint Start:** 2026-01-30
+**Sprint End:** 2026-01-30
+**Release:** v0.8.0
+
+**Completed Tickets:**
+- ✅ FALTMAP-27 - Bunny Fonts (GDPR-compliant, better readability)
+- ✅ FALTMAP-30 - Popup redesign (German, compact, professional)
+- ✅ FALTMAP-28 - Status badge (integrated header, no textbox confusion)
+
+**Outcome:** Clean, modern, privacy-compliant UI ready for Austria-wide expansion.
+
+---
+
+## 🚀 Current Sprint: Sprint 7 - Documentation & Planning
+
+**Sprint Goal:** Update documentation and plan next major feature (Austria-wide support).
+
+**Focus:** Epic E06 (Documentation) - Prepare for broader rollout.
+
+**Sprint Start:** 2026-01-30
 **Target End:** TBD
 
 **Rationale:**
-After completing the "Reliable Foundation" sprint (E03), we now have ethical, reliable behavior. Before expanding scope with Austria-wide support (FALTMAP-26), we should polish what we have to ensure a high-quality user experience.
+Before implementing Austria-wide support (FALTMAP-26), we need:
+1. Clear README documentation about features and limitations
+2. Planning for Austria-wide support implementation
+3. Clean backlog and roadmap
+
+This ensures users understand the extension and we have a solid plan for expansion.
 
 ---
 
 ### Active Tickets
 
----
+#### **Phase 1: Documentation**
 
-**Sprint Status:** ✅ **COMPLETE** - All 3 tickets done!
+**🎟️ FALTMAP-35 - Improve README Documentation**
+- Epic: E06 (Documentation)
+- Status: Open
+- Priority: 🟡 High
+
+**Summary:** Add comprehensive README with usage guide, result limiting explanation, and privacy details.
+
+**Key Sections to Add:**
+- How It Works
+- Result Limiting (100 limit + why)
+- Getting Better Results (use filters)
+- Privacy & Data (Bunny Fonts, local cache, no tracking)
+- Better formatting (badges, TOC, sections)
 
 ---
 

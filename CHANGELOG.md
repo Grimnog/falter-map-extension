@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-01-30
+
+### Added
+- **Bunny Fonts integration** - GDPR-compliant EU-based font hosting via Bunny Fonts CDN
+- **Nunito font** - Clean, modern geometric sans-serif for improved readability
+- **Integrated header badge** - Status indicator positioned in modal header (right-aligned)
+- **German popup redesign** - Fully localized, compact, professional popup interface
+- **Clickable Lokalführer link** - Direct access to Falter.at from popup
+
+### Changed
+- **Status message redesign** - Pill-shaped badge with translucent background and black border
+- Status no longer resembles a textbox (clear visual hierarchy)
+- Header gets Falter black bottom border (2px) separating it from restaurant list
+- Modal header padding optimized (26px → 18px) for compact design
+- Popup fully German (no English/German mixing)
+- Clear cache confirmation now subtle (green message, 3-second auto-hide, no browser alerts)
+- Cache usage display remains visible and functional
+- Typography improvements throughout for better readability
+
+### Fixed
+- Status badge positioning (center-aligned with title text baseline)
+- Header text overflow prevention (max-width: 180px prevents badge overlap)
+- Popup design consistency (matches modal colors, fonts, spacing)
+- Cache clear button sizing (no longer oversized)
+
+### Technical
+- CSS variable system for centralized color management (DRY principle)
+- Bunny Fonts loaded via CDN (https://fonts.bunny.net)
+- Status badge uses absolute positioning within header (z-index: 10)
+- Popup uses Nunito font family with proper fallbacks
+- All privacy-compliant: EU-based font CDN respects European privacy laws
+
+**Sprint 6 Complete:** All 3 UI/UX Polish tickets delivered (FALTMAP-27, FALTMAP-30, FALTMAP-28)
+
 ## [0.7.0] - 2026-01-29
 
 ### Added
@@ -140,6 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local storage for geocoding cache with TTL expiration
 - Address variation strategies for Vienna-specific formatting
 
+[0.8.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.8.0
 [0.7.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.7.0
 [0.6.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.6.0
 [0.5.0]: https://github.com/paulzimmert/falter-map-extension/releases/tag/v0.5.0
