@@ -29,18 +29,34 @@ function parseAddress(address) {
 }
 
 /**
- * Clean street name by removing location prefixes
+ * Clean street name by removing common descriptors that confuse geocoding
+ * Uses generic regex patterns instead of hardcoded lists
  * @param {string} street - Street name to clean
  * @returns {string} Cleaned street name
  */
 function cleanStreetName(street) {
-    // Remove location prefixes: "Strombad Donaulände 15" → "Donaulände 15"
-    const cleaned = street.replace(/^(Strombad|Nord|Süd|Ost|West)\s+/i, '');
+    let cleaned = street;
 
-    // Note: Don't drop "Stand" here - try full name first in query
-    // Market stalls like "Vorgartenmarkt Stand 19" need special handling
+    // 1. Remove leading location/directional prefixes
+    // Matches: "Strombad X", "Nord X", "Süd X", "Ost X", "West X", "Alt X", "Neu X"
+    cleaned = cleaned.replace(/^(Strombad|Nord|Süd|Ost|West|Alt|Neu)\s+/i, '');
 
-    return cleaned.trim();
+    // 2. Remove parenthesized sections
+    // Matches: "(Seepark)", "(Tourismusprojekte – Name)", etc.
+    cleaned = cleaned.replace(/\s*\([^)]*\)/g, '');
+
+    // 3. Remove building/block/hall/stand descriptors
+    // Matches: "Block VI", "Gebäude A", "Stand 19", "Halle 3"
+    cleaned = cleaned.replace(/\b(Block|Gebäude|Halle|Stand|Standplatz|Trakt|Sektor)\s+[IVX0-9A-Za-z]+/gi, '');
+
+    // 4. Remove Roman numerals with optional dot at start or middle
+    // Matches: "II. Block", "III. Straße", standalone "II."
+    cleaned = cleaned.replace(/\b[IVX]+\.\s+/g, '');
+
+    // 5. Clean up multiple spaces and trim
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+
+    return cleaned;
 }
 
 /**
