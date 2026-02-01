@@ -5,6 +5,7 @@
 
 import { CONFIG } from './constants.js';
 import { ErrorHandler } from './error-handler.js';
+import { getBundeslandFromURL } from './url-utils.js';
 
 export class MapModal {
     constructor(restaurants, estimatedTotal = null) {
@@ -174,10 +175,20 @@ export class MapModal {
 
     /**
      * Initialize the Leaflet map
+     * Dynamically centers map based on Bundesland from URL parameter ?r=
+     * Falls back to Wien if no parameter or invalid Bundesland
      */
     initializeMap() {
         try {
-            this.map = L.map('modal-map').setView(CONFIG.MAP.DEFAULT_CENTER, CONFIG.MAP.DEFAULT_ZOOM);
+            // Detect Bundesland from URL and get appropriate center coordinates
+            const bundesland = getBundeslandFromURL();
+            const initialCenter = bundesland && CONFIG.BUNDESLAND_CENTERS[bundesland]
+                ? CONFIG.BUNDESLAND_CENTERS[bundesland]
+                : CONFIG.MAP.DEFAULT_CENTER;
+
+            console.log('Map initialization:', bundesland ? `${bundesland} center` : 'Wien default (no ?r= parameter)');
+
+            this.map = L.map('modal-map').setView(initialCenter, CONFIG.MAP.DEFAULT_ZOOM);
 
             // Add tile layer with OSM attribution
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
