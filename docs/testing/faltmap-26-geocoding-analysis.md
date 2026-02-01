@@ -321,21 +321,204 @@ Test with real extension:
 
 ---
 
-## Conclusion
+## ⚠️ CRITICAL UPDATE - Structured Queries Required!
 
-**Finding:** The geocoding challenge is **simpler than expected!**
+### Initial Finding Was WRONG
 
-**Solution:** Extract ZIP + City from addresses, drop street names. No Bundesland names needed.
+**Original conclusion:** Use city-level precision (`ZIP + City, Austria`)
 
-**Effort:** ~10 lines of code change in `geocoder.js`
+**Problem:** This gives postal area coordinates, NOT specific restaurant locations!
+- Pin shows general area, not actual restaurant
+- Could be kilometers off
+- **Completely defeats the purpose of the map!**
 
-**Risk:** Low - maintains Vienna logic untouched, adds simple regex extraction for others.
+**User correctly identified:** We need street-level precision for accurate restaurant pins.
+
+---
+
+## ✅ Correct Solution: Structured Query API
+
+### Discovery (User Research)
+
+User tested Nominatim UI and found **structured queries work perfectly** for building-level precision:
+
+**Example: Klosterneuburg**
+- URL: `https://nominatim.openstreetmap.org/search?street=Donaulände+15&city=Klosterneuburg&postalcode=3420&country=Austria`
+- Result: ✅ **Exact building** (48.3374094, 16.3138579)
+- Precision: Building-level (osmid=309796015)
+
+**Key Insight:** Had to drop "Strombad" prefix from street name:
+- Original: `Strombad Donaulände 15` ❌ (failed)
+- Cleaned: `Donaulände 15` ✅ (worked)
+
+### Validation Tests
+
+| Address | Structured Query | Coordinates | Type | Precision |
+|---------|-----------------|-------------|------|-----------|
+| Klosterneuburg | street=`Donaulände 15`<br>city=`Klosterneuburg`<br>postalcode=`3420` | 48.3374, 16.3139 | building | ✅ Exact |
+| Graz | street=`Heinrichstraße 56`<br>city=`Graz`<br>postalcode=`8010` | 47.0802, 15.4507 | apartments | ✅ Exact |
+| Innsbruck | street=`Leopoldstraße 7`<br>city=`Innsbruck`<br>postalcode=`6020` | 47.2617, 11.3953 | apartments | ✅ Exact |
+
+**Result:** All addresses returned **building-level precision** with structured queries!
+
+---
+
+## 🔄 Required Refactoring
+
+### Current Approach (Free-Form - INADEQUATE)
+```javascript
+const url = `${API}?format=json&q=${encodeURIComponent(address)}&limit=1`;
+```
+
+Problems:
+- Ambiguous - Nominatim must parse/guess
+- Fails with complex street names
+- When it works, may return city-level instead of building-level
+
+### New Approach (Structured - REQUIRED)
+```javascript
+// Parse address components
+const { zip, city, street } = parseAddress(address);
+
+// Clean street name (drop prefixes)
+const cleanStreet = cleanStreetName(street);
+
+// Build structured query
+const params = new URLSearchParams({
+    street: cleanStreet,
+    city: city,
+    postalcode: zip,
+    country: 'Austria',
+    format: 'json',
+    limit: 1
+});
+
+const url = `${API}?${params}`;
+```
+
+Benefits:
+- Explicit parameters - no ambiguity
+- Building-level precision
+- Reliable and consistent
+
+---
+
+## 🧹 Street Name Cleaning Required
+
+**Pattern Observed:**
+- `Strombad Donaulände 15` → `Donaulände 15` (drop location prefix)
+
+**Similar to Vienna logic (lines 27-33):**
+- `Karmelitermarkt Stand 65` → `Karmelitermarkt`
+- Pattern: `/^(.+?)\s+(Stand|Box|Platz|Nr\.?)\s+\d+/i`
+
+**Potential prefixes to handle:**
+- Location descriptors: `Strombad`, `Nord`, `Süd`, `Ost`, `West`
+- Market stalls: `Stand`, `Box`, `Platz`
+- Number prefixes: `Nr.`, `Nr`
+
+**Strategy:** Try full street name first, if fails, try cleaned versions.
+
+---
+
+## 📋 Updated Recommendations for FALTMAP-26.2
+
+### Scope Change: Major Refactoring Required
+
+**Original scope:** "Geocoding Enhancement" (~10 lines)
+
+**New scope:** "Refactor to Structured Query API" (major change)
+
+**Estimated effort:** ~50-100 lines, significant testing
+
+### Implementation Plan
+
+1. **Create structured query builder function:**
+   ```javascript
+   function buildStructuredQuery(zip, city, street) {
+       const cleanStreet = cleanStreetName(street);
+       return new URLSearchParams({
+           street: cleanStreet,
+           city: city,
+           postalcode: zip,
+           country: 'Austria',
+           format: 'json',
+           limit: 1
+       });
+   }
+   ```
+
+2. **Add street name cleaning:**
+   ```javascript
+   function cleanStreetName(street) {
+       // Try variations if needed
+       // 1. Original street name
+       // 2. Remove location prefixes
+       // 3. Remove market stall designations
+   }
+   ```
+
+3. **Refactor geocodeAddress():**
+   - Parse address into components (ZIP, city, street)
+   - Build structured query
+   - Fall back to free-form if structured fails
+   - Try cleaned street name variations
+
+4. **Update Vienna logic:**
+   - Consider refactoring to use structured queries too
+   - Or keep separate (backward compatibility)
+
+5. **Add comprehensive tests:**
+   - Test all 8 Bundesland addresses
+   - Test Wien addresses (no regression)
+   - Test street name cleaning
+
+### Backward Compatibility
+
+**Critical:** Wien addresses must still work!
+
+**Approach:**
+- Keep Vienna-specific logic (lines 19-43) as-is
+- OR refactor Vienna to structured queries too (risky)
+- Test thoroughly!
+
+---
+
+## 🎯 Conclusion (Corrected)
+
+**Finding:** Structured queries provide **building-level precision** for all Austrian addresses!
+
+**Solution:** Refactor geocoder.js to use Nominatim structured query API instead of free-form queries.
+
+**Effort:** Major refactoring (~50-100 lines), comprehensive testing required
+
+**Risk:** Medium - significant change to core geocoding logic, must maintain Wien backward compatibility
 
 **Next Steps:**
-1. User approval of this approach
-2. Implement Option A in FALTMAP-26.2
-3. Add tests
-4. Validate with real searches
+1. User approval of refactoring approach
+2. Update FALTMAP-26.2 ticket scope (now a refactoring ticket)
+3. Consider splitting into sub-tasks if needed
+4. Implement structured query API
+5. Test extensively with all Bundesländer
+6. Validate Wien addresses unchanged
+
+---
+
+## 📚 Resources
+
+**Nominatim Structured Query API:**
+- Docs: https://nominatim.org/release-docs/develop/api/Search/
+- Parameters: street, city, county, state, country, postalcode
+- Format: `?street=X&city=Y&postalcode=Z&country=Austria&format=json`
+
+**Additional Parameters Available:**
+- `amenity`: Search by POI name/type (could be useful for restaurants!)
+- `addressdetails=1`: Get detailed address breakdown
+- `extratags=1`: Get additional OSM tags
+
+---
+
+**Report Updated - Ready for Next Phase**
 
 ---
 
