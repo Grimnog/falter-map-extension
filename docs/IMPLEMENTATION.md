@@ -141,16 +141,25 @@ After completing UI/UX polish (Sprint 6), the extension is ready for geographic 
 
 ---
 
-**🎟️ FALTMAP-26.4 - URL Parameter Parsing**
-- Status: Ready to Start ⏭️
+**🎟️ FALTMAP-26.4 - URL Parameter Parsing** ✅ **COMPLETE**
+- Status: Done ✅
 - Type: Feature (URL parsing utility)
+- Completed: 2026-02-01
 
 **Summary:** Extract Bundesland from URL `?r=` parameter, handle edge cases.
+
+**Implementation:**
+- ✅ Created `modules/utils.js` with `getBundeslandFromURL()` function
+- ✅ Parses `window.location.search` for `?r=` parameter
+- ✅ Handles URL encoding (e.g., `Nieder%C3%B6sterreich`)
+- ✅ Case-insensitive matching with normalized output
+- ✅ Edge cases handled (null, empty, invalid → return null)
+- ✅ Uses `CONFIG.BUNDESLAND_CENTERS` as source of truth
 
 ---
 
 **🎟️ FALTMAP-26.5 - Dynamic Map Initialization**
-- Status: Blocked (depends on 26.3, 26.4)
+- Status: Ready to Start ⏭️
 - Type: Feature (map initialization logic)
 
 **Summary:** Set initial map center based on detected Bundesland, maintain Wien backward compatibility.
