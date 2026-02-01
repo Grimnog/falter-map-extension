@@ -194,25 +194,25 @@ export async function geocodeAddress(address, restaurantName = null) {
         await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
     }
 
-    // Tier 6: City-level only (approximate - last resort)
+    // Tier 6: Free-form query (try before settling for approximate)
+    const freeFormQuery = encodeURIComponent(`${address}, Austria`);
+    const freeFormQueryURL = `${CONFIG.NOMINATIM.API_URL}?format=json&q=${freeFormQuery}&limit=1`;
+    const freeFormCoords = await tryGeocodingQuery(freeFormQueryURL, `Tier 6: free-form fallback`);
+    if (freeFormCoords) return freeFormCoords;
+
+    await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
+
+    // Tier 7: City-level only (approximate - absolute last resort)
     const cityQueryURL = buildStructuredQueryURL({
         city: city,
         postalcode: zip
     });
-    const cityCoords = await tryGeocodingQuery(cityQueryURL, `Tier 6: city-level (approximate)`);
+    const cityCoords = await tryGeocodingQuery(cityQueryURL, `Tier 7: city-level (approximate)`);
     if (cityCoords) {
         cityCoords.approximate = true; // Flag for user warning
         console.warn('⚠ Approximate location (city-level) for:', address);
         return cityCoords;
     }
-
-    await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
-
-    // Tier 7: Free-form query (absolute last resort)
-    const freeFormQuery = encodeURIComponent(`${address}, Austria`);
-    const freeFormQueryURL = `${CONFIG.NOMINATIM.API_URL}?format=json&q=${freeFormQuery}&limit=1`;
-    const freeFormCoords = await tryGeocodingQuery(freeFormQueryURL, `Tier 7: free-form fallback`);
-    if (freeFormCoords) return freeFormCoords;
 
     console.warn('✗ No results for any variation of:', address);
     return null;
