@@ -104,6 +104,52 @@ const currentIndex = 0;
 
 **If you catch yourself using numbered variables, STOP and rename them properly.**
 
+### File Naming Rules
+
+**CRITICAL:** File names must be self-descriptive. The purpose should be obvious from the name alone.
+
+**❌ NEVER use generic file names:**
+```javascript
+// BAD - Too vague, doesn't describe purpose
+utils.js
+helpers.js
+common.js
+lib.js
+misc.js
+shared.js
+```
+
+**✅ ALWAYS use descriptive names:**
+```javascript
+// GOOD - Self-descriptive, clear purpose
+url-utils.js          // URL parsing utilities
+cache-utils.js        // Cache management utilities
+dom-parser.js         // DOM parsing logic
+error-handler.js      // Error handling
+geocoder.js           // Geocoding functionality
+```
+
+**Naming Pattern:**
+- Multi-word files: `{purpose}-{type}.js` (e.g., `cache-utils.js`, `url-utils.js`)
+- Single-purpose modules: `{purpose}.js` (e.g., `geocoder.js`, `constants.js`)
+- Always use `kebab-case` for multi-word names
+- Describe WHAT the file does, not generic categories
+
+**Examples:**
+```javascript
+// ❌ BAD - Generic, unclear
+utils.js              // Utils for what?
+helpers.js            // What kind of helpers?
+api.js                // Which API?
+
+// ✅ GOOD - Specific, self-explanatory
+url-utils.js          // URL parsing utilities
+geocoding-helpers.js  // Geocoding helper functions
+nominatim-api.js      // Nominatim API client
+```
+
+**If you catch yourself creating a generic "utils" or "helpers" file, STOP and choose a descriptive name.**
+
 ### Test-Aware Development
 While this project doesn't follow a strict Red-Green-Refactor TDD approach, we adhere to "test-aware" development.
 
