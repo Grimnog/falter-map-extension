@@ -48,7 +48,7 @@ export function parseRestaurantsFromDOM(doc) {
         //           "7083 Purbach am Neusiedler See, Hauptgasse 64" (multi-word cities)
         //           "7474 Deutsch Schützen-Eisenberg, Am Ratschen 5" (hyphenated cities)
         //           "7121 Weiden am See, (Göschl Tourismusprojekte – Seepark)" (location without number)
-        const addressMatch = text.match(/(\d{4})\s+([A-Za-zäöüÄÖÜß][\wäöüÄÖÜß\s\-]*[A-Za-zäöüÄÖÜß]),?\s*([A-Za-zäöüÄÖÜßéèê\s\-\.\(\)]+?)(?:\s+(\d+[A-Za-z\/\-]*))?$/im);
+        const addressMatch = text.match(/(\d{4})\s+([A-Za-zäöüÄÖÜß][\wäöüÄÖÜß\s\-]*[A-Za-zäöüÄÖÜß]),\s*([A-Za-zäöüÄÖÜßéèê\s\-\.\(\)\–]+?)(?:\s+(\d+[A-Za-z\/\-]*))?(?=\s*\n|$)/i);
 
         if (name && addressMatch) {
             const zip = addressMatch[1];
