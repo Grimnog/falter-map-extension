@@ -177,6 +177,7 @@ export class MapModal {
      * Initialize the Leaflet map
      * Dynamically centers map based on Bundesland from URL parameter ?r=
      * Falls back to Wien if no parameter or invalid Bundesland
+     * Uses state-level zoom (9) for Bundesländer, city-level zoom (13) for Wien
      */
     initializeMap() {
         try {
@@ -186,9 +187,15 @@ export class MapModal {
                 ? CONFIG.BUNDESLAND_CENTERS[bundesland]
                 : CONFIG.MAP.DEFAULT_CENTER;
 
-            console.log('Map initialization:', bundesland ? `${bundesland} center` : 'Wien default (no ?r= parameter)');
+            // Use wider zoom for Bundesländer (restaurants spread across region)
+            // Wien uses city-level zoom (restaurants clustered in one city)
+            const initialZoom = bundesland && bundesland !== 'Wien'
+                ? 9  // State-level zoom: shows ~1/3 to 1/2 of Bundesland
+                : CONFIG.MAP.DEFAULT_ZOOM;  // City-level zoom (13) for Wien
 
-            this.map = L.map('modal-map').setView(initialCenter, CONFIG.MAP.DEFAULT_ZOOM);
+            console.log('Map initialization:', bundesland ? `${bundesland} center, zoom ${initialZoom}` : `Wien default (no ?r= parameter), zoom ${initialZoom}`);
+
+            this.map = L.map('modal-map').setView(initialCenter, initialZoom);
 
             // Add tile layer with OSM attribution
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
