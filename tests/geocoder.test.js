@@ -144,6 +144,163 @@ async function runTests() {
     assert.exists(cache[cacheKey], 'Newly geocoded address should be cached');
     assert.equals(cache[cacheKey].coords.lat, 48.6, 'Cached coords should match');
 
+    // ===== NEW TESTS FOR STRUCTURED QUERY API =====
+
+    // Test 8: Tier 1 - Amenity Name (Restaurant Name)
+    assert.info('\n--- Test 8: Tier 1 - Amenity Name (80/20 Solution) ---');
+    installFetchMock([
+        { ok: true, data: [{ lat: '47.7981', lon: '13.0465' }] }
+    ]);
+
+    const coords8 = await geocodeAddress('5020 Salzburg, Getreidegasse 9', 'Stiftskeller St. Peter');
+    assert.exists(coords8, 'Should geocode with restaurant name');
+    assert.isTrue(fetchMock.lastUrl.includes('amenity=Stiftskeller'), 'Should use amenity parameter');
+    assert.isTrue(fetchMock.lastUrl.includes('city=Salzburg'), 'Should use city parameter');
+    assert.isTrue(fetchMock.lastUrl.includes('postalcode=5020'), 'Should use postalcode parameter');
+
+    // Test 9: Tier 2 - Street Address (Fallback)
+    assert.info('\n--- Test 9: Tier 2 - Street Address (Structured Query) ---');
+    installFetchMock([
+        { ok: true, data: [] }, // Tier 1 fails (no amenity found)
+        { ok: true, data: [{ lat: '48.3059', lon: '14.2862' }] } // Tier 2 succeeds
+    ]);
+
+    const coords9 = await geocodeAddress('4020 Linz, Hauptplatz 1', 'Unknown Restaurant');
+    assert.exists(coords9, 'Should fallback to street address');
+    assert.isTrue(fetchMock.callCount >= 2, 'Should try multiple tiers');
+
+    // Test 10: Multi-Word Cities
+    assert.info('\n--- Test 10: Multi-Word City Names ---');
+    installFetchMock([
+        { ok: true, data: [{ lat: '47.9119', lon: '16.6966' }] }
+    ]);
+
+    const coords10 = await geocodeAddress('7083 Purbach am Neusiedler See, Hauptgasse 64', 'Gut Purbach');
+    assert.exists(coords10, 'Should handle multi-word city names');
+    assert.isTrue(fetchMock.lastUrl.includes('Purbach'), 'Should parse multi-word city');
+
+    // Test 11: Street Name Cleaning (Tier 5)
+    assert.info('\n--- Test 11: Tier 5 - Street Name Cleaning ---');
+    installFetchMock([
+        { ok: true, data: [] }, // Tier 1 fails
+        { ok: true, data: [] }, // Tier 2 fails (original street)
+        { ok: true, data: [] }, // Tier 3 fails
+        { ok: true, data: [] }, // Tier 4 fails (restaurant)
+        { ok: true, data: [] }, // Tier 4 fails (cafe)
+        { ok: true, data: [] }, // Tier 4 fails (bar)
+        { ok: true, data: [] }, // Tier 4 fails (fast_food)
+        { ok: true, data: [] }, // Tier 4 fails (pub)
+        { ok: true, data: [{ lat: '48.3', lon: '15.6' }] } // Tier 5 succeeds (cleaned street)
+    ]);
+
+    const coords11 = await geocodeAddress('3420 Klosterneuburg, Strombad Donaulände 15', 'Test Restaurant');
+    assert.exists(coords11, 'Should clean street name and succeed');
+    // Tier 5 should try "Donaulände 15" instead of "Strombad Donaulände 15"
+
+    // Test 12: Parenthesized Location Descriptors
+    assert.info('\n--- Test 12: Parenthesized Location Descriptors ---');
+    installFetchMock([
+        { ok: true, data: [] }, // Tier 1 fails
+        { ok: true, data: [] }, // Tier 2 fails
+        { ok: true, data: [] }, // Tier 3 fails
+        { ok: true, data: [] }, // Tier 4 fails (restaurant)
+        { ok: true, data: [] }, // Tier 4 fails (cafe)
+        { ok: true, data: [] }, // Tier 4 fails (bar)
+        { ok: true, data: [] }, // Tier 4 fails (fast_food)
+        { ok: true, data: [] }, // Tier 4 fails (pub)
+        { ok: true, data: [{ lat: '47.8455', lon: '16.5249' }] } // Tier 5 succeeds
+    ]);
+
+    const coords12 = await geocodeAddress('7121 Weiden am See, (Göschl Tourismusprojekte – Seepark)', 'Restaurant Zur Blauen Gans');
+    assert.exists(coords12, 'Should clean parenthesized descriptors');
+    // Tier 5 should remove parentheses and try cleaned version
+
+    // Test 13: Building/Block Descriptors
+    assert.info('\n--- Test 13: Building/Block Descriptor Cleaning ---');
+    installFetchMock([
+        { ok: true, data: [] }, // Tier 1 fails
+        { ok: true, data: [] }, // Tier 2 fails (original street)
+        { ok: true, data: [] }, // Tier 3 fails
+        { ok: true, data: [] }, // Tier 4 restaurant
+        { ok: true, data: [] }, // Tier 4 cafe
+        { ok: true, data: [] }, // Tier 4 bar
+        { ok: true, data: [] }, // Tier 4 fast_food
+        { ok: true, data: [] }, // Tier 4 pub
+        { ok: true, data: [{ lat: '47.85', lon: '16.52' }] } // Tier 5 succeeds
+    ]);
+
+    const coords13 = await geocodeAddress('7011 Siegendorf, Trausdorfer Straße II. Block VI', 'La Rosa Blu');
+    assert.exists(coords13, 'Should clean Block/Building descriptors');
+    // Tier 5 should try "Trausdorfer Straße" instead of "Trausdorfer Straße II. Block VI"
+
+    // Test 14: Free-Form Fallback (Tier 6)
+    assert.info('\n--- Test 14: Tier 6 - Free-Form Fallback ---');
+    installFetchMock([
+        { ok: true, data: [] }, // Tier 1 fails
+        { ok: true, data: [] }, // Tier 2 fails
+        { ok: true, data: [] }, // Tier 3 fails
+        { ok: true, data: [] }, // Tier 4 restaurant
+        { ok: true, data: [] }, // Tier 4 cafe
+        { ok: true, data: [] }, // Tier 4 bar
+        { ok: true, data: [] }, // Tier 4 fast_food
+        { ok: true, data: [] }, // Tier 4 pub
+        { ok: true, data: [] }, // Tier 5 fails (no cleaning applied)
+        { ok: true, data: [{ lat: '46.62', lon: '14.31' }] } // Tier 6 free-form succeeds
+    ]);
+
+    const coords14 = await geocodeAddress('9020 Klagenfurt, Complex Address 123', 'Test Café');
+    assert.exists(coords14, 'Should fallback to free-form query');
+    assert.isTrue(fetchMock.callCount >= 10, 'Should exhaust structured queries before free-form');
+
+    // Test 15: City-Level Approximate (Tier 7)
+    assert.info('\n--- Test 15: Tier 7 - City-Level Approximate (Last Resort) ---');
+    installFetchMock([
+        { ok: true, data: [] }, // Tier 1 fails
+        { ok: true, data: [] }, // Tier 2 fails
+        { ok: true, data: [] }, // Tier 3 fails
+        { ok: true, data: [] }, // Tier 4 restaurant
+        { ok: true, data: [] }, // Tier 4 cafe
+        { ok: true, data: [] }, // Tier 4 bar
+        { ok: true, data: [] }, // Tier 4 fast_food
+        { ok: true, data: [] }, // Tier 4 pub
+        { ok: true, data: [] }, // Tier 5 fails
+        { ok: true, data: [] }, // Tier 6 free-form fails
+        { ok: true, data: [{ lat: '47.50', lon: '9.75' }] } // Tier 7 city-level succeeds
+    ]);
+
+    const coords15 = await geocodeAddress('6900 Bregenz, Nonexistent Street 999', null);
+    assert.exists(coords15, 'Should fallback to city-level as last resort');
+    assert.equals(coords15.approximate, true, 'Should flag as approximate');
+
+    // Test 16: Complete Failure (All Tiers Fail)
+    assert.info('\n--- Test 16: Complete Failure (All Tiers Exhausted) ---');
+    installFetchMock([
+        { ok: true, data: [] }, // All tiers return empty
+        { ok: true, data: [] },
+        { ok: true, data: [] },
+        { ok: true, data: [] },
+        { ok: true, data: [] },
+        { ok: true, data: [] },
+        { ok: true, data: [] },
+        { ok: true, data: [] },
+        { ok: true, data: [] },
+        { ok: true, data: [] },
+        { ok: true, data: [] }
+    ]);
+
+    const coords16 = await geocodeAddress('99999 Invalid City, Invalid Street 999', null);
+    assert.equals(coords16, null, 'Should return null when all tiers fail');
+
+    // Test 17: Hyphenated City Names
+    assert.info('\n--- Test 17: Hyphenated City Names ---');
+    installFetchMock([
+        { ok: true, data: [{ lat: '47.16', lon: '16.43' }] }
+    ]);
+
+    const coords17 = await geocodeAddress('7474 Deutsch Schützen-Eisenberg, Am Ratschen 5', 'Ratschens Restaurant');
+    assert.exists(coords17, 'Should handle hyphenated city names');
+    assert.isTrue(fetchMock.lastUrl.includes('Deutsch'), 'Should parse hyphenated city');
+
     finalizeTestRunner();
 }
 

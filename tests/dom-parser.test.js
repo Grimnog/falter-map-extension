@@ -118,6 +118,166 @@ async function runTests() {
 
     assert.arrayLength(emptyResults, 0, 'Should return empty array for no results');
 
+    // ===== NEW TESTS FOR AUSTRIA-WIDE ADDRESS PATTERNS =====
+
+    // Test 10: Multi-Word City Names
+    assert.info('\n--- Test 10: Multi-Word City Names ---');
+
+    const multiWordHTML = `
+        <html><body>
+            <a class="group block" href="/lokal/11111/">
+                <h2>Test Restaurant Purbach</h2>
+                <div>7083 Purbach am Neusiedler See, Hauptgasse 64</div>
+            </a>
+            <a class="group block" href="/lokal/22222/">
+                <h2>Test Restaurant Weiden</h2>
+                <div>7121 Weiden am See, Seestraße 1</div>
+            </a>
+            <a class="group block" href="/lokal/33333/">
+                <h2>Test Restaurant Schützen</h2>
+                <div>7081 Schützen am Gebirge, Hauptstraße 33</div>
+            </a>
+        </body></html>
+    `;
+    const multiWordDoc = Fixtures.createDOM(multiWordHTML);
+    const multiWordResults = parseRestaurantsFromDOM(multiWordDoc);
+
+    assert.arrayLength(multiWordResults, 3, 'Should parse all multi-word city addresses');
+    assert.equals(multiWordResults[0].city, 'Purbach am Neusiedler See', 'Should parse full city name with spaces');
+    assert.equals(multiWordResults[1].city, 'Weiden am See', 'Should parse city with "am See"');
+    assert.equals(multiWordResults[2].city, 'Schützen am Gebirge', 'Should parse city with "am Gebirge"');
+    assert.isTrue(multiWordResults[0].address.includes('Purbach am Neusiedler See'), 'Address should include full city name');
+
+    // Test 11: Hyphenated City Names
+    assert.info('\n--- Test 11: Hyphenated City Names ---');
+
+    const hyphenatedHTML = `
+        <html><body>
+            <a class="group block" href="/lokal/44444/">
+                <h2>Ratschens Restaurant</h2>
+                <div>7474 Deutsch Schützen-Eisenberg, Am Ratschen 5</div>
+            </a>
+        </body></html>
+    `;
+    const hyphenatedDoc = Fixtures.createDOM(hyphenatedHTML);
+    const hyphenatedResults = parseRestaurantsFromDOM(hyphenatedDoc);
+
+    assert.arrayLength(hyphenatedResults, 1, 'Should parse hyphenated city name');
+    assert.equals(hyphenatedResults[0].city, 'Deutsch Schützen-Eisenberg', 'Should parse full hyphenated city');
+    assert.isTrue(hyphenatedResults[0].address.includes('Deutsch Schützen-Eisenberg'), 'Address should include hyphenated city');
+
+    // Test 12: Addresses Without Street Numbers
+    assert.info('\n--- Test 12: Addresses Without Street Numbers ---');
+
+    const noNumberHTML = `
+        <html><body>
+            <a class="group block" href="/lokal/55555/">
+                <h2>Restaurant Zur Blauen Gans</h2>
+                <div>7121 Weiden am See, (Göschl Tourismusprojekte – Seepark)</div>
+            </a>
+        </body></html>
+    `;
+    const noNumberDoc = Fixtures.createDOM(noNumberHTML);
+    const noNumberResults = parseRestaurantsFromDOM(noNumberDoc);
+
+    assert.arrayLength(noNumberResults, 1, 'Should parse address without street number');
+    assert.equals(noNumberResults[0].city, 'Weiden am See', 'Should parse city correctly');
+    assert.isTrue(noNumberResults[0].street.includes('Göschl'), 'Should include location descriptor');
+    assert.isTrue(noNumberResults[0].street.includes('Seepark'), 'Should include full descriptor');
+
+    // Test 13: Em-Dash in Address
+    assert.info('\n--- Test 13: Em-Dash in Street/Location ---');
+
+    const emDashHTML = `
+        <html><body>
+            <a class="group block" href="/lokal/66666/">
+                <h2>Test Restaurant</h2>
+                <div>1010 Wien, Tourismusprojekte – Seepark 5</div>
+            </a>
+        </body></html>
+    `;
+    const emDashDoc = Fixtures.createDOM(emDashHTML);
+    const emDashResults = parseRestaurantsFromDOM(emDashDoc);
+
+    assert.arrayLength(emDashResults, 1, 'Should parse address with em-dash');
+    assert.isTrue(emDashResults[0].street.includes('–'), 'Should preserve em-dash in street');
+
+    // Test 14: All Austrian Bundesländer ZIP Codes
+    assert.info('\n--- Test 14: Bundesland ZIP Code Patterns ---');
+
+    const bundeslandHTML = `
+        <html><body>
+            <a class="group block" href="/lokal/70001/">
+                <h2>Wien Restaurant</h2>
+                <div>1010 Wien, Stephansplatz 1</div>
+            </a>
+            <a class="group block" href="/lokal/70002/">
+                <h2>NÖ Restaurant</h2>
+                <div>3100 St. Pölten, Rathausplatz 1</div>
+            </a>
+            <a class="group block" href="/lokal/70003/">
+                <h2>OÖ Restaurant</h2>
+                <div>4020 Linz, Hauptplatz 1</div>
+            </a>
+            <a class="group block" href="/lokal/70004/">
+                <h2>Salzburg Restaurant</h2>
+                <div>5020 Salzburg, Getreidegasse 9</div>
+            </a>
+            <a class="group block" href="/lokal/70005/">
+                <h2>Tirol Restaurant</h2>
+                <div>6020 Innsbruck, Maria-Theresien-Straße 1</div>
+            </a>
+            <a class="group block" href="/lokal/70006/">
+                <h2>Vorarlberg Restaurant</h2>
+                <div>6900 Bregenz, Kornmarktplatz 1</div>
+            </a>
+            <a class="group block" href="/lokal/70007/">
+                <h2>Steiermark Restaurant</h2>
+                <div>8010 Graz, Hauptplatz 1</div>
+            </a>
+            <a class="group block" href="/lokal/70008/">
+                <h2>Kärnten Restaurant</h2>
+                <div>9020 Klagenfurt, Neuer Platz 1</div>
+            </a>
+            <a class="group block" href="/lokal/70009/">
+                <h2>Burgenland Restaurant</h2>
+                <div>7000 Eisenstadt, Hauptstraße 1</div>
+            </a>
+        </body></html>
+    `;
+    const bundeslandDoc = Fixtures.createDOM(bundeslandHTML);
+    const bundeslandResults = parseRestaurantsFromDOM(bundeslandDoc);
+
+    assert.arrayLength(bundeslandResults, 9, 'Should parse addresses from all 9 Bundesländer');
+    assert.equals(bundeslandResults[0].zip, '1010', 'Wien ZIP should be parsed');
+    assert.equals(bundeslandResults[1].zip, '3100', 'NÖ ZIP should be parsed');
+    assert.equals(bundeslandResults[2].zip, '4020', 'OÖ ZIP should be parsed');
+    assert.equals(bundeslandResults[3].zip, '5020', 'Salzburg ZIP should be parsed');
+    assert.equals(bundeslandResults[4].zip, '6020', 'Tirol ZIP should be parsed');
+    assert.equals(bundeslandResults[5].zip, '6900', 'Vorarlberg ZIP should be parsed');
+    assert.equals(bundeslandResults[6].zip, '8010', 'Steiermark ZIP should be parsed');
+    assert.equals(bundeslandResults[7].zip, '9020', 'Kärnten ZIP should be parsed');
+    assert.equals(bundeslandResults[8].zip, '7000', 'Burgenland ZIP should be parsed');
+
+    // Test 15: Complex Address with Status Text
+    assert.info('\n--- Test 15: Address with Following Status Text ---');
+
+    const statusTextHTML = `
+        <html><body>
+            <a class="group block" href="/lokal/77777/">
+                <h2>Test Restaurant</h2>
+                <div>7121 Weiden am See, Hauptstraße 10</div>
+                <div>derzeit geschlossen</div>
+            </a>
+        </body></html>
+    `;
+    const statusTextDoc = Fixtures.createDOM(statusTextHTML);
+    const statusTextResults = parseRestaurantsFromDOM(statusTextDoc);
+
+    assert.arrayLength(statusTextResults, 1, 'Should parse address with following status text');
+    assert.equals(statusTextResults[0].city, 'Weiden am See', 'Should not include status text in city');
+    assert.isFalse(statusTextResults[0].street.includes('geschlossen'), 'Should not include status in street');
+
     finalizeTestRunner();
 }
 

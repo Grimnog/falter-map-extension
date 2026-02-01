@@ -4,6 +4,7 @@ const runBtn = document.getElementById('run-btn');
 const copyBtn = document.getElementById('copy-btn');
 
 const testSuites = [
+    { name: 'URL Utils', file: 'url-utils.test.js' },
     { name: 'Cache Manager', file: 'cache-utils.test.js' },
     { name: 'Geocoder', file: 'geocoder.test.js' },
     { name: 'DOM Parser', file: 'dom-parser.test.js' },
