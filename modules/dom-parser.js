@@ -32,27 +32,34 @@ export function parseRestaurantsFromDOM(doc) {
         } else {
             const lines = text.split('\n').map(l => l.trim()).filter(l => l && l.length > 2);
             for (const line of lines) {
-                if (!line.match(/^\d{4}\s*Wien/i) && !line.match(/^(derzeit|Jetzt|öffnet|geschlossen|bis\s)/i)) {
+                // Skip lines that look like addresses or status messages
+                if (!line.match(/^\d{4}\s+[A-Za-zäöüÄÖÜß]/i) && !line.match(/^(derzeit|Jetzt|öffnet|geschlossen|bis\s)/i)) {
                     name = line;
                     break;
                 }
             }
         }
 
-        // Extract address components
-        const addressMatch = text.match(/(\d{4})\s*Wien,?\s*([A-Za-zäöüÄÖÜßéèê\s\-\.]+?)[\s\n]+(\d+[A-Za-z\/\-]*)/i);
+        // Extract address components - supports all Austrian cities
+        // Pattern: "{ZIP} {City}, {Street} {Number}"
+        // Examples: "3420 Klosterneuburg, Donaulände 15"
+        //           "8010 Graz, Heinrichstraße 56"
+        //           "1040 Wien, Rechte Wienzeile 1"
+        const addressMatch = text.match(/(\d{4})\s+([A-Za-zäöüÄÖÜß]+),?\s*([A-Za-zäöüÄÖÜßéèê\s\-\.]+?)\s+(\d+[A-Za-z\/\-]*)/i);
 
         if (name && addressMatch) {
-            const district = addressMatch[1];
-            const street = addressMatch[2].trim();
-            const number = addressMatch[3].trim();
+            const zip = addressMatch[1];
+            const city = addressMatch[2].trim();
+            const street = addressMatch[3].trim();
+            const number = addressMatch[4].trim();
 
             const restaurant = {
                 id: id,
                 name: name.split('\n')[0].trim(),
-                district: district,
+                city: city,
+                zip: zip,
                 street: `${street} ${number}`,
-                address: `${district} Wien, ${street} ${number}`,
+                address: `${zip} ${city}, ${street} ${number}`,
                 url: href.startsWith('http') ? href : `https://www.falter.at${href}`
             };
 
