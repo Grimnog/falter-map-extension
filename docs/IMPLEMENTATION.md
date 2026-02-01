@@ -110,7 +110,7 @@ After completing UI/UX polish (Sprint 6), the extension is ready for geographic 
 #### **Phase 2: Implementation**
 
 **🎟️ FALTMAP-26.2 - Refactor Geocoder to Use Structured Query API**
-- Status: Ready to start (26.1 complete)
+- Status: In Progress 🔄
 - Type: Major Refactoring
 - Estimated Effort: ~150-280 lines, 1-2 weeks
 
