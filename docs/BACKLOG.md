@@ -1110,6 +1110,70 @@ Currently, README lacks this documentation.
 
 These tickets are deferred until after v1.0 release, pending decision on Chrome Web Store publication.
 
+### 🎟️ **TICKET: FALTMAP-39 - Optimize Auto-Zoom Behavior for Bundesland Searches**
+- Epic: E04 (UI/UX Polish)
+- Status: Deferred
+- Priority: 🔵 Low (post-1.0)
+
+**User Story:**
+As a user searching for restaurants across an entire Bundesland, I want the map auto-zoom to provide a useful view of the region, so I can see relevant results without the map zooming too far out or in.
+
+**Context:**
+Currently, the map auto-zooms to fit all markers after 5 restaurants are geocoded. This works well for Wien (restaurants clustered in one city) but has limitations for Bundesland searches:
+
+**Current behavior:**
+- Wien searches: Auto-zoom works great (restaurants in small area)
+- Bundesland searches: Auto-zoom might zoom too far out if restaurants are spread across entire region
+- Example: "Salzburg, all price categories" → 100 restaurants across entire Bundesland → auto-zoom shows very wide view
+- Issue: With 100-result limit, some regions might not have pins, making the zoomed-out view less useful
+
+**Problem:**
+- Auto-zoom doesn't differentiate between Wien (clustered) and Bundesländer (spread out)
+- No awareness of result distribution or density
+- Fixed behavior regardless of search scope
+
+**Scope of Work:**
+
+1. **Evaluate Auto-Zoom Strategy:**
+   - Analyze user behavior: Do users prefer auto-zoom for Bundesland searches?
+   - Compare: Auto-zoom vs manual zoom control
+   - Gather data on typical search patterns
+
+2. **Potential Solutions (evaluate):**
+   - **Option A:** Disable auto-zoom for non-Wien Bundesländer (keep manual control)
+   - **Option B:** Smart zoom - only auto-zoom if markers within reasonable distance threshold
+   - **Option C:** Different auto-zoom thresholds per region (Wien vs Bundesländer)
+   - **Option D:** Show "X results beyond map bounds" indicator when zoomed
+   - **Option E:** Hybrid - auto-zoom for <20 restaurants, skip for larger result sets
+
+3. **Implementation (if changes warranted):**
+   - Update MapModal.js auto-zoom logic
+   - Add Bundesland-awareness to zoom calculation
+   - Test with various search scenarios
+   - Ensure Wien behavior unchanged (backward compatibility)
+
+**Acceptance Criteria:**
+- [ ] User research/feedback collected on auto-zoom behavior
+- [ ] Solution evaluated and chosen (or decision to keep current behavior)
+- [ ] If implemented: Auto-zoom provides useful view for both Wien and Bundesland searches
+- [ ] Wien backward compatibility maintained
+- [ ] Manual testing across all 9 Bundesländer
+- [ ] No regressions in map UX
+
+**Technical Notes:**
+- This is a UX optimization, not a critical bug
+- Current implementation (zoom 9 + auto-zoom) is "good enough" for v1.0
+- Defer until post-1.0 when we have more user feedback
+- May decide current behavior is optimal and close as "won't fix"
+
+**Research Questions:**
+- Do users understand they can manually zoom/pan?
+- Is auto-zoom helpful or confusing for Bundesland searches?
+- What percentage of searches are Wien vs Bundesländer?
+- What's the typical result count distribution?
+
+---
+
 ### 🎟️ **TICKET: FALTMAP-24 - Add Privacy Policy for Chrome Web Store Compliance**
 - Epic: E03 (Testing & Reliability)
 - Status: Deferred
