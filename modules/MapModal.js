@@ -64,7 +64,7 @@ export class MapModal {
                     <aside class="modal-sidebar">
                         <div class="modal-header">
                             <h1 id="modal-title"><span class="falter-brand">Falter</span> Restaurant Map</h1>
-                            <p class="modal-subtitle" id="modal-status-subtitle" aria-live="polite">Locating restaurants...</p>
+                            <p class="modal-subtitle" id="modal-status-subtitle" aria-live="polite">Restaurants werden gesucht...</p>
                         </div>
                         <div class="modal-progress-bar" id="modal-progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                             <div class="progress-fill" id="modal-progress-fill"></div>
@@ -250,10 +250,10 @@ export class MapModal {
         // Update subtitle text
         if (this.dom.statusSubtitle) {
             if (processed < total) {
-                this.dom.statusSubtitle.textContent = 'Locating restaurants...';
+                this.dom.statusSubtitle.textContent = 'Restaurants werden gesucht...';
             } else {
                 // Show completion with checkmark
-                this.dom.statusSubtitle.innerHTML = `<span class="status-checkmark">✓</span> ${located} ${located === 1 ? 'location' : 'locations'} found`;
+                this.dom.statusSubtitle.innerHTML = `<span class="status-checkmark">✓</span> ${located} ${located === 1 ? 'Restaurant' : 'Restaurants'} gefunden`;
 
                 // Fade out progress bar after completion
                 if (this.dom.progressBar) {
