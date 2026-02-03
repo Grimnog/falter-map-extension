@@ -417,29 +417,23 @@
     pointer-events: auto !important;
 }
 
-/* Heading Link - The Invincible Hit Box */
+/* Heading Link - Static High-End Editorial (KISS) */
 .falter-popup-link {
     display: block !important; /* Force block layout */
     width: 100% !important; /* Force full width */
     position: relative;
     z-index: 10; /* Ensure it's above any overlapping elements */
-    color: #000 !important; /* Kill browser blue */
-    font-weight: 700;
+    color: #000 !important; /* Bold black */
+    font-weight: 700; /* Bold */
     font-size: 15px;
-    text-decoration: none !important; /* Kill default underline */
+    text-decoration: underline !important; /* Permanent yellow underline */
+    text-decoration-color: #FFED00 !important; /* Signature brand yellow */
+    text-underline-offset: 4px; /* Refined spacing */
+    text-decoration-thickness: 2px; /* Clear definition */
     cursor: pointer;
     margin-bottom: 4px;
     padding: 4px 0; /* Expand vertical hit box */
     line-height: 1.4;
-    transition: all 0.2s ease;
-}
-
-.falter-popup-link:hover {
-    color: #000 !important; /* Keep black on hover */
-    text-decoration: underline !important; /* Force underline */
-    text-decoration-color: #FFED00 !important; /* Signature yellow */
-    text-underline-offset: 5px;
-    text-decoration-thickness: 2px;
 }
 
 /* Address - Clean Metadata */
