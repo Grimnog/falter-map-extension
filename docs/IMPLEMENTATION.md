@@ -72,19 +72,53 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 ---
 
-## 🚀 Sprint 9: Backlog Refinement & v1.0 Preparation
+## 🚀 Sprint 9: UI/UX Polish for v1.0
 
-**Sprint Goal:** Prepare for v1.0 release by addressing remaining medium-priority UX issues and documentation.
+**Sprint Goal:** Fix visual glitches and polish MapModal UX before v1.0 release.
 
-**Status:** Planning
+**Status:** In Progress
 
-**Potential Tickets:**
-- FALTMAP-35 - Improve README Documentation (from backlog)
-- FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug (if needed)
+**Sprint Start:** 2026-02-03
+
+**Active Tickets:**
+- 🔄 FALTMAP-40 - Fix Map Pin Visual Glitch During Progressive Geocoding (In Progress)
+
+**Planned Tickets:**
 - FALTMAP-38 - Fix MapModal UI Flash (Grey List Before Geocoding)
-- Engineering audit cleanup items (if any emerge)
+- FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug (if needed)
 
-**Next Steps:**
-1. Review backlog for priority tickets
-2. User decision on scope for v1.0
-3. Plan sequential implementation
+**Deferred to Later:**
+- FALTMAP-35 - Improve README Documentation (last before release)
+
+---
+
+### 🎟️ **FALTMAP-40 - Fix Map Pin Visual Glitch During Progressive Geocoding**
+- Epic: E03 (Testing & Reliability)
+- Status: In Progress 🔄
+- Priority: 🟡 High
+
+**User Story:**
+As a user, I want map pins to appear smoothly at their correct locations during progressive geocoding, so I don't see jarring visual glitches of pins appearing at the edge before jumping into place.
+
+**Context:**
+When the map is zoomed out sufficiently, pins appear at the edge of the visible area before "dropping" into their actual location. This creates a poor UX where pins seem to jump around during geocoding.
+
+**Root Cause:**
+- Staggered animation with `setTimeout` delays causes positioning issues
+- `animate=true` parameter triggers progressive marker addition with delays
+- Clustering algorithm positions markers temporarily before final placement
+
+**Solution:**
+Remove staggered animation by changing `animate=true` to `animate=false` in progressive geocoding updates.
+
+**Files to Modify:**
+- `content.js` (line 88)
+
+**Acceptance Criteria:**
+- [ ] `updateMapMarkers` called with `animate=false` during progressive geocoding (line 88)
+- [ ] Pins appear directly at correct locations when zoomed out
+- [ ] No visual "jumping" or "edge appearance" glitch observed
+- [ ] Pulse animation still highlights newly added markers
+- [ ] Test with 20+ restaurants at various zoom levels
+- [ ] Atomic commit: `fix: remove staggered animation to prevent pin visual glitch`
+- [ ] User verification complete
