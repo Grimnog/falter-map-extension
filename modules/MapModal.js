@@ -18,6 +18,7 @@ export class MapModal {
         this.modalElement = null;
         this.triggerElement = null; // Store trigger for focus restoration
         this.hiddenElements = []; // Track elements hidden from screen readers
+        this.isProgressComplete = false; // Track if completion message was shown
 
         // Cached DOM references
         this.dom = {
@@ -155,6 +156,7 @@ export class MapModal {
         // Reset state
         this.markers = [];
         this.triggerElement = null;
+        this.isProgressComplete = false;
 
         // Clear cached DOM references
         this.dom.statusLabel = null;
@@ -251,8 +253,9 @@ export class MapModal {
         if (this.dom.statusSubtitle) {
             if (processed < total) {
                 this.dom.statusSubtitle.textContent = 'Restaurants werden gesucht...';
-            } else {
-                // Show completion with checkmark
+            } else if (!this.isProgressComplete) {
+                // Show completion with checkmark (only once)
+                this.isProgressComplete = true;
                 this.dom.statusSubtitle.innerHTML = `<span class="status-checkmark">✓</span> ${located} ${located === 1 ? 'Restaurant' : 'Restaurants'} gefunden`;
 
                 // Fade out progress bar after completion
