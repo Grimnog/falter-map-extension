@@ -18,6 +18,7 @@ export class MapModal {
         this.modalElement = null;
         this.triggerElement = null; // Store trigger for focus restoration
         this.hiddenElements = []; // Track elements hidden from screen readers
+        this.hasStartedGeocoding = false; // Track if geocoding has started
         this.isProgressComplete = false; // Track if completion message was shown
 
         // Cached DOM references
@@ -156,6 +157,7 @@ export class MapModal {
         // Reset state
         this.markers = [];
         this.triggerElement = null;
+        this.hasStartedGeocoding = false;
         this.isProgressComplete = false;
 
         // Clear cached DOM references
@@ -252,9 +254,11 @@ export class MapModal {
         // Update subtitle text
         if (this.dom.statusSubtitle) {
             if (processed < total) {
+                // Geocoding in progress
+                this.hasStartedGeocoding = true;
                 this.dom.statusSubtitle.textContent = 'Restaurants werden gesucht...';
-            } else if (!this.isProgressComplete) {
-                // Show completion with checkmark (only once)
+            } else if (this.hasStartedGeocoding && !this.isProgressComplete) {
+                // Show completion with checkmark (only once, and only after geocoding started)
                 this.isProgressComplete = true;
                 this.dom.statusSubtitle.innerHTML = `<span class="status-checkmark">✓</span> ${located} ${located === 1 ? 'Restaurant' : 'Restaurants'} gefunden`;
 
