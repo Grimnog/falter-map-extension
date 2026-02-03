@@ -18,7 +18,7 @@
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: white;
             color: #000;
-            width: 300px; /* Compact width */
+            width: 300px;
             min-height: 180px;
             overflow-x: hidden;
             font-size: 12px;
@@ -27,9 +27,9 @@
 
         /* Header - Compact and sharp */
         .header {
-            background: #fbe51f; /* Falter yellow from constants */
+            background: #fbe51f;
             padding: 12px 16px;
-            border-bottom: 2px solid #000; /* Sharp 2px border */
+            border-bottom: 2px solid #000;
         }
 
         .header h1 {
@@ -43,11 +43,11 @@
 
         /* Content - Tighter spacing */
         .content {
-            padding: 16px; /* Reduced from 24px */
+            padding: 16px;
         }
 
         .section {
-            margin-bottom: 16px; /* Tighter sections */
+            margin-bottom: 16px;
         }
 
         .section:last-child {
@@ -73,7 +73,7 @@
 
         .step-row {
             display: grid;
-            grid-template-columns: 24px 1fr; /* Fixed width for numbers */
+            grid-template-columns: 24px 1fr;
             gap: 8px;
             margin-bottom: 10px;
             align-items: center;
@@ -86,8 +86,8 @@
         .step-number {
             width: 18px;
             height: 18px;
-            background: #fbe51f; /* Falter yellow */
-            border: 1px solid #190f0b; /* Falter black */
+            background: #fbe51f;
+            border: 1px solid #190f0b;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -99,7 +99,7 @@
 
         .step-text {
             font-size: 12px;
-            line-height: 1.2; /* Compact */
+            line-height: 1.2;
             color: #333;
         }
 
@@ -119,10 +119,10 @@
 
         /* Cache Section - Grouped with background */
         .data-box {
-            background: #f9f9f9; /* Subtle grey */
+            background: #f5f5f5;
             padding: 12px;
             border-radius: 4px;
-            margin-top: 8px;
+            margin: 10px 0;
         }
 
         .data-row {
@@ -130,7 +130,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 6px 0;
-            border-bottom: 1px solid #fff; /* Etched look */
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .data-row:last-child {
@@ -152,76 +152,67 @@
         }
 
         .data-badge {
-            background: #fbe51f; /* Falter yellow */
-            color: #190f0b; /* Falter black */
+            background: #fbe51f;
+            color: #190f0b;
             padding: 3px 8px;
-            border-radius: 2px; /* Small rectangle, not pill */
+            border-radius: 2px;
             font-size: 11px;
             font-weight: 700;
         }
 
-        /* Button - Solid black, professional */
-        .btn-primary {
+        /* Professional Feedback Button */
+        .btn-action {
             width: 100%;
-            height: 32px; /* Shorter */
-            margin-top: 12px; /* Minimal margin */
+            height: 32px;
+            margin-top: 0; /* No margin - part of data-box */
             padding: 0;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             border: none;
             background: #000;
             color: #fff;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s ease-in-out;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
         }
 
-        .btn-primary:hover {
+        .btn-action:hover {
             background: #333;
         }
 
-        .btn-primary:active {
+        .btn-action:active {
             transform: translateY(1px);
         }
 
-        .btn-primary svg {
+        /* Success State - Green for 2 seconds */
+        .btn-action.success {
+            background: #4CAF50;
+            cursor: default;
+        }
+
+        .btn-action.success:hover {
+            background: #4CAF50;
+        }
+
+        /* Error State - Red flash */
+        .btn-action.error {
+            background: #D32F2F;
+            cursor: default;
+        }
+
+        .btn-action.error:hover {
+            background: #D32F2F;
+        }
+
+        .btn-action svg {
             width: 14px;
             height: 14px;
             stroke-width: 2;
-        }
-
-        /* Success message - compact */
-        .cache-cleared-message {
-            display: none;
-            margin-top: 10px;
-            padding: 8px;
-            background: #f0fdf4;
-            border-left: 2px solid #22c55e;
-            color: #166534;
-            font-size: 11px;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .cache-cleared-message.show {
-            display: block;
-            animation: slideIn 0.2s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-6px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         /* Version footer - minimal */
@@ -280,15 +271,14 @@
                     <span class="data-label">Gültigkeit</span>
                     <span class="data-badge">30 Tage</span>
                 </div>
-            </div>
 
-            <button class="btn-primary" id="clearCacheBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-                Cache leeren
-            </button>
-            <div class="cache-cleared-message" id="cacheClearedMessage">✓ Cache geleert</div>
+                <button class="btn-action" id="clearCacheBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    <span id="btnText">Cache leeren</span>
+                </button>
+            </div>
         </div>
     </div>
 

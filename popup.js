@@ -21,19 +21,44 @@ async function updateCacheStats() {
 
 // Clear geocoding cache
 async function clearCache() {
-    await CacheManager.clear();
-    console.log('Cache cleared');
-    updateCacheStats();
+    const btn = document.getElementById('clearCacheBtn');
+    const btnText = document.getElementById('btnText');
 
-    // Show subtle confirmation message
-    const messageEl = document.getElementById('cacheClearedMessage');
-    if (messageEl) {
-        messageEl.classList.add('show');
+    if (!btn || !btnText) return;
 
-        // Hide after 3 seconds
+    // Store original state
+    const originalText = btnText.textContent;
+
+    try {
+        // Clear cache
+        await CacheManager.clear();
+        console.log('Cache cleared');
+
+        // Update stats
+        await updateCacheStats();
+
+        // Success state - green button with checkmark
+        btn.classList.add('success');
+        btnText.textContent = 'GELEERT ✓';
+
+        // Restore after 2 seconds
         setTimeout(() => {
-            messageEl.classList.remove('show');
-        }, 3000);
+            btn.classList.remove('success');
+            btnText.textContent = originalText;
+        }, 2000);
+
+    } catch (error) {
+        console.error('Cache clear error:', error);
+
+        // Error state - red button
+        btn.classList.add('error');
+        btnText.textContent = 'FEHLER';
+
+        // Restore after 2 seconds
+        setTimeout(() => {
+            btn.classList.remove('error');
+            btnText.textContent = originalText;
+        }, 2000);
     }
 }
 
