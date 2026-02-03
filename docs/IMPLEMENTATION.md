@@ -80,8 +80,11 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 **Sprint Start:** 2026-02-03
 
+**Completed Tickets:**
+- ✅ FALTMAP-40 - Fix Map Pin Visual Glitch During Progressive Geocoding
+
 **Active Tickets:**
-- 🔄 FALTMAP-40 - Fix Map Pin Visual Glitch During Progressive Geocoding (In Progress)
+- 🔄 FALTMAP-41 - Fix Modal Status Badge UI Issues (In Progress)
 
 **Planned Tickets:**
 - FALTMAP-38 - Fix MapModal UI Flash (Grey List Before Geocoding)
@@ -89,6 +92,37 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 **Deferred to Later:**
 - FALTMAP-35 - Improve README Documentation (last before release)
+
+---
+
+### 🎟️ **FALTMAP-41 - Fix Modal Status Badge UI Issues**
+- Epic: E04 (UI/UX Polish)
+- Status: In Progress 🔄
+- Priority: 🟡 High
+
+**User Story:**
+As a user, I want the geocoding status badge to be clean, stable, and non-distracting during the search process.
+
+**Issues to Fix:**
+1. **Noisy animation** - Border pulses grey→black during geocoding
+2. **Border too thin** - Should be bolder/thicker
+3. **Size instability** - Badge grows when counter reaches double digits (10/22)
+4. **Dead code** - Unused progress-container HTML
+
+**Files to Modify:**
+- `modules/MapModal.js` (remove progress-container)
+- `content.css` (fix border, animation, sizing)
+
+**Acceptance Criteria:**
+- [ ] Border does not pulse or change color during geocoding
+- [ ] Border is consistently black and thicker (~2px)
+- [ ] Status badge has fixed width (accommodates "99/999")
+- [ ] No layout shift when counter reaches double/triple digits
+- [ ] Progress-container HTML removed from MapModal.js
+- [ ] No JavaScript errors from removed elements
+- [ ] Manual testing with various counter values (1/5, 10/22, 99/100)
+- [ ] Atomic commits for each logical change
+- [ ] User verification complete
 
 ---
 
