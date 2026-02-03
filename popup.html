@@ -6,8 +6,7 @@
     <title>Falter Map</title>
     <style>
         /* Bunny Fonts Import (GDPR-compliant) */
-        /* NOTE: Keep in sync with content.css */
-        @import url('https://fonts.bunny.net/css?family=nunito:400,600,700,800,900');
+        @import url('https://fonts.bunny.net/css?family=nunito:400,500,600,700');
 
         * {
             box-sizing: border-box;
@@ -22,50 +21,53 @@
             width: 320px;
             min-height: 180px;
             overflow-x: hidden;
+            font-size: 13px;
+            line-height: 1.6;
         }
 
-        /* Header Section - Bold, authoritative, high-contrast */
+        /* Header - Clean separation with subtle border */
         .header {
             background: #FFED00;
-            padding: 20px;
-            border-bottom: 2px solid #000;
+            padding: 18px 24px;
+            border-bottom: 1px solid #000; /* Sharp but fine */
         }
 
         .header h1 {
-            font-size: 16px;
-            font-weight: 900;
+            font-size: 15px;
+            font-weight: 700;
             margin: 0;
             color: #000;
             text-transform: uppercase;
-            letter-spacing: -0.02em;
+            letter-spacing: 0.02em;
         }
 
+        /* Content with breathing room */
         .content {
-            padding: 20px;
+            padding: 24px; /* More spacious */
         }
 
         .section {
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .section:last-child {
             margin-bottom: 0;
         }
 
-        /* Section Labels - Strong, uppercase, authoritative */
+        /* Section Labels - Subtle, refined, Swiss-style */
         .section-label {
-            font-size: 0.75rem; /* 12px */
-            font-weight: 800;
+            font-size: 10px;
+            font-weight: 600;
             text-transform: uppercase;
-            color: #000;
-            margin-bottom: 16px;
-            letter-spacing: 0.05em;
+            color: #666;
+            margin-bottom: 14px;
+            letter-spacing: 0.1em;
         }
 
-        /* Instructions Section - Clean, no boxes */
+        /* Instructions - Airy and elegant */
         .instructions {
             font-size: 13px;
-            line-height: 1.6;
+            line-height: 1.8; /* More breath */
         }
 
         .instructions ol {
@@ -77,44 +79,48 @@
         .instructions li {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
-            padding: 8px 0;
-            color: #444;
+            gap: 10px;
+            padding: 10px 0; /* More vertical space */
+            color: #333;
         }
 
         .instructions li:not(:last-child) {
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #f0f0f0; /* Very faint */
         }
 
-        /* Yellow circular badges for step numbers */
+        /* Delicate yellow badges - smaller, refined */
         .badge {
-            background: #FFED00;
+            background: #fff9e6; /* Muted yellow */
             color: #000;
+            border: 1px solid #FFED00;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
+            width: 18px;
+            height: 18px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 600;
             flex-shrink: 0;
-            font-size: 13px;
+            font-size: 11px;
         }
 
         .instructions a {
             color: #000;
             text-decoration: underline;
-            font-weight: 700;
-            transition: all 0.2s;
+            font-weight: 500;
+            transition: all 0.15s ease;
         }
 
         .instructions a:hover {
             color: #000;
             text-decoration: none;
-            border-bottom: 2px solid #000;
         }
 
-        /* Cache Section - Hairline dividers, high contrast */
+        .instructions strong {
+            font-weight: 600;
+        }
+
+        /* Cache Section - Minimal, clean table */
         .cache-info {
             margin-bottom: 16px;
         }
@@ -123,8 +129,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
+            padding: 10px 0; /* Reduced from 12px */
+            border-bottom: 1px solid #f5f5f5; /* Very subtle */
         }
 
         .cache-row:last-child {
@@ -133,68 +139,70 @@
 
         .cache-label {
             font-size: 13px;
-            color: #444; /* Readable charcoal, not light grey */
-            font-weight: 600;
+            color: #666; /* Medium grey, not too dark */
+            font-weight: 400; /* Regular, not bold */
         }
 
         .cache-value {
             font-size: 13px;
             color: #000; /* Pure black */
-            font-weight: 800; /* Bold */
+            font-weight: 600; /* Emphasis without being heavy */
         }
 
         .cache-badge {
-            background: #FFED00;
+            background: #fff9e6; /* Soft yellow tint */
             color: #000;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid #FFED00;
         }
 
-        /* High-Contrast Border Button */
+        /* Button - Refined, light interaction */
         .btn-primary {
             width: 100%;
-            padding: 12px;
-            font-size: 0.8rem; /* ~13px */
-            font-weight: 800;
+            padding: 10px;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border: 2px solid #000;
-            background: transparent;
+            letter-spacing: 0.08em;
+            border: 1px solid #ddd; /* Fine border */
+            background: white;
             color: #000;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .btn-primary:hover {
-            background: #000;
-            color: #fff;
+            background: #fffbf0; /* Soft yellow tint */
+            border-color: #FFED00;
         }
 
         .btn-primary:active {
-            transform: scale(0.98);
+            transform: translateY(1px);
         }
 
         .btn-primary svg {
-            width: 18px;
-            height: 18px;
+            width: 14px; /* Smaller, more delicate */
+            height: 14px;
+            stroke-width: 2;
         }
 
-        /* Success message */
+        /* Success message - subtle */
         .cache-cleared-message {
             display: none;
             margin-top: 12px;
-            padding: 10px;
-            background: #d4edda;
-            border-left: 3px solid #28a745;
-            color: #155724;
-            font-size: 13px;
-            font-weight: 600;
+            padding: 8px 12px;
+            background: #f0fdf4;
+            border-left: 2px solid #22c55e;
+            color: #166534;
+            font-size: 12px;
+            font-weight: 500;
             text-align: center;
         }
 
@@ -206,7 +214,7 @@
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(-10px);
+                transform: translateY(-8px);
             }
             to {
                 opacity: 1;
@@ -214,14 +222,14 @@
             }
         }
 
-        /* Version footer - subtle */
+        /* Version footer - minimal */
         .version {
             text-align: center;
             padding: 12px;
-            font-size: 11px;
+            font-size: 10px;
             color: #999;
-            border-top: 1px solid #eee;
-            font-weight: 500;
+            border-top: 1px solid #f5f5f5;
+            font-weight: 400;
             letter-spacing: 0.05em;
         }
     </style>
@@ -275,7 +283,7 @@
             </div>
 
             <button class="btn-primary" id="clearCacheBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
                 Cache leeren
