@@ -295,12 +295,9 @@ export class MapModal {
         })
             .addTo(this.markerClusterGroup)
             .bindPopup(`
-                <div class="popup-name">${this.escapeHtml(restaurant.name)}</div>
+                <a href="${restaurant.url}" target="_blank" rel="noopener noreferrer" class="restaurant-link">${this.escapeHtml(restaurant.name)}</a>
                 <div class="popup-address">${this.escapeHtml(restaurant.address)}</div>
-                <div class="popup-links">
-                    <a href="${restaurant.url}" target="_blank">Falter</a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=${googleMapsQuery}" target="_blank">Google Maps</a>
-                </div>
+                <a href="https://www.google.com/maps/search/?api=1&query=${googleMapsQuery}" target="_blank" rel="noopener noreferrer" class="maps-link">Google Maps</a>
             `);
 
         marker.restaurantId = restaurant.id;

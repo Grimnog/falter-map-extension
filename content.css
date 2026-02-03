@@ -379,72 +379,79 @@
 }
 
 /* Leaflet popup styling - sleek & minimal with border */
-/* Leaflet Popup - Editorial Typography-First */
+/* Leaflet Popup - Minimalist Editorial Label */
+
+/* Core Wrapper - Clean Floating Card */
 .leaflet-popup-content-wrapper {
-    border-radius: 12px; /* Soft internal rounding */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Floating effect */
-    border: none; /* Clean, no borders */
+    background: #fff;
+    border-radius: 12px;
     padding: 0;
-    background: white;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border: none;
 }
 
-.leaflet-popup-content {
-    margin: 12px; /* Tight padding */
-    min-width: 200px;
-}
-
+/* Remove Leaflet defaults */
 .leaflet-popup-tip {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: none; /* Clean tip */
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border: none;
 }
 
-/* Restaurant Name - Bold Black */
-.popup-name {
-    font-weight: 700; /* Bold */
-    font-size: 13px; /* Compact */
-    margin-bottom: 6px;
-    color: rgb(26, 26, 26);
-    line-height: 1.3;
+.leaflet-popup-close-button {
+    display: none; /* Minimalism - click map to close */
 }
 
-/* Address - Secondary Charcoal */
-.popup-address {
-    font-size: 11px; /* Small secondary text */
-    color: #666; /* Charcoal grey */
-    text-transform: uppercase; /* Editorial style */
-    margin-bottom: 12px;
+/* Content Layout */
+.leaflet-popup-content {
+    margin: 16px;
+    min-width: 220px;
+    width: auto !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* Restaurant Name Link - The Primary Interaction */
+.restaurant-link {
+    font-size: 14px;
+    color: #000;
+    font-weight: 400; /* Normal weight - quiet look */
+    text-decoration: none;
+    display: block;
+    margin-bottom: 4px;
     line-height: 1.4;
-    font-weight: 400;
-    letter-spacing: 0.02em;
-}
-
-/* Links - Clean Typography */
-.popup-links {
-    display: flex;
-    gap: 16px; /* Generous spacing */
-    font-size: 10px; /* Minimal */
-    padding-top: 0; /* No extra padding */
-    border-top: none; /* No divider */
-}
-
-.popup-links a {
-    color: #000; /* Black text */
-    text-decoration: none; /* No underline by default */
-    font-weight: 700; /* Bold */
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     transition: all 0.2s ease;
-    border-bottom: 2px solid transparent; /* Invisible underline */
 }
 
-/* Falter Link - Yellow Hover Underline */
-.popup-links a:first-child:hover {
-    border-bottom-color: #FFED00; /* Solid yellow underline */
+.restaurant-link:hover {
+    text-decoration: underline;
+    text-decoration-color: #FFED00; /* Yellow brand accent */
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
 }
 
-/* Google Maps Link - Black Hover Underline */
-.popup-links a:last-child:hover {
-    border-bottom-color: #000; /* Solid black underline */
+/* Address - Secondary Information */
+.popup-address {
+    font-size: 11px;
+    color: #777; /* Charcoal grey */
+    font-weight: 400;
+    line-height: 1.5;
+    margin-bottom: 8px;
+    text-transform: none; /* Sentence case */
+}
+
+/* Google Maps - Small Secondary Link */
+.maps-link {
+    font-size: 10px;
+    color: #999;
+    text-decoration: none;
+    float: right;
+    margin-top: 8px;
+    transition: all 0.2s ease;
+}
+
+.maps-link:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    color: #666;
 }
 
 /* Custom scrollbar for sidebar - minimal */
