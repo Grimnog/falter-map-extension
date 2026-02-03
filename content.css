@@ -250,32 +250,9 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    border: 1.5px solid var(--falter-black);
-}
-
-.progress-container {
-    position: relative;
-    height: 4px;
-    background: rgb(240, 240, 240);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 12px;
-}
-
-.progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, rgb(251, 229, 31), rgb(255, 200, 0));
-    transition: width 0.3s ease;
-}
-
-.progress-text {
-    position: absolute;
-    top: 8px;
-    left: 0;
-    font-size: 11px;
-    color: rgb(115, 115, 115);
-    font-weight: 500;
+    border: 2px solid var(--falter-black);
+    min-width: 60px; /* Prevent layout shift with double/triple digit counters */
+    justify-content: center; /* Center text within fixed width */
 }
 
 .status-note {
@@ -480,18 +457,9 @@
     background: rgb(251, 229, 31);
 }
 
-/* Loading state animation */
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.6;
-    }
-}
-
+/* Loading state - no animation (removed noisy pulse) */
 .status-value.loading {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    /* Animation removed - border stays consistently black */
 }
 
 .status-value.error {
