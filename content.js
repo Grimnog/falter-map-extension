@@ -104,7 +104,7 @@
                 });
 
                 const locatedCount = results.filter(r => r.coords).length;
-                mapModal.updateProgress(restaurants.length, restaurants.length, locatedCount);
+                mapModal.updateProgress(restaurants.length, restaurants.length, locatedCount, true); // Mark as final
                 mapModal.hideLoadingStatus();
                 mapModal.updateResultsList(results);
 

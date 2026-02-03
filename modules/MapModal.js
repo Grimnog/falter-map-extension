@@ -242,8 +242,9 @@ export class MapModal {
 
     /**
      * Update progress bar and status text
+     * @param {boolean} isFinal - True if this is the final call after geocoding completes
      */
-    updateProgress(processed, total, located) {
+    updateProgress(processed, total, located, isFinal = false) {
         // Update progress bar width
         if (this.dom.progressFill && this.dom.progressBar) {
             const percentage = total > 0 ? (processed / total) * 100 : 0;
@@ -257,8 +258,8 @@ export class MapModal {
                 // Geocoding in progress
                 this.hasStartedGeocoding = true;
                 this.dom.statusSubtitle.textContent = 'Restaurants werden gesucht...';
-            } else if (this.hasStartedGeocoding && !this.isProgressComplete) {
-                // Show completion with checkmark (only once, and only after geocoding started)
+            } else if (isFinal && this.hasStartedGeocoding && !this.isProgressComplete) {
+                // Show completion with checkmark (only on explicit final call)
                 this.isProgressComplete = true;
                 this.dom.statusSubtitle.innerHTML = `<span class="status-checkmark">✓</span> ${located} ${located === 1 ? 'Restaurant' : 'Restaurants'} gefunden`;
 
