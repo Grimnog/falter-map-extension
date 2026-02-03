@@ -23,8 +23,6 @@ export class MapModal {
         this.dom = {
             statusLabel: null,
             geocodeStatus: null,
-            progressBar: null,
-            progressText: null,
             results: null
         };
 
@@ -69,10 +67,6 @@ export class MapModal {
                                 <span class="status-label" id="modal-status-label">Suche läuft...</span>
                                 <span class="status-value" id="modal-geocode-status" aria-live="polite">0/0</span>
                             </div>
-                            <div class="progress-container">
-                                <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                <div class="progress-text" id="progress-text" aria-live="polite">0/0</div>
-                            </div>
                         </div>
                         <div class="modal-results" id="modal-results" role="listbox" aria-label="Restaurant list"></div>
                     </aside>
@@ -88,8 +82,6 @@ export class MapModal {
         // Cache DOM element references
         this.dom.statusLabel = document.getElementById('modal-status-label');
         this.dom.geocodeStatus = document.getElementById('modal-geocode-status');
-        this.dom.progressBar = document.getElementById('progress-bar');
-        this.dom.progressText = document.getElementById('progress-text');
         this.dom.results = document.getElementById('modal-results');
 
         // Attach event listeners
@@ -163,8 +155,6 @@ export class MapModal {
         // Clear cached DOM references
         this.dom.statusLabel = null;
         this.dom.geocodeStatus = null;
-        this.dom.progressBar = null;
-        this.dom.progressText = null;
         this.dom.results = null;
 
         // Trigger close callback
@@ -239,17 +229,6 @@ export class MapModal {
         // Status shows located count (successful geocoding)
         if (this.dom.geocodeStatus) {
             this.dom.geocodeStatus.textContent = `${located}/${total}`;
-        }
-
-        // Progress bar shows processed count (all attempts, including failures)
-        if (this.dom.progressText) {
-            this.dom.progressText.textContent = `${processed}/${total}`;
-        }
-
-        if (this.dom.progressBar) {
-            const percentage = total > 0 ? (processed / total) * 100 : 0;
-            this.dom.progressBar.style.width = `${percentage}%`;
-            this.dom.progressBar.setAttribute('aria-valuenow', Math.round(percentage));
         }
     }
 
