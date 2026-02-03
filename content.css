@@ -429,7 +429,7 @@
     text-decoration: underline !important; /* Permanent yellow underline */
     text-decoration-color: #FFED00 !important; /* Signature brand yellow */
     text-underline-offset: 3px; /* Closer, more prominent */
-    text-decoration-thickness: 3px; /* Strong, bold underline */
+    text-decoration-thickness: 4px; /* Clear link indicator - middle ground */
     cursor: pointer;
     margin-bottom: 4px;
     padding: 4px 0; /* Expand vertical hit box */
