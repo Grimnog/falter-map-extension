@@ -114,14 +114,14 @@ As a user, I want the geocoding status badge to be clean, stable, and non-distra
 - `content.css` (fix border, animation, sizing)
 
 **Acceptance Criteria:**
-- [ ] Border does not pulse or change color during geocoding
-- [ ] Border is consistently black and thicker (~2px)
-- [ ] Status badge has fixed width (accommodates "99/999")
-- [ ] No layout shift when counter reaches double/triple digits
-- [ ] Progress-container HTML removed from MapModal.js
-- [ ] No JavaScript errors from removed elements
+- [x] Border does not pulse or change color during geocoding
+- [x] Border is consistently black and thicker (~2px)
+- [x] Status badge has fixed width (accommodates "99/999")
+- [x] No layout shift when counter reaches double/triple digits
+- [x] Progress-container HTML removed from MapModal.js
+- [x] No JavaScript errors from removed elements
 - [ ] Manual testing with various counter values (1/5, 10/22, 99/100)
-- [ ] Atomic commits for each logical change
+- [x] Atomic commits for each logical change
 - [ ] User verification complete
 
 ---
