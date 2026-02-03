@@ -1211,6 +1211,90 @@ The `animate` parameter controlled staggered `setTimeout` delays, not the pulse 
 
 ---
 
+### FALTMAP-41: Fix Modal Status Badge UI Issues
+- **Status:** Done ✅
+- **Epic:** E04 (UI/UX Polish)
+- **Priority:** High
+- **Completed:** 2026-02-03
+
+**User Story:**
+As a user, I want the geocoding status badge to be clean, stable, and non-distracting during the search process.
+
+**Context:**
+The modal-status badge (showing "X/Y" geocoding progress) had several visual issues that created a distracting and unprofessional experience during the search process.
+
+**Issues Fixed:**
+
+1. **Noisy pulsing animation:**
+   - Border was pulsing between grey and black during geocoding
+   - Created visual distraction during the search
+   - Removed pulse animation keyframes and loading animation class
+
+2. **Border too thin:**
+   - Original border was 1.5px, felt weak
+   - Increased to 2px for better definition and consistency with header border
+
+3. **Size instability:**
+   - Badge grew when counter reached double digits (e.g., "10/22")
+   - Caused layout shift as numbers changed
+   - Fixed with min-width: 60px and justify-content: center
+   - Accommodates up to "99/999" without shifting
+
+4. **Dead code removal:**
+   - Removed unused progress-container HTML (~4 lines)
+   - Removed progress-bar and progress-text from DOM cache
+   - Removed associated getElementById calls
+   - Simplified updateProgress() method (no longer updates removed elements)
+   - Cleaned up ~40 lines of unused HTML, JS, and CSS
+
+**Solution Implemented:**
+
+**CSS Changes (content.css):**
+- Increased border thickness: 1.5px → 2px
+- Added size stability: min-width: 60px + justify-content: center
+- Removed pulsing animation: deleted .status-value.loading animation
+- Removed backdrop-filter: blur(4px) for crisp border (KISS principle)
+- Changed background: rgba(255, 255, 255, 0.3) → rgba(251, 229, 31, 0.4) (light yellow tint)
+- Deleted unused .progress-container, .progress-bar, .progress-text CSS (~25 lines)
+
+**JavaScript Changes (MapModal.js):**
+- Removed progress-container HTML from modal structure (lines 72-75)
+- Removed progressBar and progressText from DOM cache object
+- Removed getElementById calls for removed elements (lines 83-87)
+- Simplified updateProgress() method to only update geocodeStatus (lines 228-244)
+- Removed cleanup references to progressBar and progressText (lines 158-160)
+
+**Outcome:**
+- ✅ Clean, stable status badge without distractions
+- ✅ Consistent 2px black border (no pulse animation)
+- ✅ Fixed width prevents layout shift with double/triple digit counters
+- ✅ Crisp border using KISS principle (removed backdrop-filter)
+- ✅ Light yellow tint matches Falter header aesthetic
+- ✅ ~40 lines of dead code removed
+
+**Acceptance Criteria Completed:**
+- ✅ Border does not pulse or change color during geocoding
+- ✅ Border is consistently black and thicker (2px)
+- ✅ Status badge has fixed width (accommodates "99/999")
+- ✅ No layout shift when counter reaches double/triple digits
+- ✅ Progress-container HTML removed from MapModal.js
+- ✅ No JavaScript errors from removed elements
+- ✅ Manual testing with various counter values
+- ✅ Atomic commits for each logical change
+- ✅ User verification complete
+
+**Key Files Modified:**
+- `modules/MapModal.js` - Removed progress-container HTML and DOM references
+- `content.css` - Border, animation, sizing, backdrop-filter, dead code cleanup
+
+**Note:** Background color using light yellow tint (rgba(251, 229, 31, 0.4)) - further refinement deferred to future ticket based on user/Gemini feedback.
+
+**Commits:**
+- `71013aa` - fix: increase status badge border thickness to 2px
+- `387b13f` - refactor: remove unused progress-container code from MapModal
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.

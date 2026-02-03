@@ -82,9 +82,10 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 **Completed Tickets:**
 - ✅ FALTMAP-40 - Fix Map Pin Visual Glitch During Progressive Geocoding
+- ✅ FALTMAP-41 - Fix Modal Status Badge UI Issues
 
 **Active Tickets:**
-- 🔄 FALTMAP-41 - Fix Modal Status Badge UI Issues (In Progress)
+- None
 
 **Planned Tickets:**
 - FALTMAP-38 - Fix MapModal UI Flash (Grey List Before Geocoding)
@@ -95,23 +96,24 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 ---
 
-### 🎟️ **FALTMAP-41 - Fix Modal Status Badge UI Issues**
+### 🎟️ **FALTMAP-41 - Fix Modal Status Badge UI Issues** ✅
 - Epic: E04 (UI/UX Polish)
-- Status: In Progress 🔄
+- Status: Done ✅
 - Priority: 🟡 High
+- Completed: 2026-02-03
 
 **User Story:**
 As a user, I want the geocoding status badge to be clean, stable, and non-distracting during the search process.
 
-**Issues to Fix:**
-1. **Noisy animation** - Border pulses grey→black during geocoding
-2. **Border too thin** - Should be bolder/thicker
-3. **Size instability** - Badge grows when counter reaches double digits (10/22)
-4. **Dead code** - Unused progress-container HTML
+**Issues Fixed:**
+1. ✅ **Noisy animation** - Removed border pulse (grey→black)
+2. ✅ **Border too thin** - Increased to 2px
+3. ✅ **Size instability** - Fixed width 60px (no layout shift)
+4. ✅ **Dead code** - Removed progress-container HTML & CSS
 
-**Files to Modify:**
-- `modules/MapModal.js` (remove progress-container)
-- `content.css` (fix border, animation, sizing)
+**Files Modified:**
+- `modules/MapModal.js` (removed progress-container)
+- `content.css` (border, animation, sizing, backdrop-filter)
 
 **Acceptance Criteria:**
 - [x] Border does not pulse or change color during geocoding
@@ -120,9 +122,11 @@ As a user, I want the geocoding status badge to be clean, stable, and non-distra
 - [x] No layout shift when counter reaches double/triple digits
 - [x] Progress-container HTML removed from MapModal.js
 - [x] No JavaScript errors from removed elements
-- [ ] Manual testing with various counter values (1/5, 10/22, 99/100)
+- [x] Manual testing with various counter values
 - [x] Atomic commits for each logical change
-- [ ] User verification complete
+- [x] User verification complete (background refinement deferred)
+
+**Note:** Background color using light yellow tint - further refinement deferred to future ticket.
 
 ---
 
