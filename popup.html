@@ -18,26 +18,24 @@
             background: transparent;
         }
 
-        /* Soft Card Container - Modern floating card aesthetic */
+        /* Soft Card Container - Floating aesthetic */
         body {
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #ffffff;
             color: #000;
             width: 320px;
             min-height: 180px;
-            border-radius: 16px; /* Soft rounded corners */
-            overflow: hidden; /* Critical for rounded corners */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-                        0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Multi-layered shadow */
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); /* Soft outer glow */
             font-size: 12px;
             line-height: 1.4;
         }
 
         /* Header - Flush with rounded top */
         .header {
-            background: #fbe51f;
+            background: #FFED00; /* Exact Falter yellow */
             padding: 14px 16px;
-            /* Top corners rounded automatically from body */
         }
 
         .header h1 {
@@ -62,29 +60,29 @@
             margin-bottom: 0;
         }
 
-        /* Section Headers - Subtle */
+        /* Section Headers - Typographic standardization */
         .section-header {
             font-size: 10px;
             color: #999;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em; /* Standardized */
             margin-bottom: 12px;
-            font-weight: 600;
+            font-weight: 500; /* Medium weight */
         }
 
-        /* Instructions - Generous spacing, soft pills */
+        /* Instructions - Generous spacing with perfect alignment */
         .instructions {
             margin-top: 8px;
         }
 
         .step-row {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
+            align-items: center; /* Perfect vertical centering */
+            gap: 12px;
+            padding: 12px 16px; /* Increased horizontal padding */
             margin-bottom: 8px;
-            background: #f8f8f8; /* Soft pill background */
-            border-radius: 12px; /* Rounded pill */
+            background: #f8f8f8;
+            border-radius: 12px;
             border: 1px solid #f0f0f0;
         }
 
@@ -95,7 +93,7 @@
         .step-number {
             width: 20px;
             height: 20px;
-            background: #fbe51f;
+            background: #FFED00; /* Exact Falter yellow */
             border: 1px solid #190f0b;
             border-radius: 50%;
             display: flex;
@@ -128,55 +126,60 @@
             font-weight: 600;
         }
 
-        /* Data Group - Soft rounded container */
+        /* Data Group - Intentional spacing and alignment */
         .data-group {
             margin: 0;
-            padding: 16px;
-            background: #fcfcfc; /* Off-white */
-            border-radius: 12px; /* Internal rounding */
-            border: 1px solid #f0f0f0; /* Soft grey border */
+            padding: 12px 16px; /* Increased horizontal padding */
+            background: #fcfcfc;
+            border-radius: 12px;
+            border: 1px solid #f0f0f0;
         }
 
         .data-row {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; /* Perfect alignment */
             align-items: center;
             padding: 8px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.03); /* Subtle divider */
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
         }
 
         .data-row:last-child {
             border-bottom: none;
-            padding-bottom: 12px; /* Extra space before button */
+            padding-bottom: 12px;
         }
 
+        /* Cache Labels - Typographic standardization */
         .data-label {
-            font-size: 11px;
+            font-size: 10px; /* Standardized */
             color: #666;
             text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.03em;
+            font-weight: 500; /* Medium weight */
+            letter-spacing: 0.05em; /* Standardized */
+            text-align: left; /* Explicit left alignment */
         }
 
+        /* Cache Values - Bold black */
         .data-value {
             font-size: 12px;
             color: #000;
-            font-weight: 700;
+            font-weight: 700; /* Bold black */
+            text-align: right; /* Explicit right alignment */
         }
 
+        /* 30 Tage Badge - Refined sizing */
         .data-badge {
-            background: #fbe51f;
+            background: #FFED00; /* Exact Falter yellow */
             color: #190f0b;
-            padding: 4px 10px;
-            border-radius: 6px; /* Soft rounded, not pill */
+            padding: 2px 8px; /* Reduced vertical padding */
+            border-radius: 6px;
             font-size: 11px;
             font-weight: 700;
         }
 
-        /* Pill-shaped Modern Button */
+        /* Pill-shaped Modern Button - Enhanced transitions */
         .btn-modern {
             width: 100%;
-            height: 40px; /* Taller for better touch target */
+            height: 40px;
             margin-top: 4px;
             padding: 0;
             font-size: 11px;
@@ -184,7 +187,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             border: none;
-            border-radius: 99px; /* Full pill shape */
+            border-radius: 99px;
             background: #000;
             color: #fff;
             cursor: pointer;
@@ -197,12 +200,12 @@
 
         .btn-modern:hover {
             background: #333;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px); /* Subtle lift */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Depth on hover */
         }
 
         .btn-modern:active {
-            transform: scale(0.98); /* Soft tactile press */
+            transform: scale(0.98);
         }
 
         /* Success State - Green pill */
