@@ -379,60 +379,72 @@
 }
 
 /* Leaflet popup styling - sleek & minimal with border */
+/* Leaflet Popup - Editorial Typography-First */
 .leaflet-popup-content-wrapper {
-    border-radius: 10px;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-    border: 1.5px solid rgb(230, 230, 230);
+    border-radius: 12px; /* Soft internal rounding */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Floating effect */
+    border: none; /* Clean, no borders */
     padding: 0;
     background: white;
 }
 
 .leaflet-popup-content {
-    margin: 18px 20px;
+    margin: 12px; /* Tight padding */
     min-width: 200px;
 }
 
 .leaflet-popup-tip {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1.5px solid rgb(230, 230, 230);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: none; /* Clean tip */
 }
 
+/* Restaurant Name - Bold Black */
 .popup-name {
-    font-weight: 600;
-    font-size: 15px;
+    font-weight: 700; /* Bold */
+    font-size: 13px; /* Compact */
     margin-bottom: 6px;
     color: rgb(26, 26, 26);
-    line-height: 1.4;
+    line-height: 1.3;
 }
 
+/* Address - Secondary Charcoal */
 .popup-address {
-    font-size: 13px;
-    color: rgb(115, 115, 115);
-    margin-bottom: 14px;
-    line-height: 1.5;
+    font-size: 11px; /* Small secondary text */
+    color: #666; /* Charcoal grey */
+    text-transform: uppercase; /* Editorial style */
+    margin-bottom: 12px;
+    line-height: 1.4;
     font-weight: 400;
+    letter-spacing: 0.02em;
 }
 
+/* Links - Clean Typography */
 .popup-links {
     display: flex;
-    gap: 16px;
-    font-size: 13px;
-    padding-top: 4px;
-    border-top: 1px solid rgb(245, 245, 245);
+    gap: 16px; /* Generous spacing */
+    font-size: 10px; /* Minimal */
+    padding-top: 0; /* No extra padding */
+    border-top: none; /* No divider */
 }
 
 .popup-links a {
-    color: rgb(80, 80, 80);
-    text-decoration: underline;
-    text-decoration-color: rgb(200, 200, 200);
-    text-underline-offset: 2px;
-    font-weight: 500;
+    color: #000; /* Black text */
+    text-decoration: none; /* No underline by default */
+    font-weight: 700; /* Bold */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     transition: all 0.2s ease;
+    border-bottom: 2px solid transparent; /* Invisible underline */
 }
 
-.popup-links a:hover {
-    color: rgb(26, 26, 26);
-    text-decoration-color: rgb(26, 26, 26);
+/* Falter Link - Yellow Hover Underline */
+.popup-links a:first-child:hover {
+    border-bottom-color: #FFED00; /* Solid yellow underline */
+}
+
+/* Google Maps Link - Black Hover Underline */
+.popup-links a:last-child:hover {
+    border-bottom-color: #000; /* Solid black underline */
 }
 
 /* Custom scrollbar for sidebar - minimal */
