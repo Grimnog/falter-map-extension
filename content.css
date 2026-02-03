@@ -176,16 +176,18 @@
     flex-direction: column;
     overflow: hidden;
     border-right: 1px solid rgb(240, 240, 240);
+    border-radius: 12px; /* Soft internal rounding */
     position: relative;
     box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.1); /* Floating effect */
 }
 
 .modal-header {
-    padding: 2rem 1.25rem 1.5rem; /* 32px 20px 24px */
+    padding: 1.5rem 1rem 1.25rem; /* 24px 16px 20px - Compact */
     background: var(--falter-yellow);
     position: relative;
     overflow: visible;
     border-bottom: none; /* Progress bar becomes separator */
+    border-radius: 12px 12px 0 0; /* Match sidebar rounding */
 }
 
 .modal-header::after {
@@ -263,11 +265,11 @@
 }
 
 .result-item {
-    padding: 14px 24px;
+    padding: 10px 20px; /* Compact spacing */
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
-    gap: 12px;
+    gap: 10px; /* Tighter gap */
     align-items: center;
     background: white;
     border-bottom: 1px solid rgb(245, 245, 245);
@@ -319,15 +321,15 @@
 
 .result-number {
     flex-shrink: 0;
-    width: 24px; /* Reduced from 28px */
-    height: 24px; /* Reduced from 28px */
+    width: 18px; /* Small, matching popup circles */
+    height: 18px;
     background: rgb(251, 229, 31);
     color: rgb(26, 26, 26);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px; /* Reduced from 13px */
+    font-size: 10px; /* Compact font */
     font-weight: 700;
     transition: all 0.2s ease;
 }
@@ -348,11 +350,11 @@
 }
 
 .result-name {
-    font-size: 1.1rem; /* ~17.6px */
-    font-weight: 700; /* Bolder */
-    margin-bottom: 4px; /* Slightly more spacing */
+    font-size: 1rem; /* 16px - Compact */
+    font-weight: 700; /* Bold black */
+    margin-bottom: 3px; /* Tighter spacing */
     color: rgb(26, 26, 26);
-    line-height: 1.4;
+    line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
@@ -360,10 +362,10 @@
 }
 
 .result-address {
-    font-size: 0.85rem; /* ~13.6px */
-    color: #555; /* Slightly darker grey */
-    margin-top: 4px;
-    line-height: 1.4;
+    font-size: 0.8rem; /* ~12.8px - Secondary */
+    color: #555; /* Charcoal grey */
+    margin-top: 3px;
+    line-height: 1.3;
     font-weight: 400;
     display: -webkit-box;
     -webkit-line-clamp: 1;
