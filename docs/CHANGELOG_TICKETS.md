@@ -1161,6 +1161,56 @@ As a user, I want clear documentation that the extension now supports all Austri
 
 ---
 
+## Sprint 9: UI/UX Polish for v1.0
+
+**Started:** 2026-02-03
+**Status:** In Progress
+
+### FALTMAP-40: Fix Map Pin Visual Glitch During Progressive Geocoding
+- **Status:** Done ✅
+- **Epic:** E03 (Testing & Reliability)
+- **Priority:** High
+- **Completed:** 2026-02-03
+
+**User Story:**
+As a user, I want map pins to appear smoothly at their correct locations during progressive geocoding, so I don't see jarring visual glitches of pins appearing at the edge before jumping into place.
+
+**Context:**
+When the map is zoomed out sufficiently, pins appeared at the edge of the visible area before "dropping" into their actual location during progressive geocoding. This created a poor UX where pins seemed to jump around.
+
+**Root Cause:**
+- Staggered animation with `setTimeout` delays caused positioning issues
+- `animate=true` parameter triggered progressive marker addition with delays
+- Clustering algorithm positioned markers temporarily before final placement
+
+**Solution Implemented:**
+Changed `updateMapMarkers` call in `content.js` line 88 from `animate=true` to `animate=false` during progressive geocoding updates. This eliminated the `setTimeout` delay, allowing markers to appear directly at their correct locations.
+
+**Technical Details:**
+```javascript
+// Before (caused visual glitch):
+mapModal.updateMapMarkers(progressResults.filter(r => r.coords), true);
+
+// After (smooth appearance):
+mapModal.updateMapMarkers(progressResults.filter(r => r.coords), false);
+```
+
+The `animate` parameter controlled staggered `setTimeout` delays, not the pulse animation. Setting it to `false` meant "add all markers immediately without delay", allowing the clustering algorithm to position correctly from the start.
+
+**Outcome:**
+- ✅ Eliminated visual "jumping" glitch when map is zoomed out
+- ✅ Markers appear smoothly at correct locations during geocoding
+- ✅ Clustering still works perfectly
+- ✅ Pulse animation (`marker-pulse` CSS) still highlights new markers
+- ✅ One-line fix with significant UX improvement
+
+**Key Files Modified:**
+- `content.js` - Changed animate parameter from true to false (line 88)
+
+**Commit:** `22b2be4` - fix: remove staggered animation to prevent pin visual glitch
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.

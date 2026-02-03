@@ -92,10 +92,11 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 ---
 
-### 🎟️ **FALTMAP-40 - Fix Map Pin Visual Glitch During Progressive Geocoding**
+### 🎟️ **FALTMAP-40 - Fix Map Pin Visual Glitch During Progressive Geocoding** ✅
 - Epic: E03 (Testing & Reliability)
-- Status: In Progress 🔄
+- Status: Done ✅
 - Priority: 🟡 High
+- Completed: 2026-02-03
 
 **User Story:**
 As a user, I want map pins to appear smoothly at their correct locations during progressive geocoding, so I don't see jarring visual glitches of pins appearing at the edge before jumping into place.
@@ -111,14 +112,14 @@ When the map is zoomed out sufficiently, pins appear at the edge of the visible 
 **Solution:**
 Remove staggered animation by changing `animate=true` to `animate=false` in progressive geocoding updates.
 
-**Files to Modify:**
+**Files Modified:**
 - `content.js` (line 88)
 
 **Acceptance Criteria:**
 - [x] `updateMapMarkers` called with `animate=false` during progressive geocoding (line 88)
-- [ ] Pins appear directly at correct locations when zoomed out
-- [ ] No visual "jumping" or "edge appearance" glitch observed
-- [ ] Pulse animation still highlights newly added markers
-- [ ] Test with 20+ restaurants at various zoom levels
-- [ ] Atomic commit: `fix: remove staggered animation to prevent pin visual glitch`
-- [ ] User verification complete
+- [x] Pins appear directly at correct locations when zoomed out
+- [x] No visual "jumping" or "edge appearance" glitch observed
+- [x] Pulse animation still highlights newly added markers
+- [x] Test with 20+ restaurants at various zoom levels
+- [x] Atomic commit: `fix: remove staggered animation to prevent pin visual glitch`
+- [x] User verification complete
