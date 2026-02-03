@@ -115,7 +115,7 @@ Remove staggered animation by changing `animate=true` to `animate=false` in prog
 - `content.js` (line 88)
 
 **Acceptance Criteria:**
-- [ ] `updateMapMarkers` called with `animate=false` during progressive geocoding (line 88)
+- [x] `updateMapMarkers` called with `animate=false` during progressive geocoding (line 88)
 - [ ] Pins appear directly at correct locations when zoomed out
 - [ ] No visual "jumping" or "edge appearance" glitch observed
 - [ ] Pulse animation still highlights newly added markers

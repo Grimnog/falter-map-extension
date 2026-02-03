@@ -82,10 +82,10 @@
                         navigation.updateNavigableRestaurants(progressResults);
                     }
 
-                    // During progress, always animate=true to prevent auto-zoom
+                    // Add new markers immediately without staggered animation (prevents visual glitch)
                     const newMarkersAdded = locatedCount > lastMarkerCount;
                     if (newMarkersAdded) {
-                        mapModal.updateMapMarkers(progressResults.filter(r => r.coords), true);
+                        mapModal.updateMapMarkers(progressResults.filter(r => r.coords), false);
                     }
                     lastMarkerCount = locatedCount;
 
