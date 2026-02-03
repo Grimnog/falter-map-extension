@@ -50,7 +50,7 @@ This document tracks the **current active sprint** for the Falter Map extension 
 **Focus:** Epic E05 (Core Feature Enhancements) - Major feature expansion.
 
 **Sprint Start:** 2026-02-01
-**Sprint End:** 2026-02-01
+**Sprint End:** 2026-02-03
 **Release:** v0.9.0
 
 **Completed Tickets:**
@@ -62,176 +62,29 @@ This document tracks the **current active sprint** for the Falter Map extension 
 - ✅ FALTMAP-26.6 - Comprehensive Testing & Validation
 - ✅ FALTMAP-26.7 - Documentation & Release
 
-**Outcome:** Extension now works seamlessly across all 9 Austrian Bundesländer with smart map centering, optimized geocoding (7-tier fallback), and comprehensive test coverage (88 tests).
+**Post-Sprint Cleanup:**
+- ✅ Background.js refactoring (removed 154 lines of duplicate code)
+- ✅ Repository cleanup (removed unused testing and image files)
+
+**Outcome:** Extension now works seamlessly across all 9 Austrian Bundesländer with smart map centering, optimized geocoding (7-tier fallback), comprehensive test coverage (88 tests), and clean codebase ready for v1.0.
+
+**Archived:** All Sprint 8 tickets archived in `docs/CHANGELOG_TICKETS.md`
 
 ---
 
-### Active Tickets - Sequential Implementation
+## 🚀 Sprint 9: Backlog Refinement & v1.0 Preparation
 
-#### **Phase 1: Research & Planning** ⬅️ START HERE
+**Sprint Goal:** Prepare for v1.0 release by addressing remaining medium-priority UX issues and documentation.
 
-**🎟️ FALTMAP-26.1 - Geocoding Analysis & Testing** ✅ **COMPLETE**
-- Parent: FALTMAP-26
-- Epic: E05 (Core Feature Enhancements)
-- Status: Done ✅
-- Priority: 🟡 High
-- Type: Research (no code changes)
+**Status:** Planning
 
-**Summary:** Test current geocoding with all Bundesland addresses, experiment with query variations, document findings.
+**Potential Tickets:**
+- FALTMAP-35 - Improve README Documentation (from backlog)
+- FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug (if needed)
+- FALTMAP-38 - Fix MapModal UI Flash (Grey List Before Geocoding)
+- Engineering audit cleanup items (if any emerge)
 
-**Key Findings:**
-- ✅ Structured query API provides building-level precision for all 8 Bundesländer
-- ✅ Multi-tier fallback strategy designed (7 tiers, structured-first)
-- ✅ Restaurant name from Falter can be used as powerful fallback
-- ✅ Street name cleaning required for some addresses (e.g., "Strombad" prefix)
-- ✅ Wien market stalls need amenity-based queries (edge case validated)
-
-**Deliverable:** Comprehensive testing report at `docs/testing/faltmap-26-geocoding-analysis.md`
-
-**Next:** FALTMAP-26.2 - Major refactoring to implement structured query API
-
----
-
-**🎟️ FALTMAP-26.3 - Bundesland Center Coordinates Research** ✅ **COMPLETE**
-- Parent: FALTMAP-26
-- Epic: E05 (Core Feature Enhancements)
-- Status: Done ✅
-- Priority: 🟡 High
-- Type: Research (constants definition)
-- Completed: 2026-02-01
-
-**Summary:** Research and define accurate center coordinates for all 9 Austrian Bundesländer.
-
-**Key Deliverables:**
-- `BUNDESLAND_CENTERS` object in constants.js
-- Coordinates for all 9 Bundesland capitals/major cities
-- Documented sources and rationale
-
----
-
-#### **Phase 2: Implementation**
-
-**🎟️ FALTMAP-26.2 - Refactor Geocoder to Use Structured Query API** ✅ **FUNCTIONALLY COMPLETE**
-- Status: Functionally Complete ✅ (automated tests deferred to 26.6)
-- Type: Major Refactoring
-- Completed: 2026-02-01
-
-**Summary:** Complete architectural refactoring of geocoder.js to use Nominatim structured query API with multi-tier fallback system.
-
-**Implementation Completed:**
-- ✅ Structured query API with parameters (street, city, postalcode, amenity, country)
-- ✅ 7-tier fallback system (optimized order: amenity → street → combined → types → cleaned → free-form → city-level)
-- ✅ Restaurant name extraction from DOM parser
-- ✅ Multi-word city support ("Weiden am See", "Deutsch Schützen-Eisenberg")
-- ✅ Optional street numbers (handles location descriptors)
-- ✅ Em-dash and parentheses handling
-- ✅ Generic street cleaning with regex (Tier 5)
-- ✅ Wien backward compatibility maintained (NO REGRESSIONS)
-- ✅ All 9 Bundesländer tested and working
-
-**Tier Performance (validated):**
-- Tier 1 (amenity name): ~70-80% success ⭐ (80/20 principle confirmed!)
-- Tier 2 (street address): ~15-20% success
-- Tiers 3-5: ~5% success
-- Tier 6 (free-form): Handles complex addresses (e.g., "II. Block VI")
-- Tier 7 (city-level): Approximate fallback (<5%)
-
-**Deferred to 26.6:**
-- Unit tests for fallback tiers
-- Automated test coverage
-- (Comprehensive testing phase will validate all edge cases)
-
----
-
-**🎟️ FALTMAP-26.4 - URL Parameter Parsing** ✅ **COMPLETE**
-- Status: Done ✅
-- Type: Feature (URL parsing utility)
-- Completed: 2026-02-01
-
-**Summary:** Extract Bundesland from URL `?r=` parameter, handle edge cases.
-
-**Implementation:**
-- ✅ Created `modules/utils.js` with `getBundeslandFromURL()` function
-- ✅ Parses `window.location.search` for `?r=` parameter
-- ✅ Handles URL encoding (e.g., `Nieder%C3%B6sterreich`)
-- ✅ Case-insensitive matching with normalized output
-- ✅ Edge cases handled (null, empty, invalid → return null)
-- ✅ Uses `CONFIG.BUNDESLAND_CENTERS` as source of truth
-
----
-
-**🎟️ FALTMAP-26.5 - Dynamic Map Initialization** ✅ **COMPLETE**
-- Status: Done ✅
-- Type: Feature (map initialization logic)
-- Completed: 2026-02-01
-
-**Summary:** Set initial map center based on detected Bundesland, maintain Wien backward compatibility.
-
-**Implementation:**
-- ✅ Integrated `getBundeslandFromURL()` in MapModal.js
-- ✅ Dynamic center lookup from `CONFIG.BUNDESLAND_CENTERS`
-- ✅ Wien fallback for no `?r=` parameter (backward compatible)
-- ✅ Debug logging for initialization
-- ✅ Map now centers on correct Bundesland capital
-
-**User-visible change:** Map no longer always starts on Wien - centers on the searched Bundesland!
-
----
-
-#### **Phase 3: Validation & Release**
-
-**🎟️ FALTMAP-26.6 - Comprehensive Testing & Validation** ✅ **COMPLETE**
-- Status: Done ✅
-- Type: Testing
-- Completed: 2026-02-01
-
-**Summary:** End-to-end testing of all 9 Bundesländer, backward compatibility verification, regression testing.
-
-**Implementation:**
-- ✅ Created url-utils.test.js with 56 tests (Bundesland detection, URL parsing)
-- ✅ Updated geocoder.test.js with 10 new tests (17 total) - all 7 tiers, multi-word cities, cleaning
-- ✅ Updated dom-parser.test.js with 6 new tests (15 total) - Austria-wide address patterns
-- ✅ **88 comprehensive tests** covering all Austria-wide features
-- ✅ Test runner updated with new test suite
-- ✅ All critical paths covered
-
-**Test Coverage:**
-- URL parameter parsing (edge cases, encoding, validation)
-- Geocoding tiers 1-7 (structured queries, fallbacks, cleaning)
-- DOM parsing (multi-word cities, hyphens, optional numbers, em-dash)
-- All 9 Bundesländer address patterns
-
----
-
-**🎟️ FALTMAP-26.7 - Documentation & Release**
-- Status: Ready to Start ⏭️
-- Type: Documentation
-
-**Summary:** Update README, CHANGELOG, version bump to 0.9.0, prepare release.
-
----
-
-## Sprint Workflow
-
-**Sequential Implementation:**
-1. Start with Phase 1 (26.1 + 26.3 in parallel)
-2. Complete research before any code changes
-3. Get User approval on findings before proceeding
-4. Implement Phase 2 (26.2 → 26.4 → 26.5) sequentially
-5. Thorough testing in Phase 3 (26.6)
-6. Document and release (26.7)
-
-**Guiding Principles:**
-- 🌳 **No rushing** - slow, methodical, thorough
-- ✅ **Atomic commits** - one logical change per commit
-- 🔍 **Test thoroughly** - no breaking changes allowed
-- 👤 **User approval** - get verification at each phase
-- 📝 **Document everything** - clear findings and decisions
-
-**Estimated Timeline:**
-- Week 1: Phase 1 (Research)
-- Week 2: Phase 2 (Implementation Part 1)
-- Week 3: Phase 2 (Implementation Part 2)
-- Week 4: Phase 3 (Testing & Documentation)
-
-**Critical Requirement:** ⚠️ **NO BREAKING CHANGES** - Wien functionality must remain identical to v0.8.0.
+**Next Steps:**
+1. Review backlog for priority tickets
+2. User decision on scope for v1.0
+3. Plan sequential implementation
