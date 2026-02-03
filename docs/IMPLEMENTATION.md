@@ -83,6 +83,8 @@ This document tracks the **current active sprint** for the Falter Map extension 
 **Completed Tickets:**
 - ✅ FALTMAP-40 - Fix Map Pin Visual Glitch During Progressive Geocoding
 - ✅ FALTMAP-41 - Fix Modal Status Badge UI Issues
+- ✅ FALTMAP-42 - UI/UX Overhaul Based on Gemini Feedback
+- ✅ FALTMAP-43 - Complete UI/UX Refinement - High-Density Editorial Design System
 
 **Active Tickets:**
 - None
@@ -161,3 +163,57 @@ Remove staggered animation by changing `animate=true` to `animate=false` in prog
 - [x] Test with 20+ restaurants at various zoom levels
 - [x] Atomic commit: `fix: remove staggered animation to prevent pin visual glitch`
 - [x] User verification complete
+
+---
+
+### 🎟️ **FALTMAP-43 - Complete UI/UX Refinement - High-Density Editorial Design System** ✅
+- Epic: E04 (UI/UX Polish)
+- Status: Done ✅
+- Priority: 🟡 High
+- Completed: 2026-02-03
+
+**User Story:**
+As a user, I want a cohesive, high-density editorial design across all components (popup, modal sidebar, map popups) with consistent branding and professional typography.
+
+**Implementation Summary:**
+
+**1. Popup High-Density Compact Layout:**
+- Width: 320px → 280px (40% smaller footprint)
+- Vertical spacing reduced 30-40% across all components
+- All typography and padding compressed for sleek extension feel
+
+**2. Popup Unified Grouped Card System:**
+- Removed individual pill backgrounds
+- Both sections use identical `.card-group` containers
+- Hairline dividers with perfect vertical alignment
+
+**3. Modal Sidebar High-Density Editorial Style:**
+- Header compression: 32px 20px 24px → 24px 16px 20px
+- List density: 30% reduction in padding
+- Number markers: 24px → 18px (matches popup)
+
+**4. Leaflet Popup Editorial Label:**
+- Restaurant name: 15px bold with **permanent 4px yellow underline**
+- 240px width, 20px padding, clean speech bubble arrow
+- KISS approach: Static underline, no hover needed
+
+**5. Color Consistency & Brand Alignment:**
+- Fixed `#FFED00` → `var(--falter-yellow)` and `#fbe51f`
+- All components use correct Falter brand colors
+- Single source of truth via CSS variables
+
+**Files Modified:**
+- `popup.html` - High-density redesign, unified cards, brand colors
+- `content.css` - Modal sidebar density, Leaflet popup editorial styling
+- `modules/MapModal.js` - Popup HTML structure updates
+
+**Acceptance Criteria:**
+- [x] Popup width reduced to 280px
+- [x] Unified card system across both popup sections
+- [x] Modal sidebar matches popup density
+- [x] Leaflet popups have permanent 4px yellow underline
+- [x] All components use correct brand colors (#fbe51f)
+- [x] Typography hierarchy clear and consistent
+- [x] User verification complete
+
+**Commits:** 13 commits (see CHANGELOG_TICKETS.md for full list)

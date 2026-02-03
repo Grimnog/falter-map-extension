@@ -1433,6 +1433,148 @@ Based on comprehensive UX feedback and recommendations from Gemini AI for modern
 
 ---
 
+### FALTMAP-43: Complete UI/UX Refinement - High-Density Editorial Design System
+- **Status:** Done ✅
+- **Epic:** E04 (UI/UX Polish)
+- **Priority:** High
+- **Completed:** 2026-02-03
+
+**User Story:**
+As a user, I want a cohesive, high-density editorial design across all components (popup, modal sidebar, map popups) with consistent branding and professional typography.
+
+**Context:**
+Following FALTMAP-42's modal improvements, the popup and Leaflet map popups needed alignment with the same high-density editorial aesthetic. This ticket unified the entire extension's UI with consistent spacing, typography, and Falter brand colors.
+
+**Implementation:**
+
+**1. Popup High-Density Compact Layout:**
+- Width reduction: 320px → 280px (standard sleek extension size)
+- Vertical spacing: 30-40% reduction across all components
+- Header compression: 14px 16px → 10px 14px padding, title 14px → 12px
+- Content density: 16px → 10px padding, sections 16px → 10px margins
+- Card system tightening: 16px → 10px 12px padding, rows 8px → 6px padding
+- Component scaling: Yellow circles 20px → 16px, all text reduced 1-2px
+- Button optimization: 40px → 28px height, 11px → 10px font
+- Footer reduction: 12px → 8px padding, 9px → 8px font
+- **Result:** 40% smaller footprint, professional high-density aesthetic
+
+**2. Popup Unified Grouped Card System:**
+- Removed individual pill backgrounds from instruction steps
+- Both sections use identical `.card-group` containers (#f8f8f8, 12px radius, 16px padding)
+- Hairline dividers: rgba(0,0,0,0.05) between rows
+- Perfect vertical alignment: yellow circles align with data labels
+- Typography standardization: 10px headers, 600 weight, 0.05em letter-spacing
+- **Result:** Clean, unified layout with reduced visual noise
+
+**3. Modal Sidebar High-Density Editorial Style:**
+- Header compression: 32px 20px 24px → 24px 16px 20px padding
+- Soft internal rounding: 12px border-radius on sidebar
+- List density: 30% reduction (14px 24px → 10px 20px padding)
+- Typography refinement: Names 1.1rem → 1rem, addresses 0.85rem → 0.8rem
+- Number markers: 24px → 18px (matches popup circles)
+- Line-height tightening: 1.4 → 1.3
+- **Result:** Perfect synergy with popup's high-density aesthetic
+
+**4. Leaflet Popup Editorial Label (Multiple Iterations):**
+- **Initial:** Editorial typography-first approach
+- **Minimalist overhaul:** Restaurant name as clickable link, normal weight
+- **Split-action layout:** Falter link (hero) + Google Maps (footer utility)
+- **Surgical fixes:** Invincible hit box, 20px spacing, clean arrow
+- **Definitive overrides:** Kill browser defaults with !important
+- **Final KISS approach:** Static yellow underline (no hover needed)
+
+**Final Leaflet Popup Design:**
+- Container: 240px width, 12px radius, 20px padding, soft shadow
+- Restaurant name: 15px bold black with **permanent 4px yellow underline**
+- Address: 11px charcoal grey (#666), sentence case
+- Google Maps: 10px bold uppercase, border-top divider
+- Arrow: Clean white speech bubble (no shadow)
+- **Result:** High-end editorial label, brand color always visible
+
+**5. Color Consistency & Brand Alignment:**
+- Fixed hardcoded `#FFED00` → CSS variable `var(--falter-yellow)`
+- Popup.html: `#FFED00` → `#fbe51f` (correct brand color)
+- All components now use: `#fbe51f` (Falter yellow), `#190f0b` (Falter black)
+- Single source of truth via CSS variables in content.css
+- Aligned with constants.js: `FALTER_YELLOW: '#fbe51f'`
+- **Result:** Easy CI color updates, consistent branding
+
+**Technical Implementation:**
+
+**Popup (popup.html):**
+- High-density scaling across all elements
+- Unified card-group system with hairline dividers
+- Consistent typography: 9-12px range, 600-700 weights
+- Tight spacing: 6-10px vertical, 10-16px horizontal
+- Brand colors: #fbe51f yellow, #190f0b black
+
+**Modal Sidebar (content.css):**
+- Compact header: 24px 16px 20px padding
+- Sidebar rounding: 12px border-radius
+- Dense list items: 10px 20px padding, 10px gap
+- Small markers: 18px diameter, 10px font
+- Typography: 1rem names, 0.8rem addresses, 1.3 line-height
+
+**Leaflet Popup (content.css + MapModal.js):**
+- HTML: `.falter-popup-link` (name), `.falter-popup-address`, `.falter-maps-link`
+- Container: 240px, 20px padding, 12px radius, 0 10px 30px shadow
+- Title: 15px bold with permanent yellow underline (4px thickness, 3px offset)
+- Tip: 40px × 20px, white background, no shadow (clean speech bubble)
+- All colors use !important to override browser defaults
+
+**Outcome:**
+- ✅ Cohesive high-density design across all components
+- ✅ 40% footprint reduction in popup
+- ✅ Unified card system with perfect alignment
+- ✅ Editorial typography throughout
+- ✅ Consistent Falter brand colors (#fbe51f, #190f0b)
+- ✅ Professional floating effects with subtle shadows
+- ✅ Static yellow underline (no hover needed - KISS principle)
+- ✅ Clean speech bubble arrows
+- ✅ Invincible hit boxes with !important overrides
+- ✅ Ready for CI color updates via CSS variables
+
+**Acceptance Criteria Completed:**
+- ✅ Popup width reduced to 280px
+- ✅ All vertical spacing reduced by 30-40%
+- ✅ Unified card system across both popup sections
+- ✅ Modal sidebar matches popup density
+- ✅ Leaflet popups have editorial label style
+- ✅ Restaurant name has permanent 4px yellow underline
+- ✅ All components use var(--falter-yellow) or #fbe51f
+- ✅ No hardcoded #FFED00 anywhere
+- ✅ Hit boxes are invincible (100% width, z-index, !important)
+- ✅ Clean white speech bubble arrows (no shadow)
+- ✅ Typography hierarchy clear and consistent
+- ✅ All hover states work correctly
+- ✅ No browser default blue links
+- ✅ User verification complete
+
+**Key Files Modified:**
+- `popup.html` - Complete high-density redesign, unified cards, brand colors
+- `content.css` - Modal sidebar density, Leaflet popup editorial styling
+- `modules/MapModal.js` - Popup HTML structure updates
+
+**Commits:**
+- `852d786` - refine(popup): apply final alignment & typography sweep
+- `68c4f59` - refactor(popup): unify UI with grouped card system
+- `64b578b` - refactor(popup): implement high-density compact layout
+- `0a4314a` - refactor(modal): align sidebar with high-density editorial style
+- `9a81eac` - refactor(leaflet): editorial typography-first popup styling
+- `4476e9d` - refactor(leaflet): complete minimalist editorial label overhaul
+- `ae615e0` - refactor(leaflet): final split-action editorial label
+- `018daf6` - refactor(leaflet): surgical hit box, spacing & arrow fixes
+- `50d8e89` - refactor(leaflet): kill all defaults with definitive overrides
+- `426703f` - refactor(leaflet): finalize popup with static editorial heading
+- `9659363` - refine(leaflet): strengthen yellow underline prominence
+- `c681e65` - refine(leaflet): increase underline to 4px for clear link indication
+- `e0ef029` - fix(colors): use consistent Falter brand yellow across extension
+
+**Design Philosophy:**
+High-density editorial design inspired by premium publications (NYT, Zeit). KISS principle applied throughout - static underlines instead of hover effects, !important overrides instead of specificity battles, consistent spacing instead of arbitrary values.
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.
