@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-02-03
+
+### 🎨 Complete UI/UX Refinement - High-Density Editorial Design
+
+**Major Polish Release:** Professional, cohesive high-density editorial design across all extension components with consistent Falter branding.
+
+### Added
+- **Progress bar system** - Sleek 2px black progress bar replaces numerical badge
+- **Editorial header redesign** - 24px title, status subtitle with checkmark completion icon
+- **Static yellow underlines** - Permanent brand accent on Leaflet popup links (KISS principle)
+- **Soft floating effects** - Subtle shadows on sidebar and map popups
+- **Bottom-right zoom controls** - Modern convention (matches Google Maps, Apple Maps)
+- **High-density compact popup** - 280px width, 40% smaller footprint
+- **Unified card system** - Consistent grouped containers across all sections
+- **Invincible hit boxes** - 100% reliable click areas with !important overrides
+- **Clean speech bubble arrows** - White Leaflet popup tips without shadow
+
+### Changed
+- **Popup dimensions** - Width 320px → 280px, all vertical spacing reduced 30-40%
+- **Modal sidebar density** - Header padding 32px → 24px, list items 30% reduction
+- **Typography hierarchy** - Bold black names (1rem), charcoal grey addresses (0.8rem)
+- **Number markers** - 28px → 24px (modal), 20px → 18px (sidebar), 20px → 16px (popup)
+- **Leaflet popup design** - 240px width, 20px spacious padding, editorial label style
+- **Restaurant name interaction** - Static 4px yellow underline (no hover needed)
+- **Color system** - All components use `var(--falter-yellow)` or `#fbe51f` (brand consistency)
+- **Header subtitle** - Shows "Restaurants werden gesucht..." → "✓ X Restaurants gefunden"
+- **Zoom control styling** - Black border, yellow hover state, 36px buttons
+- **List hover effect** - Yellow tint rgba(255, 237, 0, 0.1) instead of grey
+
+### Fixed
+- **Map pin visual glitch** - Removed staggered animation causing pins to appear at edge before jumping
+- **Status badge pulsing** - Removed noisy border animation during geocoding
+- **Badge size instability** - Fixed width (60px) prevents layout shift with double/triple digits
+- **Progress completion race** - Added state flags to show completion message exactly once
+- **German localization** - All progress text in German ("Restaurants gefunden")
+- **Color inconsistency** - Replaced hardcoded `#FFED00` with correct brand yellow `#fbe51f`
+- **Browser default links** - Killed standard blue with !important color overrides
+- **Hit box reliability** - z-index: 10, position: relative, 100% width ensures clicks work
+- **Arrow shadow clunk** - Clean white speech bubble tips (box-shadow: none)
+
+### Technical
+- Removed 40 lines dead code (progress-container, unused DOM references)
+- Updated `updateProgress()` with `isFinal` parameter for race-free completion
+- Added state management flags: `hasStartedGeocoding`, `isProgressComplete`
+- Leaflet popup classes: `.falter-popup-link`, `.falter-popup-address`, `.falter-maps-link`
+- Popup unified classes: `.card-group`, `.row-item` for consistent design
+- CSS variables enforced throughout for brand color management
+- Map initialization: `zoomControl: false`, custom bottom-right positioning
+- All critical popup styles use !important to override browser defaults
+- Popup HTML restructured: header 10px 14px, cards 10px 12px padding
+
+**Sprint 9 Complete:** All 4 UI/UX tickets delivered (FALTMAP-40, 41, 42, 43)
+
+**Design Philosophy:** High-density editorial inspired by premium publications (NYT, Zeit). KISS principle - static underlines over hover effects, !important over specificity battles, consistent spacing over arbitrary values.
+
+---
+
 ## [0.9.0] - 2026-02-01
 
 ### 🇦🇹 Austria-Wide Support
