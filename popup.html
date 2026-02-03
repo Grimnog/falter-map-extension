@@ -64,35 +64,37 @@
             font-size: 10px;
             color: #999;
             text-transform: uppercase;
-            letter-spacing: 0.05em; /* Standardized */
+            letter-spacing: 0.05em;
             margin-bottom: 12px;
-            font-weight: 600; /* Semi-bold for consistency */
+            font-weight: 600;
         }
 
-        /* Instructions - Generous spacing with perfect alignment */
-        .instructions {
-            margin-top: 8px;
-        }
-
-        .step-row {
-            display: flex;
-            align-items: center; /* Perfect vertical centering */
-            gap: 12px;
-            padding: 12px 16px; /* Increased horizontal padding */
-            margin-bottom: 8px;
+        /* Unified Card Group - Clean grouped container */
+        .card-group {
             background: #f8f8f8;
             border-radius: 12px;
-            border: 1px solid #f0f0f0;
+            padding: 16px;
+            margin: 0;
         }
 
-        .step-row:last-child {
-            margin-bottom: 0;
+        /* Row Items - Subtle hairline dividers */
+        .row-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
+        .row-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Yellow Number Circles - Left-aligned with labels */
         .step-number {
             width: 20px;
             height: 20px;
-            background: #FFED00; /* Exact Falter yellow */
+            background: #FFED00;
             border: 1px solid #190f0b;
             border-radius: 50%;
             display: flex;
@@ -102,11 +104,13 @@
             font-weight: 700;
             color: #190f0b;
             flex-shrink: 0;
+            margin-right: 12px;
         }
 
+        /* Step Text - Vertically centered */
         .step-text {
             font-size: 12px;
-            line-height: 1.3;
+            line-height: 1.4;
             color: #333;
             flex: 1;
         }
@@ -125,44 +129,22 @@
             font-weight: 600;
         }
 
-        /* Data Group - Intentional spacing and alignment */
-        .data-group {
-            margin: 0;
-            padding: 12px 16px; /* Increased horizontal padding */
-            background: #fcfcfc;
-            border-radius: 12px;
-            border: 1px solid #f0f0f0;
-        }
-
-        .data-row {
-            display: flex;
-            justify-content: space-between; /* Perfect alignment */
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
-        }
-
-        .data-row:last-child {
-            border-bottom: none;
-            padding-bottom: 12px;
-        }
-
-        /* Cache Labels - Typographic standardization */
+        /* Cache Labels - Medium charcoal */
         .data-label {
-            font-size: 10px; /* Standardized */
+            font-size: 10px;
             color: #666;
             text-transform: uppercase;
-            font-weight: 600; /* Semi-bold for consistency */
-            letter-spacing: 0.05em; /* Standardized */
-            text-align: left; /* Explicit left alignment */
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-align: left;
         }
 
         /* Cache Values - Bold black */
         .data-value {
             font-size: 12px;
             color: #000;
-            font-weight: 700; /* Bold black */
-            text-align: right; /* Explicit right alignment */
+            font-weight: 700;
+            text-align: right;
         }
 
         /* 30 Tage Badge - Compact data tag */
@@ -259,16 +241,16 @@
         <!-- Anleitung Section -->
         <div class="section">
             <div class="section-header">Anleitung</div>
-            <div class="instructions">
-                <div class="step-row">
+            <div class="card-group">
+                <div class="row-item">
                     <div class="step-number">1</div>
                     <div class="step-text">Besuch den <a href="https://www.falter.at/lokalfuehrer/suche" target="_blank" rel="noopener noreferrer">Falter Lokalführer</a></div>
                 </div>
-                <div class="step-row">
+                <div class="row-item">
                     <div class="step-number">2</div>
                     <div class="step-text">Setze Filter</div>
                 </div>
-                <div class="step-row">
+                <div class="row-item">
                     <div class="step-number">3</div>
                     <div class="step-text">Klick <strong>"Auf Karte anzeigen"</strong></div>
                 </div>
@@ -279,18 +261,18 @@
         <div class="section">
             <div class="section-header">Geocoding-Cache</div>
 
-            <div class="data-group">
-                <div class="data-row">
+            <div class="card-group">
+                <div class="row-item">
                     <span class="data-label">Gespeicherte Adressen</span>
                     <span class="data-value" id="cacheCount">-</span>
                 </div>
 
-                <div class="data-row">
+                <div class="row-item">
                     <span class="data-label">Speichergröße</span>
                     <span class="data-value" id="cacheSize">-</span>
                 </div>
 
-                <div class="data-row">
+                <div class="row-item">
                     <span class="data-label">Gültigkeit</span>
                     <span class="data-badge">30 Tage</span>
                 </div>
