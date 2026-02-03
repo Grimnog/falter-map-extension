@@ -379,91 +379,97 @@
 }
 
 /* Leaflet popup styling - sleek & minimal with border */
-/* Leaflet Popup - Surgical Refactor: Reliable Hit Box & Spacious Layout */
+/* Leaflet Popup - Definitive Overrides: Kill All Defaults */
 
-/* Popup Container - Clean, No Internal Padding */
+/* Container - Force Clean Geometry */
 .leaflet-popup-content-wrapper {
     background: #fff;
     color: #000;
     border-radius: 12px;
-    padding: 0; /* No padding - content handles spacing */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Stronger floating effect */
+    padding: 0 !important; /* Force no padding */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
     border: none;
 }
 
-/* Arrow Tip - Clean Speech Bubble Design */
+/* Arrow Tip - Clean White Extension */
 .leaflet-popup-tip-container {
     width: 40px;
     height: 20px;
 }
 
 .leaflet-popup-tip {
-    background: #fff; /* Match popup background */
-    box-shadow: none; /* Remove clunky shadow - clean speech bubble */
+    background: #fff;
+    box-shadow: none !important; /* Kill shadow - clean speech bubble */
     border: none;
 }
 
 .leaflet-popup-close-button {
-    display: none; /* Minimalism - click map to close */
+    display: none !important; /* Remove close button completely */
 }
 
-/* Content - Spacious Internal Padding */
+/* Content - Force 20px Breathing Room */
 .leaflet-popup-content {
-    margin: 0 !important; /* Remove default Leaflet margins */
-    width: 240px !important; /* Fixed width for consistency */
-    padding: 20px; /* Spacious, expensive feel */
+    margin: 0 !important;
+    padding: 20px !important; /* Force spacious internal padding */
+    width: 240px !important; /* Force fixed width */
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-    pointer-events: auto !important; /* Prioritize link clicks */
+    pointer-events: auto !important;
 }
 
-/* Restaurant Name - The Big Hit Box */
-.falter-popup-title {
-    display: block; /* Full-width clickable area */
-    width: 100%; /* Expand to full popup width */
-    padding: 4px 0; /* Vertical padding for bigger hit box */
+/* Heading Link - The Invincible Hit Box */
+.falter-popup-link {
+    display: block !important; /* Force block layout */
+    width: 100% !important; /* Force full width */
+    position: relative;
+    z-index: 10; /* Ensure it's above any overlapping elements */
+    color: #000 !important; /* Kill browser blue */
+    font-weight: 700;
     font-size: 15px;
-    font-weight: 700; /* Bold authority */
-    color: #000;
-    text-decoration: none;
+    text-decoration: none !important; /* Kill default underline */
+    cursor: pointer;
     margin-bottom: 4px;
+    padding: 4px 0; /* Expand vertical hit box */
     line-height: 1.4;
     transition: all 0.2s ease;
 }
 
-.falter-popup-title:hover {
-    text-decoration: underline;
-    text-decoration-color: #FFED00; /* Signature yellow */
-    text-underline-offset: 4px;
+.falter-popup-link:hover {
+    color: #000 !important; /* Keep black on hover */
+    text-decoration: underline !important; /* Force underline */
+    text-decoration-color: #FFED00 !important; /* Signature yellow */
+    text-underline-offset: 5px;
     text-decoration-thickness: 2px;
 }
 
-/* Address - Charcoal Metadata */
+/* Address - Clean Metadata */
 .falter-popup-address {
     font-size: 11px;
-    color: #666; /* Charcoal grey */
+    color: #666 !important; /* Charcoal grey */
     font-weight: 400;
     line-height: 1.4;
     margin-bottom: 12px;
 }
 
-/* Google Maps Link - Clean Uppercase Footer */
-.falter-popup-maps {
+/* Google Maps Link - Uppercase Footer */
+.falter-maps-link {
     display: block;
-    border-top: 1px solid #eee; /* Separation from content */
-    padding-top: 10px; /* Breathing room */
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    color: #888 !important; /* Kill browser blue */
     font-size: 10px;
-    font-weight: 800; /* Bold uppercase */
-    color: #999;
-    text-decoration: none;
+    font-weight: 800;
     text-transform: uppercase;
+    text-decoration: none !important; /* Kill default underline */
     letter-spacing: 0.05em;
+    cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.falter-popup-maps:hover {
-    color: #000; /* Turns black on hover */
-    text-decoration: underline;
+.falter-maps-link:hover {
+    color: #000 !important; /* Turns black on hover */
+    text-decoration: underline !important;
 }
 
 /* Custom scrollbar for sidebar - minimal */
