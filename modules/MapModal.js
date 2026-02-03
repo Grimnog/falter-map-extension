@@ -23,7 +23,10 @@ export class MapModal {
         this.dom = {
             statusLabel: null,
             geocodeStatus: null,
-            results: null
+            results: null,
+            statusSubtitle: null,
+            progressBar: null,
+            progressFill: null
         };
 
         // Callbacks
@@ -61,12 +64,10 @@ export class MapModal {
                     <aside class="modal-sidebar">
                         <div class="modal-header">
                             <h1 id="modal-title"><span class="falter-brand">Falter</span> Restaurant Map</h1>
+                            <p class="modal-subtitle" id="modal-status-subtitle" aria-live="polite">Locating restaurants...</p>
                         </div>
-                        <div class="modal-status">
-                            <div class="status-row">
-                                <span class="status-label" id="modal-status-label">Suche läuft...</span>
-                                <span class="status-value" id="modal-geocode-status" aria-live="polite">0/0</span>
-                            </div>
+                        <div class="modal-progress-bar" id="modal-progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-fill" id="modal-progress-fill"></div>
                         </div>
                         <div class="modal-results" id="modal-results" role="listbox" aria-label="Restaurant list"></div>
                     </aside>
@@ -83,6 +84,9 @@ export class MapModal {
         this.dom.statusLabel = document.getElementById('modal-status-label');
         this.dom.geocodeStatus = document.getElementById('modal-geocode-status');
         this.dom.results = document.getElementById('modal-results');
+        this.dom.statusSubtitle = document.getElementById('modal-status-subtitle');
+        this.dom.progressBar = document.getElementById('modal-progress-bar');
+        this.dom.progressFill = document.getElementById('modal-progress-fill');
 
         // Attach event listeners
         this.modalElement.querySelector('.modal-close').addEventListener('click', this.handleClose);
@@ -156,6 +160,9 @@ export class MapModal {
         this.dom.statusLabel = null;
         this.dom.geocodeStatus = null;
         this.dom.results = null;
+        this.dom.statusSubtitle = null;
+        this.dom.progressBar = null;
+        this.dom.progressFill = null;
 
         // Trigger close callback
         if (this.onCloseCallback) {
@@ -185,7 +192,14 @@ export class MapModal {
 
             console.log('Map initialization:', bundesland ? `${bundesland} center, zoom ${initialZoom}` : `Wien default (no ?r= parameter), zoom ${initialZoom}`);
 
-            this.map = L.map('modal-map').setView(initialCenter, initialZoom);
+            this.map = L.map('modal-map', {
+                zoomControl: false // Disable default top-left position
+            }).setView(initialCenter, initialZoom);
+
+            // Add zoom control to bottom-right
+            L.control.zoom({
+                position: 'bottomright'
+            }).addTo(this.map);
 
             // Add tile layer with OSM attribution
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -226,9 +240,28 @@ export class MapModal {
      * Update progress bar and status text
      */
     updateProgress(processed, total, located) {
-        // Status shows located count (successful geocoding)
-        if (this.dom.geocodeStatus) {
-            this.dom.geocodeStatus.textContent = `${located}/${total}`;
+        // Update progress bar width
+        if (this.dom.progressFill && this.dom.progressBar) {
+            const percentage = total > 0 ? (processed / total) * 100 : 0;
+            this.dom.progressFill.style.width = `${percentage}%`;
+            this.dom.progressBar.setAttribute('aria-valuenow', Math.round(percentage));
+        }
+
+        // Update subtitle text
+        if (this.dom.statusSubtitle) {
+            if (processed < total) {
+                this.dom.statusSubtitle.textContent = 'Locating restaurants...';
+            } else {
+                // Show completion with checkmark
+                this.dom.statusSubtitle.innerHTML = `<span class="status-checkmark">✓</span> ${located} ${located === 1 ? 'location' : 'locations'} found`;
+
+                // Fade out progress bar after completion
+                if (this.dom.progressBar) {
+                    setTimeout(() => {
+                        this.dom.progressBar.style.opacity = '0';
+                    }, 500);
+                }
+            }
         }
     }
 
@@ -460,12 +493,11 @@ export class MapModal {
      * Show geocoding error status
      */
     showGeocodingError(message = 'Geokodierung fehlgeschlagen') {
-        if (this.dom.geocodeStatus) {
-            this.dom.geocodeStatus.classList.remove('loading');
-            this.dom.geocodeStatus.classList.add('error');
+        if (this.dom.statusSubtitle) {
+            this.dom.statusSubtitle.innerHTML = `<span class="status-error">✗</span> ${message}`;
         }
-        if (this.dom.statusLabel) {
-            this.dom.statusLabel.textContent = message;
+        if (this.dom.progressBar) {
+            this.dom.progressBar.style.display = 'none';
         }
     }
 
