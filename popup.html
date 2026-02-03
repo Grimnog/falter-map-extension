@@ -6,7 +6,7 @@
     <title>Falter Map</title>
     <style>
         /* Bunny Fonts Import (GDPR-compliant) */
-        @import url('https://fonts.bunny.net/css?family=nunito:400,500,600,700');
+        @import url('https://fonts.bunny.net/css?family=nunito:400,500,600,700,800');
 
         * {
             box-sizing: border-box;
@@ -18,158 +18,161 @@
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: white;
             color: #000;
-            width: 320px;
+            width: 300px; /* Compact width */
             min-height: 180px;
             overflow-x: hidden;
-            font-size: 13px;
-            line-height: 1.6;
+            font-size: 12px;
+            line-height: 1.4;
         }
 
-        /* Header - Clean separation with subtle border */
+        /* Header - Compact and sharp */
         .header {
-            background: #FFED00;
-            padding: 18px 24px;
-            border-bottom: 1px solid #000; /* Sharp but fine */
+            background: #fbe51f; /* Falter yellow from constants */
+            padding: 12px 16px;
+            border-bottom: 2px solid #000; /* Sharp 2px border */
         }
 
         .header h1 {
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 14px;
+            font-weight: 800;
             margin: 0;
             color: #000;
             text-transform: uppercase;
             letter-spacing: 0.02em;
         }
 
-        /* Content with breathing room */
+        /* Content - Tighter spacing */
         .content {
-            padding: 24px; /* More spacious */
+            padding: 16px; /* Reduced from 24px */
         }
 
         .section {
-            margin-bottom: 28px;
+            margin-bottom: 16px; /* Tighter sections */
         }
 
         .section:last-child {
             margin-bottom: 0;
         }
 
-        /* Section Labels - Subtle, refined, Swiss-style */
-        .section-label {
+        /* Section Headers - Subtle with border */
+        .section-header {
             font-size: 10px;
-            font-weight: 600;
+            color: #999;
             text-transform: uppercase;
-            color: #666;
-            margin-bottom: 14px;
             letter-spacing: 0.1em;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 4px;
+            font-weight: 600;
         }
 
-        /* Instructions - Airy and elegant */
+        /* Instructions - Timeline/Step Pattern */
         .instructions {
-            font-size: 13px;
-            line-height: 1.8; /* More breath */
+            margin-top: 8px;
         }
 
-        .instructions ol {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .step-row {
+            display: grid;
+            grid-template-columns: 24px 1fr; /* Fixed width for numbers */
+            gap: 8px;
+            margin-bottom: 10px;
+            align-items: center;
         }
 
-        .instructions li {
+        .step-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 18px;
+            height: 18px;
+            background: #fbe51f; /* Falter yellow */
+            border: 1px solid #190f0b; /* Falter black */
+            border-radius: 50%;
             display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 10px 0; /* More vertical space */
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #190f0b;
+        }
+
+        .step-text {
+            font-size: 12px;
+            line-height: 1.2; /* Compact */
             color: #333;
         }
 
-        .instructions li:not(:last-child) {
-            border-bottom: 1px solid #f0f0f0; /* Very faint */
-        }
-
-        /* Delicate yellow badges - smaller, refined */
-        .badge {
-            background: #fff9e6; /* Muted yellow */
-            color: #000;
-            border: 1px solid #FFED00;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            flex-shrink: 0;
-            font-size: 11px;
-        }
-
-        .instructions a {
+        .step-text a {
             color: #000;
             text-decoration: underline;
             font-weight: 500;
-            transition: all 0.15s ease;
         }
 
-        .instructions a:hover {
-            color: #000;
+        .step-text a:hover {
             text-decoration: none;
         }
 
-        .instructions strong {
+        .step-text strong {
             font-weight: 600;
         }
 
-        /* Cache Section - Minimal, clean table */
-        .cache-info {
-            margin-bottom: 16px;
+        /* Cache Section - Grouped with background */
+        .data-box {
+            background: #f9f9f9; /* Subtle grey */
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 8px;
         }
 
-        .cache-row {
+        .data-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0; /* Reduced from 12px */
-            border-bottom: 1px solid #f5f5f5; /* Very subtle */
+            padding: 6px 0;
+            border-bottom: 1px solid #fff; /* Etched look */
         }
 
-        .cache-row:last-child {
+        .data-row:last-child {
             border-bottom: none;
         }
 
-        .cache-label {
-            font-size: 13px;
-            color: #666; /* Medium grey, not too dark */
-            font-weight: 400; /* Regular, not bold */
-        }
-
-        .cache-value {
-            font-size: 13px;
-            color: #000; /* Pure black */
-            font-weight: 600; /* Emphasis without being heavy */
-        }
-
-        .cache-badge {
-            background: #fff9e6; /* Soft yellow tint */
-            color: #000;
-            padding: 3px 8px;
-            border-radius: 10px;
+        .data-label {
             font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
             font-weight: 600;
-            border: 1px solid #FFED00;
+            letter-spacing: 0.03em;
         }
 
-        /* Button - Refined, light interaction */
+        .data-value {
+            font-size: 12px;
+            color: #000;
+            font-weight: 700;
+        }
+
+        .data-badge {
+            background: #fbe51f; /* Falter yellow */
+            color: #190f0b; /* Falter black */
+            padding: 3px 8px;
+            border-radius: 2px; /* Small rectangle, not pill */
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Button - Solid black, professional */
         .btn-primary {
             width: 100%;
-            padding: 10px;
+            height: 32px; /* Shorter */
+            margin-top: 12px; /* Minimal margin */
+            padding: 0;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            border: 1px solid #ddd; /* Fine border */
-            background: white;
-            color: #000;
+            letter-spacing: 0.05em;
+            border: none;
+            background: #000;
+            color: #fff;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -179,8 +182,7 @@
         }
 
         .btn-primary:hover {
-            background: #fffbf0; /* Soft yellow tint */
-            border-color: #FFED00;
+            background: #333;
         }
 
         .btn-primary:active {
@@ -188,33 +190,33 @@
         }
 
         .btn-primary svg {
-            width: 14px; /* Smaller, more delicate */
+            width: 14px;
             height: 14px;
             stroke-width: 2;
         }
 
-        /* Success message - subtle */
+        /* Success message - compact */
         .cache-cleared-message {
             display: none;
-            margin-top: 12px;
-            padding: 8px 12px;
+            margin-top: 10px;
+            padding: 8px;
             background: #f0fdf4;
             border-left: 2px solid #22c55e;
             color: #166534;
-            font-size: 12px;
-            font-weight: 500;
+            font-size: 11px;
+            font-weight: 600;
             text-align: center;
         }
 
         .cache-cleared-message.show {
             display: block;
-            animation: slideIn 0.3s ease-out;
+            animation: slideIn 0.2s ease-out;
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(-8px);
+                transform: translateY(-6px);
             }
             to {
                 opacity: 1;
@@ -225,10 +227,10 @@
         /* Version footer - minimal */
         .version {
             text-align: center;
-            padding: 12px;
-            font-size: 10px;
+            padding: 10px;
+            font-size: 9px;
             color: #999;
-            border-top: 1px solid #f5f5f5;
+            border-top: 1px solid #f0f0f0;
             font-weight: 400;
             letter-spacing: 0.05em;
         }
@@ -242,43 +244,41 @@
     <div class="content">
         <!-- Anleitung Section -->
         <div class="section">
-            <div class="section-label">Anleitung</div>
+            <div class="section-header">Anleitung</div>
             <div class="instructions">
-                <ol>
-                    <li>
-                        <span class="badge">1</span>
-                        <span>Besuch den <a href="https://www.falter.at/lokalfuehrer/suche" target="_blank" rel="noopener noreferrer">Falter Lokalführer</a></span>
-                    </li>
-                    <li>
-                        <span class="badge">2</span>
-                        <span>Setze Filter</span>
-                    </li>
-                    <li>
-                        <span class="badge">3</span>
-                        <span>Klick <strong>"Auf Karte anzeigen"</strong></span>
-                    </li>
-                </ol>
+                <div class="step-row">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Besuch den <a href="https://www.falter.at/lokalfuehrer/suche" target="_blank" rel="noopener noreferrer">Falter Lokalführer</a></div>
+                </div>
+                <div class="step-row">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Setze Filter</div>
+                </div>
+                <div class="step-row">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Klick <strong>"Auf Karte anzeigen"</strong></div>
+                </div>
             </div>
         </div>
 
         <!-- Cache Section -->
         <div class="section">
-            <div class="section-label">Geocoding-Cache</div>
+            <div class="section-header">Geocoding-Cache</div>
 
-            <div class="cache-info">
-                <div class="cache-row">
-                    <span class="cache-label">Gespeicherte Adressen</span>
-                    <span class="cache-value" id="cacheCount">-</span>
+            <div class="data-box">
+                <div class="data-row">
+                    <span class="data-label">Gespeicherte Adressen</span>
+                    <span class="data-value" id="cacheCount">-</span>
                 </div>
 
-                <div class="cache-row">
-                    <span class="cache-label">Speichergröße</span>
-                    <span class="cache-value" id="cacheSize">-</span>
+                <div class="data-row">
+                    <span class="data-label">Speichergröße</span>
+                    <span class="data-value" id="cacheSize">-</span>
                 </div>
 
-                <div class="cache-row">
-                    <span class="cache-label">Gültigkeit</span>
-                    <span class="cache-badge">30 Tage</span>
+                <div class="data-row">
+                    <span class="data-label">Gültigkeit</span>
+                    <span class="data-badge">30 Tage</span>
                 </div>
             </div>
 
