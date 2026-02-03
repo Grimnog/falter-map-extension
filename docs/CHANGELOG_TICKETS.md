@@ -1295,6 +1295,144 @@ The modal-status badge (showing "X/Y" geocoding progress) had several visual iss
 
 ---
 
+### FALTMAP-42: UI/UX Overhaul Based on Gemini Feedback
+- **Status:** Done ✅
+- **Epic:** E04 (UI/UX Polish)
+- **Priority:** High
+- **Completed:** 2026-02-03
+
+**User Story:**
+As a user, I want a modern, editorial-style interface with clear visual hierarchy, smooth progress indication, and professional typography that aligns with Falter's brand identity.
+
+**Context:**
+Based on comprehensive UX feedback from Gemini AI, the modal interface needed significant visual improvements to create a more polished, professional experience. The existing "XX/XX" badge was replaced with a modern progress bar, typography was enhanced for better hierarchy, and visual elements were refined for a cohesive design.
+
+**Requirements from Gemini:**
+1. Replace status badge with 2px progress bar
+2. Redesign header with editorial typography
+3. Improve list item hierarchy (bold names, grey addresses)
+4. Add sidebar floating effect with shadow
+5. Reposition zoom controls to bottom-right
+6. German localization for all UI text
+
+**Implementation:**
+
+**1. Progress Bar System:**
+- Removed "XX/XX" numerical badge
+- Added sleek 2px black progress bar at top of sidebar
+- Animates width from 0-100% during geocoding
+- Fades out after completion with smooth opacity transition
+- ARIA progressbar attributes for accessibility
+
+**2. Header Redesign:**
+- Title increased: 19px → 24px (1.5rem), weight 800
+- Letter-spacing tightened: -0.02em for editorial look
+- Added subtitle: "Restaurants werden gesucht..." (11px uppercase)
+- Subtitle styling: weight 600, letter-spacing 0.05em, opacity 0.6
+- Completion shows: "✓ X Restaurants gefunden" with checkmark icon
+- Header padding: 32px 20px 24px (more spacious)
+
+**3. List Typography Improvements:**
+- Restaurant names: 14px → 1.1rem (~17.6px), weight 600 → 700 (bold black)
+- Addresses: 12px → 0.85rem (~13.6px), grey color #555
+- Clear visual hierarchy with proper contrast
+- Maintained single-line ellipsis for long names
+
+**4. Visual Polish:**
+- Number badges: 28px → 24px diameter (more compact)
+- Hover state: Changed to yellow tint rgba(255, 237, 0, 0.1)
+- Sidebar shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.1) for floating effect
+- Status checkmark: 16px circle with black background, yellow text
+- Error state: Red X icon with message
+
+**5. Zoom Controls Repositioning:**
+- Moved from top-left (Leaflet default) to bottom-right
+- Custom styling: 2px black border, 8px border-radius
+- 36px square buttons with 20px font size
+- Yellow hover state for brand consistency
+- Matches modern mapping conventions (Google Maps, Apple Maps)
+
+**6. German Localization:**
+- "Locating restaurants..." → "Restaurants werden gesucht..."
+- "X locations found" → "X Restaurants gefunden"
+- Singular: "location" → "Restaurant"
+- Plural: "locations" → "Restaurants"
+
+**7. Race Condition Fixes:**
+- Added `isProgressComplete` flag to prevent multiple completion updates
+- Added `hasStartedGeocoding` flag to distinguish initial vs. final calls
+- Added `isFinal` parameter to `updateProgress()` for explicit final call detection
+- Ensures completion message shows exactly once with correct final count
+
+**Technical Implementation:**
+
+**MapModal.js Changes:**
+- New HTML structure with progress bar and subtitle
+- Updated DOM references: statusSubtitle, progressBar, progressFill
+- Enhanced `updateProgress()` method with progress bar animation
+- State flags: hasStartedGeocoding, isProgressComplete
+- Updated error handling to use subtitle and hide progress bar
+- Map initialization with `zoomControl: false`, custom bottom-right positioning
+
+**content.css Changes:**
+- Header: 2rem 1.25rem 1.5rem padding, 1.5rem title, removed border-bottom
+- Progress bar: 2px height, black fill, smooth width transition
+- Removed old badge CSS: modal-status, status-row, status-value, status-label
+- List typography: 1.1rem bold names, 0.85rem grey addresses
+- Number badges: 24px diameter, 12px font
+- Hover: rgba(255, 237, 0, 0.1) background
+- Sidebar: box-shadow for floating effect
+- Zoom controls: Custom styling with black border and yellow hover
+
+**content.js Changes:**
+- Final `updateProgress()` call marked with `isFinal=true` parameter
+
+**Outcome:**
+- ✅ Modern, editorial-style interface
+- ✅ Clear visual hierarchy with improved typography
+- ✅ Smooth progress indication with animated bar
+- ✅ Professional floating sidebar effect
+- ✅ Bottom-right zoom controls (standard convention)
+- ✅ Fully localized German UI
+- ✅ No race conditions in completion message
+- ✅ Correct final count display
+- ✅ Enhanced brand consistency with Falter yellow
+
+**Acceptance Criteria Completed:**
+- ✅ Progress bar animates smoothly from 0-100%
+- ✅ Progress bar fades out after completion
+- ✅ Subtitle shows "Restaurants werden gesucht..." during loading
+- ✅ Subtitle shows "✓ X Restaurants gefunden" on completion
+- ✅ Title is 24px, weight 800, letter-spacing -0.02em
+- ✅ Restaurant names are bold (weight 700), ~17.6px
+- ✅ Addresses are grey (#555), ~13.6px
+- ✅ Number badges are 24px diameter
+- ✅ Hover background is yellow tint
+- ✅ Sidebar has subtle shadow on right edge
+- ✅ Zoom controls in bottom-right corner
+- ✅ Zoom buttons have yellow hover state
+- ✅ Completion message shows exactly once with correct count
+- ✅ German text throughout
+- ✅ No visual glitches or race conditions
+
+**Key Files Modified:**
+- `modules/MapModal.js` - Progress bar, header restructure, state management, zoom controls
+- `content.css` - All styling changes (header, progress bar, list typography, sidebar shadow, zoom controls)
+- `content.js` - Final progress call marking
+
+**Commits:**
+- `6f7b005` - feat: replace status badge with progress bar and editorial header
+- `7f6a641` - feat: implement UI/UX improvements for modal
+- `e82c5f0` - i18n: update progress status text to German
+- `f91c12f` - fix: prevent race condition in completion message updates
+- `f72a29c` - fix: completion message now shows after geocoding starts
+- `2618448` - fix: show completion message only after all geocoding finishes
+
+**Design Credits:**
+Based on comprehensive UX feedback and recommendations from Gemini AI for modern, editorial-style interface design.
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.
