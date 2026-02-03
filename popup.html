@@ -15,27 +15,33 @@
         }
 
         html {
-            background: transparent;
+            background-color: transparent; /* No white peeking behind rounded corners */
+            border-radius: 16px; /* Some browsers need this too */
         }
 
-        /* Soft Card Container - Floating aesthetic */
+        /* Soft Card Container - Modern floating card */
         body {
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #ffffff;
             color: #000;
             width: 320px;
             min-height: 180px;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); /* Soft outer glow */
+            margin: 0;
+            border-radius: 16px; /* Rounded card corners */
+            overflow: hidden; /* Clips header/footer to rounded edges */
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.15),
+                        0 8px 16px -4px rgba(0, 0, 0, 0.1); /* Multi-layered depth */
+            border: 0.5px solid rgba(0, 0, 0, 0.1); /* Faint edge definition */
             font-size: 12px;
             line-height: 1.4;
         }
 
-        /* Header - Flush with rounded top */
+        /* Header - Rounded top corners */
         .header {
             background: #FFED00; /* Exact Falter yellow */
             padding: 14px 16px;
+            border-top-left-radius: 16px; /* Match body radius */
+            border-top-right-radius: 16px; /* Match body radius */
         }
 
         .header h1 {
@@ -238,7 +244,7 @@
             stroke-width: 2;
         }
 
-        /* Version footer - soft minimal */
+        /* Version footer - Rounded bottom corners */
         .version {
             text-align: center;
             padding: 12px;
@@ -247,6 +253,8 @@
             background: #fafafa;
             font-weight: 400;
             letter-spacing: 0.05em;
+            border-bottom-left-radius: 16px; /* Match body radius */
+            border-bottom-right-radius: 16px; /* Match body radius */
         }
     </style>
 </head>
