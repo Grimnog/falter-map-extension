@@ -7,27 +7,7 @@
     <style>
         /* Bunny Fonts Import (GDPR-compliant) */
         /* NOTE: Keep in sync with content.css */
-        @import url('https://fonts.bunny.net/css?family=nunito:400,600,700,800');
-
-        :root {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #f8f9fa;
-            --text-primary: #1a1a1a;
-            --text-secondary: #6c757d;
-            --text-tertiary: #495057;
-            --accent: #fbe51f;
-            --accent-hover: #e6d11d;
-            --border: #e1e4e8;
-            --border-light: #e9ecef;
-            --info-bg-light: #fff9e6;
-            --info-bg-dark: #fff4d4;
-            --success-bg-light: #d4edda;
-            --success-bg-dark: #c3e6cb;
-            --success-border: #28a745;
-            --success-text: #155724;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
-        }
+        @import url('https://fonts.bunny.net/css?family=nunito:400,600,700,800,900');
 
         * {
             box-sizing: border-box;
@@ -36,248 +16,191 @@
         }
 
         body {
-            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: white;
-            color: var(--text-primary);
-            width: 280px;
+            color: #000;
+            width: 320px;
             min-height: 180px;
             overflow-x: hidden;
         }
 
+        /* Header Section - Bold, authoritative, high-contrast */
         .header {
-            padding: 12px 14px;
-            background: var(--accent);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: rgba(0, 0, 0, 0.1);
+            background: #FFED00;
+            padding: 20px;
+            border-bottom: 2px solid #000;
         }
 
         .header h1 {
-            font-size: 15px;
-            font-weight: 800;
+            font-size: 16px;
+            font-weight: 900;
             margin: 0;
-            color: var(--bg-primary);
-            letter-spacing: 0.01em;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
         }
 
         .content {
-            padding: 10px 14px;
+            padding: 20px;
         }
 
         .section {
-            margin-bottom: 10px;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            margin-bottom: 24px;
         }
 
         .section:last-child {
             margin-bottom: 0;
         }
 
-        .section-title {
-            font-size: 12px;
+        /* Section Labels - Strong, uppercase, authoritative */
+        .section-label {
+            font-size: 0.75rem; /* 12px */
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #000;
+            margin-bottom: 16px;
+            letter-spacing: 0.05em;
+        }
+
+        /* Instructions Section - Clean, no boxes */
+        .instructions {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .instructions ol {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .instructions li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+            color: #444;
+        }
+
+        .instructions li:not(:last-child) {
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Yellow circular badges for step numbers */
+        .badge {
+            background: #FFED00;
+            color: #000;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 13px;
+        }
+
+        .instructions a {
+            color: #000;
+            text-decoration: underline;
             font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 6px;
-            letter-spacing: 0.01em;
+            transition: all 0.2s;
         }
 
-        .info-card {
-            background: var(--bg-secondary);
-            border-radius: 6px;
-            padding: 2px 10px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
+        .instructions a:hover {
+            color: #000;
+            text-decoration: none;
+            border-bottom: 2px solid #000;
         }
 
-        .info-row {
+        /* Cache Section - Hairline dividers, high contrast */
+        .cache-info {
+            margin-bottom: 16px;
+        }
+
+        .cache-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 0;
-            font-size: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
         }
 
-        .info-row:not(:last-child) {
-            border-bottom: 1px solid var(--border-light);
+        .cache-row:last-child {
+            border-bottom: none;
         }
 
-        .info-label {
-            color: var(--text-secondary);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-        }
-
-        .info-value {
-            font-weight: 700;
-            color: var(--text-primary);
-            font-size: 12px;
-        }
-
-        .badge {
-            background: var(--accent);
-            color: var(--bg-primary);
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            box-shadow: 0 2px 4px rgba(251,229,31,0.3);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 6px 10px;
-            font-size: 12px;
+        .cache-label {
+            font-size: 13px;
+            color: #444; /* Readable charcoal, not light grey */
             font-weight: 600;
-            border: 1.5px solid var(--border);
-            border-radius: 6px;
+        }
+
+        .cache-value {
+            font-size: 13px;
+            color: #000; /* Pure black */
+            font-weight: 800; /* Bold */
+        }
+
+        .cache-badge {
+            background: #FFED00;
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* High-Contrast Border Button */
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            font-size: 0.8rem; /* ~13px */
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 2px solid #000;
+            background: transparent;
+            color: #000;
             cursor: pointer;
-            background: white;
-            color: var(--text-secondary);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease-in-out;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            margin-top: 6px;
-            position: relative;
-            overflow: hidden;
+            gap: 8px;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
+        .btn-primary:hover {
+            background: #000;
+            color: #fff;
         }
 
-        .btn:hover::before {
-            left: 100%;
+        .btn-primary:active {
+            transform: scale(0.98);
         }
 
-        .btn:hover {
-            background: var(--bg-primary);
-            color: white;
-            border-color: var(--bg-primary);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn svg {
+        .btn-primary svg {
             width: 18px;
             height: 18px;
         }
 
-        .instructions {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            padding: 2px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            line-height: 1.5;
-            color: var(--text-secondary);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .instructions strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .instructions ol {
-            margin: 0;
-            padding: 0 0 0 24px;
-            list-style-position: outside;
-        }
-
-        .instructions li {
-            padding: 6px 0;
-            color: var(--text-tertiary);
-        }
-
-        .instructions li:not(:last-child) {
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .instructions li::marker {
-            color: var(--text-primary);
-            font-weight: 700;
-        }
-
-        .instructions a {
-            color: #0066cc;
-            text-decoration: underline;
-            font-weight: 700;
-            transition: color 0.2s;
-        }
-
-        .instructions a:hover {
-            color: #0052a3;
-        }
-
-        .version {
-            text-align: center;
-            padding: 6px 14px;
-            font-size: 10px;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border);
-            background: var(--bg-secondary);
-            font-weight: 500;
-            letter-spacing: 0.05em;
-        }
-
-        /* Subtle pulse animation for badge */
-        .badge {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 2px 4px rgba(251,229,31,0.3); }
-            50% { box-shadow: 0 2px 8px rgba(251,229,31,0.5); }
-        }
-
-        /* Cache cleared confirmation message */
+        /* Success message */
         .cache-cleared-message {
             display: none;
-            margin-top: 10px;
-            padding: 8px 12px;
-            background: linear-gradient(135deg, var(--success-bg-light) 0%, var(--success-bg-dark) 100%);
-            border-left: 3px solid var(--success-border);
-            border-radius: 6px;
-            color: var(--success-text);
-            font-size: 12px;
+            margin-top: 12px;
+            padding: 10px;
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+            color: #155724;
+            font-size: 13px;
             font-weight: 600;
             text-align: center;
-            animation: slideIn 0.3s ease-out;
         }
 
         .cache-cleared-message.show {
             display: block;
+            animation: slideIn 0.3s ease-out;
         }
 
         @keyframes slideIn {
@@ -290,6 +213,17 @@
                 transform: translateY(0);
             }
         }
+
+        /* Version footer - subtle */
+        .version {
+            text-align: center;
+            padding: 12px;
+            font-size: 11px;
+            color: #999;
+            border-top: 1px solid #eee;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
     </style>
 </head>
 <body>
@@ -298,57 +232,49 @@
     </div>
 
     <div class="content">
-        <!-- Anleitung -->
+        <!-- Anleitung Section -->
         <div class="section">
-            <div class="section-title">Anleitung</div>
+            <div class="section-label">Anleitung</div>
             <div class="instructions">
                 <ol>
-                    <li>Besuch den <a href="https://www.falter.at/lokalfuehrer/suche" target="_blank" rel="noopener noreferrer"><strong>Falter Lokalführer</strong></a></li>
-                    <li>Setze Filter</li>
-                    <li>Klick <strong>"Auf Karte anzeigen"</strong></li>
+                    <li>
+                        <span class="badge">1</span>
+                        <span>Besuch den <a href="https://www.falter.at/lokalfuehrer/suche" target="_blank" rel="noopener noreferrer">Falter Lokalführer</a></span>
+                    </li>
+                    <li>
+                        <span class="badge">2</span>
+                        <span>Setze Filter</span>
+                    </li>
+                    <li>
+                        <span class="badge">3</span>
+                        <span>Klick <strong>"Auf Karte anzeigen"</strong></span>
+                    </li>
                 </ol>
             </div>
         </div>
 
-        <!-- Cache-Verwaltung -->
+        <!-- Cache Section -->
         <div class="section">
-            <div class="section-title">Geocoding-Cache</div>
+            <div class="section-label">Geocoding-Cache</div>
 
-            <div class="info-card">
-                <div class="info-row">
-                    <span class="info-label">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                        Gespeicherte Adressen
-                    </span>
-                    <span class="info-value" id="cacheCount">-</span>
+            <div class="cache-info">
+                <div class="cache-row">
+                    <span class="cache-label">Gespeicherte Adressen</span>
+                    <span class="cache-value" id="cacheCount">-</span>
                 </div>
 
-                <div class="info-row">
-                    <span class="info-label">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                        </svg>
-                        Speichergröße
-                    </span>
-                    <span class="info-value" id="cacheSize">-</span>
+                <div class="cache-row">
+                    <span class="cache-label">Speichergröße</span>
+                    <span class="cache-value" id="cacheSize">-</span>
                 </div>
 
-                <div class="info-row">
-                    <span class="info-label">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        Gültigkeit
-                    </span>
-                    <span class="badge">30 Tage</span>
+                <div class="cache-row">
+                    <span class="cache-label">Gültigkeit</span>
+                    <span class="cache-badge">30 Tage</span>
                 </div>
             </div>
 
-            <button class="btn" id="clearCacheBtn">
+            <button class="btn-primary" id="clearCacheBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 </svg>
