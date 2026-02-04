@@ -21,10 +21,10 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 **Sprint Tickets (Sequential):**
 1. ✅ FALTMAP-44 - Fix Status Message Not Updating When Loading from Cache
-2. ⏳ FALTMAP-38 - Fix MapModal UI Flash (Grey List Before Geocoding) **← Current**
-3. 📋 FALTMAP-35 - Improve README Documentation
+2. ✅ FALTMAP-38 - Fix MapModal UI Flash (Grey List Before Geocoding)
+3. ⏳ FALTMAP-35 - Improve README Documentation **← Current**
 
-**Current Focus:** FALTMAP-38
+**Current Focus:** FALTMAP-35
 
 ---
 
@@ -57,19 +57,28 @@ As a user, I want to see the correct completion status message ("✓ X Restauran
 
 ---
 
-### 🎟️ **FALTMAP-38 - Fix MapModal UI Flash (Grey List Before Geocoding)**
+### 🎟️ **FALTMAP-38 - Fix MapModal UI Flash (Grey List Before Geocoding)** ✅
 - Epic: E03 (Testing & Reliability)
-- Status: Planned 📋
+- Status: Done ✅
 - Priority: 🟢 Medium
+- Completed: 2026-02-04
 
 **User Story:**
 As a user, I want a smooth loading experience when opening the map modal, without seeing a flash of greyed-out entries before the real results appear.
 
+**Root Cause:**
+After 300ms skeleton delay, modal showed ALL restaurants including those without coordinates, which appeared greyed out (opacity: 0.35).
+
+**Solution:**
+Only show restaurants with coordinates (from cache) after skeleton delay. Restaurants without coords are added progressively during geocoding.
+
 **Acceptance Criteria:**
-- [ ] MapModal no longer shows flash of greyed-out list
-- [ ] Smooth loading experience
-- [ ] Works correctly with both cached and fresh geocoding
-- [ ] User verification before push
+- [x] MapModal no longer shows flash of greyed-out list
+- [x] Smooth loading experience (skeleton → cached results → progressive population)
+- [x] Works correctly with both cached and fresh geocoding
+- [x] User verification complete
+
+**Commit:** f5dd702
 
 ---
 
