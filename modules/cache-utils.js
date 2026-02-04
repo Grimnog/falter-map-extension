@@ -4,6 +4,15 @@ import { CONFIG } from './constants.js';
 
 export const CacheManager = {
     /**
+     * Normalize address string for use as cache key
+     * @param {string} address - Address to normalize
+     * @returns {string} Normalized cache key
+     */
+    normalizeKey(address) {
+        return address.toLowerCase().trim();
+    },
+
+    /**
      * Load and validate geocoding cache from chrome.storage.local
      * Filters out expired entries
      * @returns {Promise<Object>} Valid cache entries
@@ -37,7 +46,7 @@ export const CacheManager = {
         const cache = await this.load();
         const now = Date.now();
 
-        cache[address.toLowerCase().trim()] = {
+        cache[this.normalizeKey(address)] = {
             coords,
             cachedAt: now,
             expiresAt: now + CONFIG.CACHE.TTL_MS

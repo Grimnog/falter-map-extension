@@ -234,7 +234,7 @@ export async function geocodeRestaurants(restaurantList, progressCallback) {
 
     // Separate cached from uncached
     for (const restaurant of restaurantList) {
-        const cacheKey = restaurant.address.toLowerCase().trim();
+        const cacheKey = CacheManager.normalizeKey(restaurant.address);
 
         if (cache[cacheKey]) {
             const cached = cache[cacheKey];

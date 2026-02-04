@@ -29,7 +29,7 @@
 
         // First, show cached results
         for (const restaurant of restaurants) {
-            const cacheKey = restaurant.address.toLowerCase().trim();
+            const cacheKey = CacheManager.normalizeKey(restaurant.address);
             if (cache[cacheKey]) {
                 const cached = cache[cacheKey];
                 currentResults.push({
@@ -63,7 +63,7 @@
 
         // Check if we need to geocode anything
         const needsGeocoding = restaurants.filter(r => {
-            const cacheKey = r.address.toLowerCase().trim();
+            const cacheKey = CacheManager.normalizeKey(r.address);
             return !cache[cacheKey];
         });
 
@@ -129,7 +129,7 @@
                 // Ensure restaurant list is displayed even without coordinates
                 // (already shown from cache check, but update to show all restaurants)
                 const resultsWithoutCoords = restaurants.map(r => {
-                    const cacheKey = r.address.toLowerCase().trim();
+                    const cacheKey = CacheManager.normalizeKey(r.address);
                     const cached = cache[cacheKey];
                     return {
                         ...r,
@@ -262,7 +262,7 @@
             const cache = await CacheManager.load();
             let needsGeocoding = 0;
             for (const restaurant of restaurants) {
-                const cacheKey = restaurant.address.toLowerCase().trim();
+                const cacheKey = CacheManager.normalizeKey(restaurant.address);
                 if (!cache[cacheKey]) {
                     needsGeocoding++;
                 }
