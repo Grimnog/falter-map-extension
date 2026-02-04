@@ -17,6 +17,20 @@ A Chrome extension that displays [Falter Lokalführer](https://www.falter.at/lok
 
 ---
 
+## About Falter
+
+[Falter](https://www.falter.at/) is an independent Austrian weekly newspaper known for its cultural coverage and restaurant reviews. Their [Lokalführer](https://www.falter.at/lokalfuehrer) is one of the most comprehensive restaurant guides for Austria.
+
+**If you enjoy their work:**
+
+- 📰 [Subscribe to Falter](https://abo.falter.at/?ref=785) — Support independent journalism
+- 📚 [Wien, wie es isst](https://shop.falter.at/suche/?q=wien+wie+es+isst) — Their acclaimed restaurant guide books
+- 📱 [Wien, wie es isst App](https://www.falter.at/lokalfuehrer/wien-wie-es-isst-app) — Official mobile app with map feature
+
+*This extension brings the map experience to desktop browsers. Independent project, not affiliated with Falter.*
+
+---
+
 ## 📸 Screenshots
 
 *Coming soon*
@@ -75,20 +89,6 @@ To respect Nominatim's free API, the extension limits results to **100 restauran
 Uses [Bunny Fonts](https://fonts.bunny.net/) (EU-based, GDPR-compliant) instead of Google Fonts.
 
 Full details: [Privacy Policy](docs/PRIVACY_POLICY.md)
-
----
-
-## About Falter
-
-[Falter](https://www.falter.at/) is an independent Austrian weekly newspaper known for its cultural coverage and restaurant reviews. Their [Lokalführer](https://www.falter.at/lokalfuehrer) is one of the most comprehensive restaurant guides for Austria.
-
-**If you enjoy their work:**
-
-- 📰 [Subscribe to Falter](https://abo.falter.at/?ref=785) — Support independent journalism
-- 📚 [Wien, wie es isst](https://shop.falter.at/suche/?q=wien+wie+es+isst) — Their acclaimed restaurant guide books
-- 📱 [Wien, wie es isst App](https://www.falter.at/lokalfuehrer/wien-wie-es-isst-app) — Official mobile app with map feature
-
-*This extension brings the map experience to desktop browsers. Independent project, not affiliated with Falter.*
 
 ---
 
