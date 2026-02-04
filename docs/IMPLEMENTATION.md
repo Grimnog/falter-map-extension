@@ -10,21 +10,20 @@ This document tracks the **current active sprint** for the Falter Map extension 
 
 ---
 
-## 🚀 Sprint 10: v1.0 Preparation
+## 🚀 Sprint 10: Bug Fixes & Polish
 
-**Sprint Goal:** Fix remaining UX bugs and polish documentation for v1.0 release
+**Sprint Goal:** Fix remaining UX bugs for v1.0 preparation
 
-**Status:** In Progress 🟢
+**Status:** Complete ✅
 
 **Sprint Start:** 2026-02-04
-**Target Release:** v1.0.0
+**Sprint End:** 2026-02-04
 
-**Sprint Tickets (Sequential):**
+**Completed Tickets:**
 1. ✅ FALTMAP-44 - Fix Status Message Not Updating When Loading from Cache
 2. ✅ FALTMAP-38 - Fix MapModal UI Flash (Grey List Before Geocoding)
-3. ⏳ FALTMAP-35 - Improve README Documentation **← Current**
 
-**Current Focus:** FALTMAP-35
+**Outcome:** Both critical UX bugs resolved. Smooth loading experience achieved with proper status messages for both cached and fresh geocoding scenarios.
 
 ---
 
@@ -82,23 +81,10 @@ Only show restaurants with coordinates (from cache) after skeleton delay. Restau
 
 ---
 
-### 🎟️ **FALTMAP-35 - Improve README Documentation**
-- Epic: E06 (Documentation)
-- Status: Planned 📋
-- Priority: 🟡 High
-
-**User Story:**
-As a user, I want clear documentation about how the extension works and its limitations.
-
-**Acceptance Criteria:**
-- [ ] "How It Works" section added
-- [ ] "Result Limiting" section explains 100 limit
-- [ ] "Getting Better Results" section added
-- [ ] "Privacy & Data" section added
-- [ ] README formatting improved
-- [ ] User verification before push
-
 ---
+
+## Deferred Until Final Polish:
+- FALTMAP-35 - Improve README Documentation (will update when all features finalized)
 
 ## Deferred to Post-v1.0:
 - FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug
