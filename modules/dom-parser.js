@@ -120,7 +120,8 @@ export function parseRestaurantsFromDOM(doc) {
     const restaurants = [];
     const links = doc.querySelectorAll(SELECTORS.restaurantLink);
 
-    console.log('Found restaurant links:', links.length);
+    // Track parsing stats for debugging
+    let stats = { found: links.length, parsed: 0, noName: 0, noAddress: 0, duplicate: 0 };
 
     links.forEach(link => {
         const href = link.getAttribute('href');
@@ -136,25 +137,35 @@ export function parseRestaurantsFromDOM(doc) {
         const name = parseName(link, text);
         const address = parseAddress(text);
 
-        if (name && address) {
-            const { zip, city, street, number } = address;
+        // Track failure reasons
+        if (!name) { stats.noName++; return; }
+        if (!address) { stats.noAddress++; return; }
 
-            const restaurant = {
-                id,
-                name: name.split('\n')[0].trim(),
-                city,
-                zip,
-                street: number ? `${street} ${number}` : street,
-                address: number ? `${zip} ${city}, ${street} ${number}` : `${zip} ${city}, ${street}`,
-                url: href.startsWith('http') ? href : `https://www.falter.at${href}`
-            };
+        const { zip, city, street, number } = address;
 
-            if (!restaurants.find(r => r.id === id)) {
-                restaurants.push(restaurant);
-                console.log('Parsed:', restaurant.name, '-', restaurant.address);
-            }
+        const restaurant = {
+            id,
+            name: name.split('\n')[0].trim(),
+            city,
+            zip,
+            street: number ? `${street} ${number}` : street,
+            address: number ? `${zip} ${city}, ${street} ${number}` : `${zip} ${city}, ${street}`,
+            url: href.startsWith('http') ? href : `https://www.falter.at${href}`
+        };
+
+        if (restaurants.find(r => r.id === id)) {
+            stats.duplicate++;
+        } else {
+            restaurants.push(restaurant);
+            stats.parsed++;
         }
     });
+
+    // Log parsing summary
+    console.log(`Parsing: ${stats.parsed}/${stats.found} restaurants` +
+        (stats.noName ? `, ${stats.noName} no name` : '') +
+        (stats.noAddress ? `, ${stats.noAddress} no address` : '') +
+        (stats.duplicate ? `, ${stats.duplicate} duplicates` : ''));
 
     return restaurants;
 }
