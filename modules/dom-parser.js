@@ -225,94 +225,86 @@ async function fetchPage(pageNum) {
 }
 
 /**
- * Fetch all pages of search results
- * @param {Function} progressCallback - Optional callback for progress updates
- * @returns {Promise<Array>} All restaurants from all pages
+ * Unified fetch function for paginated restaurant results
+ * @param {Object} options - Fetch options
+ * @param {number} [options.maxResults=Infinity] - Maximum restaurants to fetch
+ * @param {Function} [options.onProgress] - Progress callback (current, total)
+ * @returns {Promise<Object>} { restaurants, totalPages, estimatedTotal }
  */
-export async function fetchAllPages(progressCallback) {
+async function fetchPages({ maxResults = Infinity, onProgress = null } = {}) {
     const pagination = getPaginationInfo();
     console.log('Pagination:', pagination);
 
     const allRestaurants = [];
     const seenIds = new Set();
 
-    for (let page = 1; page <= pagination.total; page++) {
-        if (progressCallback) progressCallback(page, pagination.total);
+    // Parse current page first (needed for estimation and caching)
+    const currentPageRestaurants = parseRestaurantsFromDOM(document);
+    const avgPerPage = currentPageRestaurants.length || 15;
+    const estimatedTotal = avgPerPage * pagination.total;
 
+    // Calculate pages to fetch based on limit
+    let pagesToFetch = pagination.total;
+    const hasLimit = maxResults !== Infinity;
+
+    if (hasLimit && estimatedTotal > maxResults) {
+        pagesToFetch = Math.ceil(maxResults / avgPerPage);
+        console.log(`Limiting: ${pagesToFetch} pages to get ~${maxResults} results`);
+    }
+
+    for (let page = 1; page <= pagesToFetch; page++) {
+        // Check limit before fetching next page
+        if (hasLimit && allRestaurants.length >= maxResults) {
+            console.log(`Reached limit of ${maxResults} restaurants`);
+            break;
+        }
+
+        if (onProgress) onProgress(page, pagesToFetch);
+
+        // Use cached current page or fetch remote page
         const restaurants = (page === pagination.current)
-            ? parseRestaurantsFromDOM(document)
+            ? currentPageRestaurants
             : await fetchPage(page);
 
-        restaurants.forEach(r => {
-            if (!seenIds.has(r.id)) {
-                seenIds.add(r.id);
-                allRestaurants.push(r);
-            }
-        });
+        // Add unique restaurants (respecting limit if set)
+        for (const r of restaurants) {
+            if (seenIds.has(r.id)) continue;
+            if (hasLimit && allRestaurants.length >= maxResults) break;
 
-        if (page < pagination.total) {
+            seenIds.add(r.id);
+            allRestaurants.push(r);
+        }
+
+        // Delay between page fetches (except after last page)
+        if (page < pagesToFetch) {
             await new Promise(resolve => setTimeout(resolve, CONFIG.PAGINATION.FETCH_DELAY_MS));
         }
     }
 
     console.log('Total restaurants:', allRestaurants.length);
-    return allRestaurants;
+    return {
+        restaurants: allRestaurants,
+        totalPages: pagination.total,
+        estimatedTotal
+    };
+}
+
+/**
+ * Fetch all pages of search results
+ * @param {Function} progressCallback - Optional callback for progress updates
+ * @returns {Promise<Array>} All restaurants from all pages
+ */
+export async function fetchAllPages(progressCallback) {
+    const result = await fetchPages({ onProgress: progressCallback });
+    return result.restaurants;
 }
 
 /**
  * Fetch restaurants up to a specified limit
  * @param {number} maxResults - Maximum number of restaurants to fetch
  * @param {Function} progressCallback - Optional callback for progress updates
- * @returns {Promise<Object>} Object with { restaurants: Array, totalPages: number, estimatedTotal: number }
+ * @returns {Promise<Object>} Object with { restaurants, totalPages, estimatedTotal }
  */
 export async function fetchUpToLimit(maxResults, progressCallback) {
-    const pagination = getPaginationInfo();
-    console.log('Pagination:', pagination);
-
-    const allRestaurants = [];
-    const seenIds = new Set();
-    let pagesToFetch = pagination.total;
-
-    // Estimate restaurants per page from current page
-    const currentPageRestaurants = parseRestaurantsFromDOM(document);
-    const avgPerPage = currentPageRestaurants.length || 15; // Default estimate if parsing fails
-    const estimatedTotal = avgPerPage * pagination.total;
-
-    // Calculate how many pages we need to fetch to get ~maxResults
-    if (estimatedTotal > maxResults) {
-        pagesToFetch = Math.ceil(maxResults / avgPerPage);
-        console.log(`Limiting fetch: ${pagesToFetch} pages (estimated ${avgPerPage} per page) to get ~${maxResults} results`);
-    }
-
-    for (let page = 1; page <= pagesToFetch && allRestaurants.length < maxResults; page++) {
-        if (progressCallback) progressCallback(page, pagesToFetch);
-
-        const restaurants = (page === pagination.current)
-            ? currentPageRestaurants
-            : await fetchPage(page);
-
-        restaurants.forEach(r => {
-            if (!seenIds.has(r.id) && allRestaurants.length < maxResults) {
-                seenIds.add(r.id);
-                allRestaurants.push(r);
-            }
-        });
-
-        // Stop if we've reached the limit
-        if (allRestaurants.length >= maxResults) {
-            console.log(`Reached limit of ${maxResults} restaurants, stopping fetch`);
-            break;
-        }
-
-        if (page < pagesToFetch) {
-            await new Promise(resolve => setTimeout(resolve, CONFIG.PAGINATION.FETCH_DELAY_MS));
-        }
-    }
-
-    console.log('Total restaurants fetched:', allRestaurants.length);
-    return {
-        restaurants: allRestaurants,
-        totalPages: pagination.total,
-        estimatedTotal: estimatedTotal
-    };
+    return fetchPages({ maxResults, onProgress: progressCallback });
 }
