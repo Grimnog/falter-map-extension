@@ -140,6 +140,87 @@ This creates a jarring UX - users see a list that appears broken/disabled before
 - Medium priority: UX polish, not critical functionality
 
 ---
+
+### 🎟️ **TICKET: FALTMAP-44 - Fix Status Message Not Updating When Loading from Cache**
+- Epic: E03 (Testing & Reliability)
+- Status: Open
+- Priority: 🟡 High
+
+**User Story:**
+As a user, I want to see the correct completion status message ("✓ X Restaurants gefunden") when restaurants are loaded from cache, so I know the map has finished loading.
+
+**Context:**
+After implementing the progress bar system in FALTMAP-42, a bug was discovered where the status message doesn't update correctly when restaurants are loaded from cache:
+
+**Current Behavior:**
+- When opening MapModal with cached restaurant data, the header shows "Restaurants werden gesucht..." (searching)
+- The message never updates to "✓ X Restaurants gefunden" (found)
+- Users see perpetual "searching" state even though all restaurants are already displayed
+- Progress bar may not update correctly
+
+**Expected Behavior:**
+- When restaurants load from cache, status should immediately show "✓ X Restaurants gefunden"
+- Progress bar should show completion (or be hidden)
+- No "searching" message when data comes from cache
+
+**Root Cause (likely):**
+The progress update logic in MapModal.js relies on geocoding callbacks to trigger status updates. When restaurants load from cache:
+- Geocoding callbacks are not triggered (data already available)
+- `updateProgress()` is never called with completion state
+- Status remains stuck on initial "Restaurants werden gesucht..." text
+
+**Steps to Reproduce:**
+1. Search for restaurants on Falter.at (any region)
+2. Open MapModal - first time will geocode and show correct completion message
+3. Close modal and reopen immediately
+4. Observe: Status shows "Restaurants werden gesucht..." instead of "✓ X Restaurants gefunden"
+5. Map displays correctly but status message is wrong
+
+**Scope of Work:**
+
+1. **Investigate cache loading flow:**
+   - Trace how MapModal detects cached data
+   - Identify where cache data gets loaded into modal
+   - Find why `updateProgress()` is not called
+
+2. **Fix status update logic:**
+   - Add cache detection in MapModal initialization
+   - Call `updateProgress()` with completion state when loading from cache
+   - Ensure count matches number of cached restaurants
+   - Set `isFinal: true` to show completion message
+
+3. **Update progress bar:**
+   - Show completed progress bar when cache loaded
+   - Or hide progress bar entirely for cached data (instant load)
+   - Ensure visual consistency with fresh geocoding completion
+
+4. **Test both paths:**
+   - Fresh geocoding: Status should progress correctly (already works)
+   - Cached data: Status should immediately show completion
+   - Mixed (partial cache): Status should show correct count
+
+**Acceptance Criteria:**
+- [ ] Opening MapModal with cached data shows "✓ X Restaurants gefunden" immediately
+- [ ] Progress bar shows completion or is hidden for cached data
+- [ ] Restaurant count in status message is accurate
+- [ ] Fresh geocoding still works correctly (no regression)
+- [ ] Mixed cache/fresh scenario handles status updates correctly
+- [ ] No console errors when loading from cache
+- [ ] Manual testing confirms fix across different search results
+- [ ] Commit message: `fix(modal): update status message when loading from cache`
+
+**Technical Notes:**
+- Related to MapModal.js:259 ("Restaurants werden gesucht...")
+- Progress system added in FALTMAP-42 (Sprint 9)
+- Cache system uses `chrome.storage.local` with 30-day TTL
+- Need to hook into cache loading path to trigger status update
+- Consider calling `this.updateProgress(cachedCount, cachedCount, true)` on cache load
+
+**Files Likely Affected:**
+- `modules/MapModal.js` - Progress update logic, cache detection
+- Potentially `content.js` - If cache loading happens there
+
+---
 ## Epic E06: Documentation
 
 ### 🎟️ **TICKET: FALTMAP-35 - Improve README Documentation**
