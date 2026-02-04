@@ -289,13 +289,14 @@ export class MapModal {
     addMarker(restaurant, index, isNew = false) {
         if (!this.map || !restaurant.coords) return;
 
+        const safeUrl = this.validateFalterUrl(restaurant.url);
         const googleMapsQuery = encodeURIComponent(`${restaurant.name}, ${restaurant.address}, Austria`);
         const marker = L.marker([restaurant.coords.lat, restaurant.coords.lng], {
             icon: this.createNumberedMarker(index + 1, isNew)
         })
             .addTo(this.markerClusterGroup)
             .bindPopup(`
-                <a href="${restaurant.url}" target="_blank" rel="noopener noreferrer" class="falter-popup-link">${this.escapeHtml(restaurant.name)}</a>
+                <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="falter-popup-link">${this.escapeHtml(restaurant.name)}</a>
                 <div class="falter-popup-address">${this.escapeHtml(restaurant.address)}</div>
                 <a href="https://www.google.com/maps/search/?api=1&query=${googleMapsQuery}" target="_blank" rel="noopener noreferrer" class="falter-maps-link">Auf Google Maps ansehen</a>
             `);
@@ -641,6 +642,17 @@ export class MapModal {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    /**
+     * Validate URL is a safe Falter.at URL
+     * Prevents javascript: protocol and other injection attacks
+     */
+    validateFalterUrl(url) {
+        if (!url || typeof url !== 'string') return '#';
+        if (url.startsWith('https://www.falter.at/')) return url;
+        if (url.startsWith('/lokal/')) return `https://www.falter.at${url}`;
+        return '#';
     }
 
     /**

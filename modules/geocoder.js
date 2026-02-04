@@ -113,7 +113,8 @@ async function tryGeocodingQuery(url, description) {
         const response = await fetch(url, {
             headers: {
                 'User-Agent': CONFIG.NOMINATIM.USER_AGENT
-            }
+            },
+            referrerPolicy: 'no-referrer'
         });
 
         // Handle rate limiting (429 Too Many Requests)
