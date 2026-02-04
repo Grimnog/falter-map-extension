@@ -3,7 +3,7 @@
   "name": "Falter Restaurant Map",
   "version": "0.10.0",
   "description": "View Falter Lokalführer search results on an interactive map - works across all 9 Austrian Bundesländer",
-  "author": "Paul Zimmert",
+  "author": "Paul Timotheus Zimmert",
 
   "permissions": [
     "storage",
