@@ -63,10 +63,5 @@
       "resources": ["modules/*.js", "tests/test-runner.html", "tests/*.js"],
       "matches": ["<all_urls>"]
     }
-  ],
-
-  "background": {
-    "service_worker": "background.js",
-    "type": "module"
-  }
+  ]
 }
