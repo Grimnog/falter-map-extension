@@ -29,19 +29,10 @@
 
         // First, show cached results
         for (const restaurant of restaurants) {
-            const cacheKey = CacheManager.normalizeKey(restaurant.address);
-            if (cache[cacheKey]) {
-                const cached = cache[cacheKey];
-                currentResults.push({
-                    ...restaurant,
-                    coords: cached.coords
-                });
-            } else {
-                currentResults.push({
-                    ...restaurant,
-                    coords: null
-                });
-            }
+            currentResults.push({
+                ...restaurant,
+                coords: CacheManager.getCoords(cache, restaurant.address)
+            });
         }
 
         // Display initial results with skeleton
@@ -62,10 +53,7 @@
         const initialLocatedCount = currentResults.filter(r => r.coords).length;
 
         // Check if we need to geocode anything
-        const needsGeocoding = restaurants.filter(r => {
-            const cacheKey = CacheManager.normalizeKey(r.address);
-            return !cache[cacheKey];
-        });
+        const needsGeocoding = restaurants.filter(r => !CacheManager.getCoords(cache, r.address));
 
         // Update progress - mark as final if all restaurants are already cached
         const allCached = needsGeocoding.length === 0;
@@ -128,14 +116,10 @@
 
                 // Ensure restaurant list is displayed even without coordinates
                 // (already shown from cache check, but update to show all restaurants)
-                const resultsWithoutCoords = restaurants.map(r => {
-                    const cacheKey = CacheManager.normalizeKey(r.address);
-                    const cached = cache[cacheKey];
-                    return {
-                        ...r,
-                        coords: cached ? cached.coords : null
-                    };
-                });
+                const resultsWithoutCoords = restaurants.map(r => ({
+                    ...r,
+                    coords: CacheManager.getCoords(cache, r.address)
+                }));
                 mapModal.updateResultsList(resultsWithoutCoords);
 
                 // Update navigation with available results
@@ -260,13 +244,7 @@
 
             // Check cache to estimate how many need geocoding
             const cache = await CacheManager.load();
-            let needsGeocoding = 0;
-            for (const restaurant of restaurants) {
-                const cacheKey = CacheManager.normalizeKey(restaurant.address);
-                if (!cache[cacheKey]) {
-                    needsGeocoding++;
-                }
-            }
+            const needsGeocoding = restaurants.filter(r => !CacheManager.getCoords(cache, r.address)).length;
 
             // Create and show modal with map (pass estimatedTotal if we limited results)
             const displayTotal = (shouldLimit && estimatedTotal) ? estimatedTotal : null;

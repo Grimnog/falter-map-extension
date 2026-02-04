@@ -13,6 +13,17 @@ export const CacheManager = {
     },
 
     /**
+     * Get cached coordinates for an address
+     * @param {Object} cache - Loaded cache object
+     * @param {string} address - Address to look up
+     * @returns {Object|null} Coordinates {lat, lng} or null if not cached
+     */
+    getCoords(cache, address) {
+        const entry = cache[this.normalizeKey(address)];
+        return entry ? entry.coords : null;
+    },
+
+    /**
      * Load and validate geocoding cache from chrome.storage.local
      * Filters out expired entries
      * @returns {Promise<Object>} Valid cache entries
