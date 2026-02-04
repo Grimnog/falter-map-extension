@@ -30,7 +30,85 @@ const PATTERNS = {
 };
 
 // ============================================
-// PARSING FUNCTIONS
+// HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Parse address from text using step-by-step approach
+ * Handles: "1040 Wien, Wiedner Hauptstraße 15" or "7083 Purbach am See, Hauptgasse 64"
+ * @param {string} text - Text containing address
+ * @returns {Object|null} { zip, city, street, number } or null if not found
+ */
+function parseAddress(text) {
+    const lines = text.split('\n').map(l => l.trim());
+
+    // Step 1: Find the address line (starts with 4-digit ZIP)
+    const addressLine = lines.find(line => PATTERNS.addressLine.test(line));
+    if (!addressLine) return null;
+
+    // Step 2: Split on comma - "1040 Wien, Wiedner Hauptstraße 15"
+    const commaIndex = addressLine.indexOf(',');
+    if (commaIndex === -1) return null;
+
+    const locationPart = addressLine.substring(0, commaIndex).trim();
+    const streetPart = addressLine.substring(commaIndex + 1).trim();
+
+    if (!locationPart || !streetPart) return null;
+
+    // Step 3: Extract ZIP and city from location part
+    const zipMatch = locationPart.match(/^(\d{4})\s+(.+)$/);
+    if (!zipMatch) return null;
+
+    const zip = zipMatch[1];
+    const city = zipMatch[2].trim();
+
+    // Step 4: Extract street and optional number
+    const numberMatch = streetPart.match(PATTERNS.streetNumber);
+
+    if (numberMatch) {
+        return {
+            zip,
+            city,
+            street: numberMatch[1].trim(),
+            number: numberMatch[2].trim()
+        };
+    }
+
+    // No street number - entire part is street/location name
+    return {
+        zip,
+        city,
+        street: streetPart,
+        number: ''
+    };
+}
+
+/**
+ * Extract restaurant name from link element
+ * @param {Element} link - Link element
+ * @param {string} text - Text content
+ * @returns {string} Restaurant name or empty string
+ */
+function parseName(link, text) {
+    // Try to find h2 element first
+    const h2 = link.querySelector(SELECTORS.restaurantName);
+    if (h2) {
+        return h2.textContent.trim();
+    }
+
+    // Fallback: find first line that's not an address or status message
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l && l.length > 2);
+    for (const line of lines) {
+        if (!PATTERNS.addressLine.test(line) && !PATTERNS.skipLine.test(line)) {
+            return line;
+        }
+    }
+
+    return '';
+}
+
+// ============================================
+// MAIN PARSING FUNCTIONS
 // ============================================
 
 /**
@@ -54,43 +132,18 @@ export function parseRestaurantsFromDOM(doc) {
         const id = idMatch[1];
         const text = link.innerText || link.textContent || '';
 
-        // Extract restaurant name
-        let name = '';
-        const h2 = link.querySelector(SELECTORS.restaurantName);
-        if (h2) {
-            name = h2.textContent.trim();
-        } else {
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l && l.length > 2);
-            for (const line of lines) {
-                // Skip lines that look like addresses or status messages
-                if (!PATTERNS.addressLine.test(line) && !PATTERNS.skipLine.test(line)) {
-                    name = line;
-                    break;
-                }
-            }
-        }
+        // Extract name and address using helper functions
+        const name = parseName(link, text);
+        const address = parseAddress(text);
 
-        // Extract address components - supports all Austrian cities
-        // Pattern: "{ZIP} {City}, {Street} {Number}" or "{ZIP} {City}, {Location}"
-        // Examples: "3420 Klosterneuburg, Donaulände 15"
-        //           "8010 Graz, Heinrichstraße 56"
-        //           "1040 Wien, Rechte Wienzeile 1"
-        //           "7083 Purbach am Neusiedler See, Hauptgasse 64" (multi-word cities)
-        //           "7474 Deutsch Schützen-Eisenberg, Am Ratschen 5" (hyphenated cities)
-        //           "7121 Weiden am See, (Göschl Tourismusprojekte – Seepark)" (location without number)
-        const addressMatch = text.match(/(\d{4})\s+([A-Za-zäöüÄÖÜß][\wäöüÄÖÜß\s\-]*[A-Za-zäöüÄÖÜß]),\s*([A-Za-zäöüÄÖÜßéèê\s\-\.\(\)\–]+?)(?:\s+(\d+[A-Za-z\/\-]*))?(?=\s*\n|$)/i);
-
-        if (name && addressMatch) {
-            const zip = addressMatch[1];
-            const city = addressMatch[2].trim();
-            const street = addressMatch[3].trim();
-            const number = addressMatch[4] ? addressMatch[4].trim() : '';
+        if (name && address) {
+            const { zip, city, street, number } = address;
 
             const restaurant = {
-                id: id,
+                id,
                 name: name.split('\n')[0].trim(),
-                city: city,
-                zip: zip,
+                city,
+                zip,
                 street: number ? `${street} ${number}` : street,
                 address: number ? `${zip} ${city}, ${street} ${number}` : `${zip} ${city}, ${street}`,
                 url: href.startsWith('http') ? href : `https://www.falter.at${href}`
