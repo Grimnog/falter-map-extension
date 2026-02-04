@@ -126,6 +126,10 @@ falter-map-extension/
 - Geocoding by [Nominatim](https://nominatim.org/)
 - Map library: [Leaflet](https://leafletjs.com/) + [MarkerCluster](https://github.com/Leaflet/Leaflet.markercluster)
 
+### Built with AI Assistance
+
+This project was developed with assistance from [Claude](https://claude.ai/) (Anthropic) for architecture, implementation, and code review, with additional input from [Gemini](https://gemini.google.com/) (Google) for UX feedback and security review.
+
 ---
 
 ## License
