@@ -86,8 +86,9 @@ Full details: [Privacy Policy](docs/PRIVACY_POLICY.md)
 
 - 📰 [Subscribe to Falter](https://abo.falter.at/?ref=785) — Support independent journalism
 - 📚 [Wien, wie es isst](https://shop.falter.at/suche/?q=wien+wie+es+isst) — Their acclaimed restaurant guide books
+- 📱 [Wien, wie es isst App](https://www.falter.at/lokalfuehrer/wien-wie-es-isst-app) — Official mobile app with map feature
 
-*This extension is an independent project and not affiliated with Falter.*
+*This extension brings the map experience to desktop browsers. Independent project, not affiliated with Falter.*
 
 ---
 
