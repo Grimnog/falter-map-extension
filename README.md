@@ -4,6 +4,9 @@ A Chrome extension that displays [Falter Lokalführer](https://www.falter.at/lok
 
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue)
+![Leaflet](https://img.shields.io/badge/Leaflet-199900?logo=leaflet&logoColor=white)
+![OpenStreetMap](https://img.shields.io/badge/OpenStreetMap-7EBC6F?logo=openstreetmap&logoColor=white)
+![Bunny Fonts](https://img.shields.io/badge/Bunny_Fonts-GDPR-ff6600)
 
 ---
 
@@ -31,9 +34,19 @@ A Chrome extension that displays [Falter Lokalführer](https://www.falter.at/lok
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
-*Coming soon*
+**Click the button on Falter's search results page:**
+
+![Falter search page with map button](docs/images/screenshot-list.png)
+
+**View restaurants on an interactive map:**
+
+![Map modal showing restaurants](docs/images/screenshot-map.png)
+
+**Access settings via the extension popup:**
+
+![Extension popup menu](docs/images/screenshot-extmenu.png)
 
 ---
 
