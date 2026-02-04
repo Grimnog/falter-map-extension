@@ -58,10 +58,6 @@
     {
       "resources": ["modules/*.js"],
       "matches": ["https://www.falter.at/*"]
-    },
-    {
-      "resources": ["modules/*.js", "tests/test-runner.html", "tests/*.js"],
-      "matches": ["<all_urls>"]
     }
   ]
 }
