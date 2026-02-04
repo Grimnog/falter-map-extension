@@ -22,60 +22,20 @@ This document contains all backlog tickets that can be drawn from for future spr
 
 **Note:** Most E03 tickets have been completed and are archived in `docs/CHANGELOG_TICKETS.md`.
 
-### 🎟️ **TICKET: FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug**
+### ✅ **TICKET: FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug** ✅ RESOLVED
 - Epic: E03 (Testing & Reliability)
-- Status: Open (Needs Investigation)
+- Status: Closed (Fixed by other tickets)
 - Priority: 🟢 Medium
+- Resolved: 2026-02-04
 
-**User Story:**
-As a user, I want the result list in the map modal to display correctly and consistently, so I can browse and select restaurants reliably.
+**Resolution:**
+Issue no longer observable after Sprint 10 fixes. The cache/list behavior issues were resolved as a side effect of:
+- **FALTMAP-44** - Fixed status message updates when loading from cache
+- **FALTMAP-38** - Fixed greyed-out list flash on modal open
 
-**Context:**
-During testing of FALTMAP-34, inconsistencies were observed in:
-- Result list display behavior
-- Cache behavior and how it affects the list
-- Possible issues with how results are rendered
+The fixes to cache loading logic and progressive list population resolved the underlying display inconsistencies. No further investigation needed.
 
-**Current Status:**
-- Issue observed but not fully explored
-- Needs investigation to understand root cause
-- May be related to caching, rendering, or data flow
-
-**Investigation Tasks:**
-1. **Reproduce the issue:**
-   - Test with cached results
-   - Test with fresh geocoding
-   - Test with mixed (some cached, some new)
-   - Document exact steps to reproduce
-
-2. **Identify symptoms:**
-   - What is displaying incorrectly?
-   - When does it occur? (always, sometimes, specific conditions?)
-   - Does it affect all results or just some?
-
-3. **Analyze potential causes:**
-   - Cache loading logic
-   - Result list rendering in MapModal
-   - Coordinate assignment
-   - DOM updates during geocoding
-
-4. **Determine scope:**
-   - Is it a display bug (cosmetic)?
-   - Is it a data bug (wrong info)?
-   - Does it affect functionality?
-
-**Acceptance Criteria (TBD after investigation):**
-- [ ] Issue fully reproduced and documented
-- [ ] Root cause identified
-- [ ] Fix implemented (or sub-tickets created)
-- [ ] Manual testing confirms fix
-- [ ] No regressions introduced
-
-**Technical Notes:**
-- This ticket is in investigation phase
-- Will be refined once issue is better understood
-- May split into multiple tickets if multiple issues found
-- Priority may change based on severity
+**Closed:** Issue resolved, no action required.
 
 ---
 

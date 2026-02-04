@@ -86,8 +86,10 @@ Only show restaurants with coordinates (from cache) after skeleton delay. Restau
 ## Deferred Until Final Polish:
 - FALTMAP-35 - Improve README Documentation (will update when all features finalized)
 
+## Resolved (No Action Needed):
+- FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug (fixed by FALTMAP-44/38)
+
 ## Deferred to Post-v1.0:
-- FALTMAP-36 - Investigate MapModal Result List and Cache Behavior Bug
 - FALTMAP-39 - Optimize Auto-Zoom Behavior
 - FALTMAP-24 - Privacy Policy for Chrome Web Store
 - FALTMAP-25 - XSS Hardening
