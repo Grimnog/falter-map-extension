@@ -34,6 +34,12 @@ NOTES.md
 GEMINI_PROMPT*.md
 GEMINI_REVIEW*.md
 
-# Analysis and policy documents (private)
+# Internal documentation (kept locally only)
+docs/AGENT.md
+docs/CLAUDE.md
+docs/GEMINI.md
+docs/BACKLOG.md
+docs/CHANGELOG_TICKETS.md
+docs/IMPLEMENTATION.md
 docs/REFACTORING_ANALYSIS.md
 docs/ChromeWebStorePolicy.md
