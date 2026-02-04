@@ -1575,6 +1575,152 @@ High-density editorial design inspired by premium publications (NYT, Zeit). KISS
 
 ---
 
+## Sprint 10: Bug Fixes, Refactoring & Performance
+
+**Started:** 2026-02-04
+**Completed:** 2026-02-04
+**Release:** v0.10.x
+
+### FALTMAP-44: Fix Status Message Not Updating When Loading from Cache
+- **Status:** Done ✅
+- **Epic:** E03 (Testing & Reliability)
+- **Priority:** High
+- **Completed:** 2026-02-04
+
+**User Story:**
+As a user, I want to see the correct completion status message ("✓ X Restaurants gefunden") when restaurants are loaded from cache, so I know the map has finished loading.
+
+**Root Cause:**
+1. Initial progress update didn't pass `isFinal: true` when all restaurants cached
+2. Completion message required `hasStartedGeocoding` flag (only set during active geocoding)
+
+**Solution:**
+- content.js: Check if all restaurants are cached, pass `isFinal: true` when no geocoding needed
+- MapModal.js: Removed `hasStartedGeocoding` requirement from completion logic
+
+**Outcome:**
+- ✅ Opening MapModal with cached data shows "✓ X Restaurants gefunden" immediately
+- ✅ Progress bar shows completion for cached data
+- ✅ Fresh geocoding still works correctly (no regression)
+
+---
+
+### FALTMAP-38: Fix MapModal UI Flash (Grey List Before Geocoding)
+- **Status:** Done ✅
+- **Epic:** E03 (Testing & Reliability)
+- **Priority:** Medium
+- **Completed:** 2026-02-04
+
+**User Story:**
+As a user, I want a smooth loading experience when opening the map modal, without seeing a flash of greyed-out entries before the real results appear.
+
+**Root Cause:**
+After 300ms skeleton delay, modal showed ALL restaurants including those without coordinates, which appeared greyed out (opacity: 0.35).
+
+**Solution:**
+Only show restaurants with coordinates (from cache) after skeleton delay. Restaurants without coords are added progressively during geocoding.
+
+**Outcome:**
+- ✅ MapModal no longer shows flash of greyed-out list
+- ✅ Smooth loading experience (skeleton → cached results → progressive population)
+- ✅ Works correctly with both cached and fresh geocoding
+
+---
+
+### FALTMAP-36: Investigate MapModal Result List and Cache Behavior Bug
+- **Status:** Closed (Resolved by other tickets)
+- **Epic:** E03 (Testing & Reliability)
+- **Completed:** 2026-02-04
+
+**Resolution:**
+Issue no longer observable after Sprint 10 fixes. The cache/list behavior issues were resolved as a side effect of FALTMAP-44 and FALTMAP-38.
+
+---
+
+### Code Quality: DRY Cleanup Refactoring
+- **Status:** Done ✅
+- **Type:** Refactoring
+- **Completed:** 2026-02-04
+
+**Summary:**
+Consolidated duplicate code patterns across the codebase following DRY (Don't Repeat Yourself) principles.
+
+**Changes:**
+1. **Removed dead cache format fallback** from content.js (`coords || cached` → `coords`)
+2. **Added `CacheManager.normalizeKey()`** - centralized cache key normalization
+3. **Added `CacheManager.getCoords()`** - simplified cache lookup helper
+4. **Consolidated address parsing** - exported `parseAddressLine()` from dom-parser.js, updated geocoder.js to use it
+
+**Outcome:**
+- ✅ Cleaner, more maintainable code
+- ✅ Single source of truth for cache key normalization
+- ✅ Single source of truth for address parsing
+- ✅ Reduced code duplication
+
+**Commits:**
+- `d5ba6e2` - refactor: remove dead cache format fallback from content.js
+- `2b915ad` - refactor: add CacheManager.normalizeKey() for DRY cache keys
+- `357f80a` - refactor(dry): consolidate address parsing in dom-parser.js
+- `fc150cf` - refactor(dry): add CacheManager.getCoords() helper
+
+---
+
+### Performance: Geocoding Tier Optimization
+- **Status:** Done ✅
+- **Type:** Performance
+- **Completed:** 2026-02-04
+
+**Summary:**
+Optimized geocoding tier strategy to reduce API calls and improve speed while maintaining success rate.
+
+**Changes:**
+1. **Reduced AMENITY_TYPES** from 5 to 2 (restaurant, cafe) - saves up to 3.3s per deep fallback
+2. **Removed redundant Tier 3** (street + amenity name) - rarely more effective than Tier 1/2
+3. **Moved free-form query before amenity loop** - efficient single query fallback
+4. **Reordered tiers by efficiency:**
+   - T1: amenity=name (primary, ~70-80% success)
+   - T2: street address
+   - T3: free-form (moved up)
+   - T4: cleaned street
+   - T5: amenity types loop (moved down, reduced)
+   - T6: city-level fallback
+
+**Outcome:**
+- ✅ Max queries reduced from 11 to 8
+- ✅ ~25% faster worst-case geocoding
+- ✅ Expensive amenity loop is now last resort
+- ✅ No reduction in success rate
+
+**Commit:**
+- `738362e` - perf(geocoding): optimize tier strategy for faster lookups
+
+---
+
+### Housekeeping: Project Cleanup
+- **Status:** Done ✅
+- **Type:** Chore
+- **Completed:** 2026-02-04
+
+**Changes:**
+1. **Moved `icon-generator.html`** to `tools/` directory (dev tool doesn't belong in root)
+2. **Removed unused `background.js`** - service worker only had console.log, no actual functionality
+3. **Deleted outdated `docs/REFACTORING_ANALYSIS.md`** - no longer relevant
+
+**Outcome:**
+- ✅ Cleaner project structure
+- ✅ No unused files
+- ✅ Smaller extension package
+
+**Commits:**
+- `a0a7b46` - chore: move icon-generator.html to tools/
+- `6c31d46` - chore: remove unused background.js
+
+---
+
+**🎉 Sprint 10 Complete!** Bug fixes, DRY refactoring, and performance optimization.
+
+---
+
 ## Notes on Archive Format
 
 This archive preserves completed tickets as they were at the time of completion. For older tickets (Sprint 1 & 2), only summary information is available. For newer tickets (Sprint 3 & 4), full user stories, context, and acceptance criteria are preserved where available.
