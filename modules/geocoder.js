@@ -4,17 +4,36 @@ import { CONFIG } from './constants.js';
 import { CacheManager } from './cache-utils.js';
 import { ErrorHandler } from './error-handler.js';
 
+// ============================================
+// CONSTANTS & PATTERNS
+// ============================================
+
+const PATTERNS = {
+    // Address format: "1040 Wien, Wiedner Hauptstraße 15"
+    address: /^(\d{4})\s+([^,]+),\s*(.+)$/,
+
+    // Street cleaning patterns
+    locationPrefix: /^(Strombad|Nord|Süd|Ost|West|Alt|Neu)\s+/i,
+    parenthesized: /\s*\([^)]*\)/g,
+    blockDescriptor: /\b(Block|Gebäude|Halle|Stand|Standplatz|Trakt|Sektor)\s+[IVX0-9A-Za-z]+/gi,
+    romanNumeral: /\b[IVX]+\.\s+/g,
+    multipleSpaces: /\s+/g
+};
+
+// Amenity types to try when restaurant name fails
+const AMENITY_TYPES = ['restaurant', 'cafe', 'bar', 'fast_food', 'pub'];
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
 /**
  * Parse address into components for structured queries
  * @param {string} address - Full address string
  * @returns {Object} { zip, city, street } or null if parsing fails
  */
 function parseAddress(address) {
-    // Pattern: "{ZIP} {City}, {Street}"
-    // Examples: "3420 Klosterneuburg, Donaulände 15"
-    //           "8010 Graz, Heinrichstraße 56"
-    //           "1040 Wien, Rechte Wienzeile 1"
-    const match = address.match(/^(\d{4})\s+([^,]+),\s*(.+)$/);
+    const match = address.match(PATTERNS.address);
 
     if (match) {
         return {
@@ -24,39 +43,22 @@ function parseAddress(address) {
         };
     }
 
-    console.warn('Could not parse address:', address);
     return null;
 }
 
 /**
  * Clean street name by removing common descriptors that confuse geocoding
- * Uses generic regex patterns instead of hardcoded lists
  * @param {string} street - Street name to clean
  * @returns {string} Cleaned street name
  */
 function cleanStreetName(street) {
-    let cleaned = street;
-
-    // 1. Remove leading location/directional prefixes
-    // Matches: "Strombad X", "Nord X", "Süd X", "Ost X", "West X", "Alt X", "Neu X"
-    cleaned = cleaned.replace(/^(Strombad|Nord|Süd|Ost|West|Alt|Neu)\s+/i, '');
-
-    // 2. Remove parenthesized sections
-    // Matches: "(Seepark)", "(Tourismusprojekte – Name)", etc.
-    cleaned = cleaned.replace(/\s*\([^)]*\)/g, '');
-
-    // 3. Remove building/block/hall/stand descriptors
-    // Matches: "Block VI", "Gebäude A", "Stand 19", "Halle 3"
-    cleaned = cleaned.replace(/\b(Block|Gebäude|Halle|Stand|Standplatz|Trakt|Sektor)\s+[IVX0-9A-Za-z]+/gi, '');
-
-    // 4. Remove Roman numerals with optional dot at start or middle
-    // Matches: "II. Block", "III. Straße", standalone "II."
-    cleaned = cleaned.replace(/\b[IVX]+\.\s+/g, '');
-
-    // 5. Clean up multiple spaces and trim
-    cleaned = cleaned.replace(/\s+/g, ' ').trim();
-
-    return cleaned;
+    return street
+        .replace(PATTERNS.locationPrefix, '')      // Remove "Strombad", "Nord", etc.
+        .replace(PATTERNS.parenthesized, '')       // Remove "(Seepark)", etc.
+        .replace(PATTERNS.blockDescriptor, '')     // Remove "Block VI", "Stand 19", etc.
+        .replace(PATTERNS.romanNumeral, '')        // Remove "II.", "III.", etc.
+        .replace(PATTERNS.multipleSpaces, ' ')     // Clean up spaces
+        .trim();
 }
 
 /**
@@ -73,6 +75,31 @@ function buildStructuredQueryURL(params) {
     });
 
     return `${CONFIG.NOMINATIM.API_URL}?${queryParams}`;
+}
+
+/**
+ * Build free-form query URL for Nominatim
+ * @param {string} query - Free-form search query
+ * @returns {string} Full URL
+ */
+function buildFreeFormQueryURL(query) {
+    return `${CONFIG.NOMINATIM.API_URL}?format=json&q=${encodeURIComponent(query)}&limit=1`;
+}
+
+/** Rate limit delay between geocoding attempts */
+const delay = () => new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
+
+/**
+ * Try a structured geocoding query with common parameters
+ * @param {Object} params - Query params (will add city and postalcode)
+ * @param {string} city - City name
+ * @param {string} zip - Postal code
+ * @param {string} description - Description for logging
+ * @returns {Promise<Object|null>} Coordinates or null
+ */
+async function tryStructuredQuery(params, city, zip, description) {
+    const url = buildStructuredQueryURL({ ...params, city, postalcode: zip });
+    return tryGeocodingQuery(url, description);
 }
 
 /**
@@ -130,107 +157,62 @@ async function tryGeocodingQuery(url, description) {
  * @returns {Promise<Object|null>} Coordinates {lat, lng} or null if all attempts failed
  */
 export async function geocodeAddress(address, restaurantName = null) {
-    console.log('Geocoding:', address, restaurantName ? `(${restaurantName})` : '');
-
     const parsed = parseAddress(address);
 
+    // Fallback for unparseable addresses
     if (!parsed) {
-        // Fallback: try free-form query for unparseable addresses
-        const query = encodeURIComponent(`${address}, Austria`);
-        const url = `${CONFIG.NOMINATIM.API_URL}?format=json&q=${query}&limit=1`;
-        return await tryGeocodingQuery(url, 'free-form (unparseable address)');
+        return tryGeocodingQuery(buildFreeFormQueryURL(`${address}, Austria`), 'free-form (unparseable)');
     }
 
     const { zip, city, street } = parsed;
+    let coords;
 
-    // Tier 1: Restaurant name (PRIMARY - 80/20 solution! ~70-80% success)
+    // Tier 1: Restaurant name (PRIMARY - ~70-80% success)
     if (restaurantName) {
-        const amenityQueryURL = buildStructuredQueryURL({
-            amenity: restaurantName,
-            city: city,
-            postalcode: zip
-        });
-        const coords = await tryGeocodingQuery(amenityQueryURL, `Tier 1: amenity="${restaurantName}"`);
+        coords = await tryStructuredQuery({ amenity: restaurantName }, city, zip, `Tier 1: amenity="${restaurantName}"`);
         if (coords) return coords;
-
-        await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
+        await delay();
     }
 
-    // Tier 2: Street address (reliable fallback for new/untagged restaurants)
-    const streetQueryURL = buildStructuredQueryURL({
-        street: street,
-        city: city,
-        postalcode: zip
-    });
-    const streetCoords = await tryGeocodingQuery(streetQueryURL, `Tier 2: street="${street}"`);
-    if (streetCoords) return streetCoords;
+    // Tier 2: Street address
+    coords = await tryStructuredQuery({ street }, city, zip, `Tier 2: street="${street}"`);
+    if (coords) return coords;
+    await delay();
 
-    await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
-
-    // Tier 3: Combined street + amenity name (disambiguation)
+    // Tier 3: Combined street + amenity
     if (restaurantName) {
-        const combinedQueryURL = buildStructuredQueryURL({
-            street: street,
-            amenity: restaurantName,
-            city: city,
-            postalcode: zip
-        });
-        const combinedCoords = await tryGeocodingQuery(combinedQueryURL, `Tier 3: street + amenity`);
-        if (combinedCoords) return combinedCoords;
-
-        await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
+        coords = await tryStructuredQuery({ street, amenity: restaurantName }, city, zip, 'Tier 3: street + amenity');
+        if (coords) return coords;
+        await delay();
     }
 
-    // Tier 4: Try amenity types (restaurant, cafe, bar, fast_food)
-    const amenityTypes = ['restaurant', 'cafe', 'bar', 'fast_food', 'pub'];
-    for (const amenityType of amenityTypes) {
-        const amenityTypeQueryURL = buildStructuredQueryURL({
-            street: street,
-            amenity: amenityType,
-            city: city,
-            postalcode: zip
-        });
-        const amenityTypeCoords = await tryGeocodingQuery(amenityTypeQueryURL, `Tier 4: amenity="${amenityType}"`);
-        if (amenityTypeCoords) return amenityTypeCoords;
-
-        await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
+    // Tier 4: Try amenity types (restaurant, cafe, bar, etc.)
+    for (const amenityType of AMENITY_TYPES) {
+        coords = await tryStructuredQuery({ street, amenity: amenityType }, city, zip, `Tier 4: amenity="${amenityType}"`);
+        if (coords) return coords;
+        await delay();
     }
 
-    // Tier 5: Cleaned street name (drop prefixes like "Strombad")
+    // Tier 5: Cleaned street name (remove prefixes like "Strombad")
     const cleanedStreet = cleanStreetName(street);
     if (cleanedStreet !== street) {
-        const cleanedStreetQueryURL = buildStructuredQueryURL({
-            street: cleanedStreet,
-            city: city,
-            postalcode: zip
-        });
-        const cleanedStreetCoords = await tryGeocodingQuery(cleanedStreetQueryURL, `Tier 5: cleaned street="${cleanedStreet}"`);
-        if (cleanedStreetCoords) return cleanedStreetCoords;
-
-        await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
+        coords = await tryStructuredQuery({ street: cleanedStreet }, city, zip, `Tier 5: cleaned="${cleanedStreet}"`);
+        if (coords) return coords;
+        await delay();
     }
 
-    // Tier 6: Free-form query (try before settling for approximate)
-    const freeFormQuery = encodeURIComponent(`${address}, Austria`);
-    const freeFormQueryURL = `${CONFIG.NOMINATIM.API_URL}?format=json&q=${freeFormQuery}&limit=1`;
-    const freeFormCoords = await tryGeocodingQuery(freeFormQueryURL, `Tier 6: free-form fallback`);
-    if (freeFormCoords) return freeFormCoords;
+    // Tier 6: Free-form query
+    coords = await tryGeocodingQuery(buildFreeFormQueryURL(`${address}, Austria`), 'Tier 6: free-form');
+    if (coords) return coords;
+    await delay();
 
-    await new Promise(resolve => setTimeout(resolve, CONFIG.NOMINATIM.RETRY_DELAY_MS));
-
-    // Tier 7: City-level only (approximate - absolute last resort)
-    const cityQueryURL = buildStructuredQueryURL({
-        city: city,
-        postalcode: zip
-    });
-    const cityCoords = await tryGeocodingQuery(cityQueryURL, `Tier 7: city-level (approximate)`);
-    if (cityCoords) {
-        cityCoords.approximate = true; // Flag for user warning
-        console.warn('⚠ Approximate location (city-level) for:', address);
-        return cityCoords;
+    // Tier 7: City-level only (approximate - last resort)
+    coords = await tryStructuredQuery({}, city, zip, 'Tier 7: city-level (approximate)');
+    if (coords) {
+        coords.approximate = true;
+        return coords;
     }
 
-    console.warn('✗ No results for any variation of:', address);
     return null;
 }
 
@@ -258,7 +240,7 @@ export async function geocodeRestaurants(restaurantList, progressCallback) {
             const cached = cache[cacheKey];
             results.push({
                 ...restaurant,
-                coords: cached.coords || cached, // Support both old and new format
+                coords: cached.coords,
                 fromCache: true
             });
         } else {
