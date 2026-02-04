@@ -57,13 +57,16 @@
         }, CONFIG.UI.SKELETON_DELAY_MS);
 
         const initialLocatedCount = currentResults.filter(r => r.coords).length;
-        mapModal.updateProgress(restaurants.length, restaurants.length, initialLocatedCount);
 
         // Check if we need to geocode anything
         const needsGeocoding = restaurants.filter(r => {
             const cacheKey = r.address.toLowerCase().trim();
             return !cache[cacheKey];
         });
+
+        // Update progress - mark as final if all restaurants are already cached
+        const allCached = needsGeocoding.length === 0;
+        mapModal.updateProgress(restaurants.length, restaurants.length, initialLocatedCount, allCached);
 
         if (needsGeocoding.length > 0) {
             mapModal.showLoadingStatus();

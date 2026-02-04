@@ -258,8 +258,8 @@ export class MapModal {
                 // Geocoding in progress
                 this.hasStartedGeocoding = true;
                 this.dom.statusSubtitle.textContent = 'Restaurants werden gesucht...';
-            } else if (isFinal && this.hasStartedGeocoding && !this.isProgressComplete) {
-                // Show completion with checkmark (only on explicit final call)
+            } else if (isFinal && !this.isProgressComplete) {
+                // Show completion with checkmark (for both fresh geocoding and cached data)
                 this.isProgressComplete = true;
                 this.dom.statusSubtitle.innerHTML = `<span class="status-checkmark">✓</span> ${located} ${located === 1 ? 'Restaurant' : 'Restaurants'} gefunden`;
 
