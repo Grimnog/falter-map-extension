@@ -22,11 +22,18 @@ const PATTERNS = {
     // Lines to skip when extracting name (status messages)
     skipLine: /^(derzeit|jetzt|öffnet|geschlossen|bis\s)/i,
 
-    // Address line detection: starts with 4-digit ZIP
-    addressLine: /^\d{4}\s+[A-Za-zäöüÄÖÜß]/i,
+    // Address line detection: starts with 4-digit ZIP followed by letter
+    // Includes common European accented characters
+    addressLine: /^\d{4}\s+[A-Za-zäöüÄÖÜßéèêëàáâ]/i,
 
-    // Street number at end of street name: "Hauptstraße 15" or "Gasse 7a"
-    streetNumber: /^(.+?)\s+(\d+[A-Za-z\/\-]*)$/
+    // Street number at end: "Hauptstraße 15", "Gasse 7a", "Straße 15-17", "Weg 7/2/3"
+    streetNumber: /^(.+?)\s+(\d+[A-Za-z]?(?:[-\/]\d+[A-Za-z]?)*)$/,
+
+    // Valid Austrian ZIP code (4 digits, 1000-9999)
+    validZip: /^[1-9]\d{3}$/,
+
+    // Valid city name (at least 2 chars, letters/spaces/hyphens)
+    validCity: /^[A-Za-zäöüÄÖÜßéèêëàáâ][A-Za-zäöüÄÖÜßéèêëàáâ\s\-\.]+$/
 };
 
 // ============================================
@@ -34,8 +41,31 @@ const PATTERNS = {
 // ============================================
 
 /**
+ * Validate parsed address components
+ * @param {Object} parsed - Parsed address object
+ * @returns {boolean} True if address looks valid
+ */
+function isValidAddress(parsed) {
+    if (!parsed) return false;
+
+    const { zip, city, street } = parsed;
+
+    // ZIP must be valid Austrian format (1000-9999)
+    if (!PATTERNS.validZip.test(zip)) return false;
+
+    // City must be at least 2 characters and look like a name
+    if (!city || city.length < 2 || !PATTERNS.validCity.test(city)) return false;
+
+    // Street must exist and be at least 2 characters
+    if (!street || street.length < 2) return false;
+
+    return true;
+}
+
+/**
  * Parse address from text using step-by-step approach
  * Handles: "1040 Wien, Wiedner Hauptstraße 15" or "7083 Purbach am See, Hauptgasse 64"
+ * Also handles: "1010 Wien, Innere Stadt, Stephansplatz 1" (multiple commas)
  * @param {string} text - Text containing address
  * @returns {Object|null} { zip, city, street, number } or null if not found
  */
@@ -46,23 +76,56 @@ function parseAddress(text) {
     const addressLine = lines.find(line => PATTERNS.addressLine.test(line));
     if (!addressLine) return null;
 
-    // Step 2: Split on comma - "1040 Wien, Wiedner Hauptstraße 15"
-    const commaIndex = addressLine.indexOf(',');
-    if (commaIndex === -1) return null;
+    // Step 2: Find comma to split on
+    // Use LAST comma for "1010 Wien, Innere Stadt, Stephansplatz 1" → street = "Stephansplatz 1"
+    // Use FIRST comma for "1040 Wien, Wiedner Hauptstraße 15" → street = "Wiedner Hauptstraße 15"
+    const commas = [...addressLine.matchAll(/,/g)].map(m => m.index);
+    if (commas.length === 0) return null;
 
+    // Try last comma first (handles multi-comma addresses)
+    // If that fails validation, fall back to first comma
+    let result = tryParseWithCommaAt(addressLine, commas[commas.length - 1]);
+
+    if (!isValidAddress(result) && commas.length > 1) {
+        // Try first comma as fallback
+        result = tryParseWithCommaAt(addressLine, commas[0]);
+    }
+
+    // Final validation
+    if (!isValidAddress(result)) {
+        return null;
+    }
+
+    return result;
+}
+
+/**
+ * Try to parse address splitting at specific comma position
+ * @param {string} addressLine - Full address line
+ * @param {number} commaIndex - Index of comma to split at
+ * @returns {Object|null} Parsed address or null
+ */
+function tryParseWithCommaAt(addressLine, commaIndex) {
     const locationPart = addressLine.substring(0, commaIndex).trim();
     const streetPart = addressLine.substring(commaIndex + 1).trim();
 
     if (!locationPart || !streetPart) return null;
 
-    // Step 3: Extract ZIP and city from location part
+    // Extract ZIP and city from location part
+    // Handle: "1040 Wien" or "1010 Wien, Innere Stadt" (when using last comma)
     const zipMatch = locationPart.match(/^(\d{4})\s+(.+)$/);
     if (!zipMatch) return null;
 
     const zip = zipMatch[1];
-    const city = zipMatch[2].trim();
+    let city = zipMatch[2].trim();
 
-    // Step 4: Extract street and optional number
+    // If city contains comma, we split wrong - take only first part
+    // "Wien, Innere Stadt" → "Wien"
+    if (city.includes(',')) {
+        city = city.split(',')[0].trim();
+    }
+
+    // Extract street and optional number
     const numberMatch = streetPart.match(PATTERNS.streetNumber);
 
     if (numberMatch) {
@@ -120,8 +183,9 @@ export function parseRestaurantsFromDOM(doc) {
     const restaurants = [];
     const links = doc.querySelectorAll(SELECTORS.restaurantLink);
 
-    // Track parsing stats for debugging
-    let stats = { found: links.length, parsed: 0, noName: 0, noAddress: 0, duplicate: 0 };
+    // Track parsing stats and failed items for debugging
+    const stats = { found: links.length, parsed: 0, noName: 0, noAddress: 0, duplicate: 0 };
+    const failed = { noName: [], noAddress: [] };
 
     links.forEach(link => {
         const href = link.getAttribute('href');
@@ -137,9 +201,17 @@ export function parseRestaurantsFromDOM(doc) {
         const name = parseName(link, text);
         const address = parseAddress(text);
 
-        // Track failure reasons
-        if (!name) { stats.noName++; return; }
-        if (!address) { stats.noAddress++; return; }
+        // Track failure reasons with details
+        if (!name) {
+            stats.noName++;
+            failed.noName.push({ id, textPreview: text.substring(0, 100) });
+            return;
+        }
+        if (!address) {
+            stats.noAddress++;
+            failed.noAddress.push({ id, name, textPreview: text.substring(0, 150) });
+            return;
+        }
 
         const { zip, city, street, number } = address;
 
@@ -162,10 +234,18 @@ export function parseRestaurantsFromDOM(doc) {
     });
 
     // Log parsing summary
-    console.log(`Parsing: ${stats.parsed}/${stats.found} restaurants` +
-        (stats.noName ? `, ${stats.noName} no name` : '') +
-        (stats.noAddress ? `, ${stats.noAddress} no address` : '') +
-        (stats.duplicate ? `, ${stats.duplicate} duplicates` : ''));
+    const successRate = stats.found > 0 ? Math.round((stats.parsed / stats.found) * 100) : 0;
+    console.log(`Parsing: ${stats.parsed}/${stats.found} (${successRate}%)` +
+        (stats.noName ? ` | ${stats.noName} no name` : '') +
+        (stats.noAddress ? ` | ${stats.noAddress} no address` : '') +
+        (stats.duplicate ? ` | ${stats.duplicate} duplicates` : ''));
+
+    // Log details of failed parses for debugging (only if failures exist)
+    if (failed.noAddress.length > 0) {
+        console.warn('Failed to parse addresses:', failed.noAddress.map(f =>
+            `${f.name}: "${f.textPreview.replace(/\n/g, ' ').trim()}..."`
+        ));
+    }
 
     return restaurants;
 }
