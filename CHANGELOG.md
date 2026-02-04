@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-02-04
+
+### First Stable Release
+
+**Production-ready release** with all planned features complete and security hardening for Chrome Web Store submission.
+
+### Added
+- Screenshots in README documentation
+- Tech stack badges (Leaflet, OpenStreetMap, Bunny Fonts)
+- Privacy policy for Chrome Web Store compliance
+
+### Changed
+- Replaced all dynamic innerHTML with createElement + textContent (XSS hardening)
+- Cleaned up project structure (removed unused tests folder)
+
+### Security
+- All user-controlled content now uses safe DOM methods
+- referrerPolicy: 'no-referrer' on all fetch requests
+- URL validation for external links
+
+---
+
 ## [0.10.0] - 2026-02-03
 
 ### 🎨 Complete UI/UX Refinement - High-Density Editorial Design

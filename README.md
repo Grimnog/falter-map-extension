@@ -125,8 +125,7 @@ falter-map-extension/
 │   ├── geocoder.js     # Nominatim integration
 │   ├── dom-parser.js   # Falter page parsing
 │   └── ...
-├── vendor/             # Leaflet.js libraries
-└── tests/              # Test suite
+└── vendor/             # Leaflet.js libraries
 ```
 
 </details>
