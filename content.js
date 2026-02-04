@@ -34,7 +34,7 @@
                 const cached = cache[cacheKey];
                 currentResults.push({
                     ...restaurant,
-                    coords: cached.coords || cached // Support both old and new format
+                    coords: cached.coords
                 });
             } else {
                 currentResults.push({
@@ -133,7 +133,7 @@
                     const cached = cache[cacheKey];
                     return {
                         ...r,
-                        coords: cached ? (cached.coords || cached) : null
+                        coords: cached ? cached.coords : null
                     };
                 });
                 mapModal.updateResultsList(resultsWithoutCoords);
