@@ -5,7 +5,7 @@ import { CONFIG } from './constants.js';
 export const CacheManager = {
     /**
      * Load and validate geocoding cache from chrome.storage.local
-     * Automatically migrates old format and filters expired entries
+     * Filters out expired entries
      * @returns {Promise<Object>} Valid cache entries
      */
     async load() {
@@ -15,20 +15,11 @@ export const CacheManager = {
                 const now = Date.now();
                 const validCache = {};
 
-                // Filter and migrate cache entries
+                // Filter expired entries
                 for (const [address, data] of Object.entries(cache)) {
-                    if (!data.expiresAt) {
-                        // Migrate old format: { lat, lng } -> { coords, cachedAt, expiresAt }
-                        validCache[address] = {
-                            coords: data,
-                            cachedAt: now,
-                            expiresAt: now + CONFIG.CACHE.TTL_MS
-                        };
-                    } else if (data.expiresAt > now) {
-                        // Keep valid entries
+                    if (data.expiresAt && data.expiresAt > now) {
                         validCache[address] = data;
                     }
-                    // Expired entries are implicitly filtered out
                 }
 
                 resolve(validCache);
