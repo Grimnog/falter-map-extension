@@ -18,8 +18,8 @@ const PATTERNS = {
     multipleSpaces: /\s+/g
 };
 
-// Amenity types to try when restaurant name fails
-const AMENITY_TYPES = ['restaurant', 'cafe', 'bar', 'fast_food', 'pub'];
+// Amenity types to try as last resort (reduced for speed - most Falter entries are restaurants/cafes)
+const AMENITY_TYPES = ['restaurant', 'cafe'];
 
 // ============================================
 // HELPER FUNCTIONS
@@ -148,7 +148,11 @@ async function tryGeocodingQuery(url, description) {
 
 /**
  * Geocode a single address using OpenStreetMap Nominatim API with structured queries
- * Implements multi-tier fallback strategy for maximum success rate
+ * Implements optimized multi-tier fallback strategy:
+ * - Tiers 1-2: High success rate, specific queries
+ * - Tier 3: Free-form (efficient single query fallback)
+ * - Tiers 4-5: Expensive fallbacks (cleaned street, amenity loop)
+ * - Tier 6: City-level last resort
  *
  * @param {string} address - Full address to geocode
  * @param {string} restaurantName - Restaurant name from Falter (optional but recommended)
@@ -165,47 +169,40 @@ export async function geocodeAddress(address, restaurantName = null) {
     const { zip, city, street } = parsed;
     let coords;
 
-    // Tier 1: Restaurant name (PRIMARY - ~70-80% success)
+    // Tier 1: Restaurant name as amenity (PRIMARY - ~70-80% success)
     if (restaurantName) {
         coords = await tryStructuredQuery({ amenity: restaurantName }, city, zip, `Tier 1: amenity="${restaurantName}"`);
         if (coords) return coords;
         await delay();
     }
 
-    // Tier 2: Street address
+    // Tier 2: Street address only
     coords = await tryStructuredQuery({ street }, city, zip, `Tier 2: street="${street}"`);
     if (coords) return coords;
     await delay();
 
-    // Tier 3: Combined street + amenity
-    if (restaurantName) {
-        coords = await tryStructuredQuery({ street, amenity: restaurantName }, city, zip, 'Tier 3: street + amenity');
-        if (coords) return coords;
-        await delay();
-    }
-
-    // Tier 4: Try amenity types (restaurant, cafe, bar, etc.)
-    for (const amenityType of AMENITY_TYPES) {
-        coords = await tryStructuredQuery({ street, amenity: amenityType }, city, zip, `Tier 4: amenity="${amenityType}"`);
-        if (coords) return coords;
-        await delay();
-    }
-
-    // Tier 5: Cleaned street name (remove prefixes like "Strombad")
-    const cleanedStreet = cleanStreetName(street);
-    if (cleanedStreet !== street) {
-        coords = await tryStructuredQuery({ street: cleanedStreet }, city, zip, `Tier 5: cleaned="${cleanedStreet}"`);
-        if (coords) return coords;
-        await delay();
-    }
-
-    // Tier 6: Free-form query
-    coords = await tryGeocodingQuery(buildFreeFormQueryURL(`${address}, Austria`), 'Tier 6: free-form');
+    // Tier 3: Free-form query (moved up - efficient single query before expensive loop)
+    coords = await tryGeocodingQuery(buildFreeFormQueryURL(`${address}, Austria`), 'Tier 3: free-form');
     if (coords) return coords;
     await delay();
 
-    // Tier 7: City-level only (approximate - last resort)
-    coords = await tryStructuredQuery({}, city, zip, 'Tier 7: city-level (approximate)');
+    // Tier 4: Cleaned street name (remove prefixes like "Strombad", "Nord", etc.)
+    const cleanedStreet = cleanStreetName(street);
+    if (cleanedStreet !== street) {
+        coords = await tryStructuredQuery({ street: cleanedStreet }, city, zip, `Tier 4: cleaned="${cleanedStreet}"`);
+        if (coords) return coords;
+        await delay();
+    }
+
+    // Tier 5: Generic amenity types (last structured attempt - reduced to restaurant/cafe)
+    for (const amenityType of AMENITY_TYPES) {
+        coords = await tryStructuredQuery({ street, amenity: amenityType }, city, zip, `Tier 5: amenity="${amenityType}"`);
+        if (coords) return coords;
+        await delay();
+    }
+
+    // Tier 6: City-level only (approximate - last resort)
+    coords = await tryStructuredQuery({}, city, zip, 'Tier 6: city-level (approximate)');
     if (coords) {
         coords.approximate = true;
         return coords;
