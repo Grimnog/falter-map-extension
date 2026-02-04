@@ -215,7 +215,7 @@ export class MapModal {
             if (this.estimatedTotal && this.estimatedTotal > this.restaurants.length) {
                 const customInfo = document.createElement('div');
                 customInfo.className = 'custom-map-attribution';
-                customInfo.innerHTML = `<strong>${this.restaurants.length} von ${this.estimatedTotal} angezeigt (Limit) · Mit Filter eingrenzen</strong>`;
+                customInfo.textContent = `${this.restaurants.length} von ${this.estimatedTotal} angezeigt (Limit) · Mit Filter eingrenzen`;
 
                 // Add to map container
                 const mapContainer = document.getElementById('modal-map');
@@ -261,7 +261,12 @@ export class MapModal {
             } else if (isFinal && !this.isProgressComplete) {
                 // Show completion with checkmark (for both fresh geocoding and cached data)
                 this.isProgressComplete = true;
-                this.dom.statusSubtitle.innerHTML = `<span class="status-checkmark">✓</span> ${located} ${located === 1 ? 'Restaurant' : 'Restaurants'} gefunden`;
+                this.dom.statusSubtitle.textContent = '';
+                const checkmark = document.createElement('span');
+                checkmark.className = 'status-checkmark';
+                checkmark.textContent = '✓';
+                this.dom.statusSubtitle.appendChild(checkmark);
+                this.dom.statusSubtitle.appendChild(document.createTextNode(` ${located} ${located === 1 ? 'Restaurant' : 'Restaurants'} gefunden`));
 
                 // Fade out progress bar after completion
                 if (this.dom.progressBar) {
@@ -413,13 +418,25 @@ export class MapModal {
                 item.setAttribute('tabindex', '-1');
             }
 
-            item.innerHTML = `
-                <div class="result-number">${index + 1}</div>
-                <div class="result-content">
-                    <div class="result-name">${this.escapeHtml(restaurant.name)}</div>
-                    <div class="result-address">${this.escapeHtml(restaurant.address)}</div>
-                </div>
-            `;
+            const numberDiv = document.createElement('div');
+            numberDiv.className = 'result-number';
+            numberDiv.textContent = index + 1;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'result-content';
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'result-name';
+            nameDiv.textContent = restaurant.name;
+
+            const addressDiv = document.createElement('div');
+            addressDiv.className = 'result-address';
+            addressDiv.textContent = restaurant.address;
+
+            contentDiv.appendChild(nameDiv);
+            contentDiv.appendChild(addressDiv);
+            item.appendChild(numberDiv);
+            item.appendChild(contentDiv);
 
             this.dom.results.appendChild(item);
         });
@@ -500,7 +517,12 @@ export class MapModal {
      */
     showGeocodingError(message = 'Geokodierung fehlgeschlagen') {
         if (this.dom.statusSubtitle) {
-            this.dom.statusSubtitle.innerHTML = `<span class="status-error">✗</span> ${message}`;
+            this.dom.statusSubtitle.textContent = '';
+            const errorIcon = document.createElement('span');
+            errorIcon.className = 'status-error';
+            errorIcon.textContent = '✗';
+            this.dom.statusSubtitle.appendChild(errorIcon);
+            this.dom.statusSubtitle.appendChild(document.createTextNode(` ${message}`));
         }
         if (this.dom.progressBar) {
             this.dom.progressBar.style.display = 'none';
