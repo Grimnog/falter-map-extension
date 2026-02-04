@@ -1,196 +1,144 @@
-<div align="center">
+# Falter Restaurant Map
 
-# 🗺️ Falter Restaurant Map
+A Chrome extension that displays [Falter Lokalführer](https://www.falter.at/lokalfuehrer) restaurant search results on an interactive map.
 
-**Transform your Falter Lokalführer search results into an interactive map**
-
-[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-yellow?style=flat&logo=googlechrome&logoColor=white)](https://www.google.com/chrome/)
-[![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue?style=flat)](https://developer.chrome.com/docs/extensions/mv3/intro/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
-
-</div>
+![License](https://img.shields.io/badge/License-MIT-green)
+![Manifest V3](https://img.shields.io/badge/Manifest-V3-blue)
+![Austria](https://img.shields.io/badge/Austria-All%209%20Bundesl%C3%A4nder-red)
 
 ---
 
-## ✨ Features
+## What It Does
 
-<table>
-<tr>
-<td width="50%">
+When browsing restaurant listings on Falter.at, this extension adds a **"Auf Karte anzeigen"** button that opens an interactive map showing all restaurants from your search results. You can:
 
-### 🗺️ **Austria-Wide Support**
-Works across all 9 Austrian Bundesländer, not just Vienna
+- See all restaurants plotted on a map with numbered markers
+- Click markers or list items to view details
+- Open restaurant pages on Falter.at or get directions via Google Maps
+- Navigate with keyboard shortcuts (arrow keys, Enter, Escape)
 
-### 🔄 **Smart Pagination**
-Automatically fetches all result pages, not just the first one
-
-### 💾 **Intelligent Caching**
-30-day cache with OpenStreetMap geocoding - instant on second search
-
-</td>
-<td width="50%">
-
-### 🎯 **Smart Map Centering**
-Automatically centers on the Bundesland you're searching
-
-### ⌨️ **Keyboard Navigation**
-Use arrow keys to navigate restaurants, ESC to close
-
-### 🔗 **Quick Links**
-Direct links to Falter details and Google Maps
-
-</td>
-</tr>
-</table>
+The extension works across all 9 Austrian Bundesländer and automatically centers the map on the region you're searching.
 
 ---
 
-## 🚀 Quick Start
+## Installation
 
-### Installation
+This extension is not yet published to the Chrome Web Store. To install it manually:
 
-<table>
-<tr><td>
+1. Download or clone this repository
+2. Open `chrome://extensions/` in Chrome, Edge, or Brave
+3. Enable **Developer mode** (toggle in the top right)
+4. Click **Load unpacked**
+5. Select the `falter-map-extension` folder
 
-**For Chrome / Edge / Brave:**
-
-1. 📦 Download and unzip this extension
-2. 🔧 Open `chrome://extensions/`
-3. 🔓 Enable **Developer mode** (top right toggle)
-4. 📂 Click **Load unpacked**
-5. ✅ Select the `falter-map-extension` folder
-
-</td></tr>
-</table>
-
-> **Note:** Firefox uses a different extension format. This is for Chromium-based browsers only.
+The extension icon will appear in your toolbar. Visit any Falter Lokalführer search page to use it.
 
 ---
 
-## 🇦🇹 Austria-Wide Support
+## How It Works
 
-The extension works seamlessly across **all 9 Austrian Bundesländer**:
+1. **Parsing**: When you click the map button, the extension reads restaurant names and addresses from the Falter.at search results page
 
-<table>
-<tr>
-<td>
+2. **Geocoding**: Addresses are converted to map coordinates using the free [OpenStreetMap Nominatim](https://nominatim.org/) API. The extension uses a multi-tier fallback strategy for maximum accuracy
 
-- 🏛️ **Wien** (Vienna)
-- 🌲 **Niederösterreich**
-- 🏔️ **Oberösterreich**
-- 🎵 **Salzburg**
-- ⛷️ **Tirol**
+3. **Caching**: Successfully geocoded addresses are cached locally for 30 days. Repeat searches load instantly without additional API calls
 
-</td>
-<td>
+4. **Display**: Results appear on a Leaflet.js map with clustering for dense areas. A sidebar lists all restaurants with their status
 
-- 🏞️ **Vorarlberg**
-- 🍷 **Steiermark**
-- 🏖️ **Kärnten**
-- 🌾 **Burgenland**
+### Result Limiting
 
-</td>
-</tr>
-</table>
-
-**Smart Features:**
-- 🎯 Map automatically centers on the Bundesland capital you're searching
-- 🔍 Optimized geocoding for Austrian address formats
-- 📍 Building-level precision across all regions
+To respect Nominatim's fair use policy, the extension limits results to **100 restaurants** per search. For better results:
+- Use Falter's filters (district, cuisine, price range)
+- Narrow your search to specific areas
 
 ---
 
-## 📖 How to Use
+## Privacy
 
-```
-1️⃣  Visit falter.at/lokalfuehrer/suche
-2️⃣  Apply your filters (district, cuisine, price, etc.)
-3️⃣  Click "Auf Karte anzeigen" button on the page
-4️⃣  Explore restaurants on the interactive map!
+**Data Processing**
+- Restaurant addresses are sent to the OpenStreetMap Nominatim API for geocoding
+- No other data leaves your browser
+
+**Local Storage**
+- Geocoded coordinates are cached locally for 30 days
+- Cache can be cleared anytime via the extension popup
+
+**No Tracking**
+- No analytics or tracking
+- No personal data collection
+- Uses [Bunny Fonts](https://fonts.bunny.net/) (GDPR-compliant, EU-based) instead of Google Fonts
+
+See [Privacy Policy](docs/PRIVACY_POLICY.md) for full details.
+
+---
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `↑` `↓` | Navigate restaurant list |
+| `Enter` | Open selected restaurant on map |
+| `Escape` | Close modal |
+| `?` | Show help overlay |
+
+---
+
+## Technical Details
+
+| Component | Technology |
+|-----------|------------|
+| Extension Format | Chrome Manifest V3 |
+| Map Library | Leaflet.js with MarkerCluster |
+| Geocoding | OpenStreetMap Nominatim (1 req/sec) |
+| Cache | chrome.storage.local (30-day TTL) |
+| Fonts | Bunny Fonts (Nunito) |
+
+**Supported Browsers**: Chrome, Edge, Brave, Opera (Chromium-based)
+
+---
+
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/Grimnog/falter-map-extension.git
+
+# Load as unpacked extension in Chrome
+# No build step required - plain JavaScript
 ```
 
-**Pro Tips:**
-- ⬆️⬇️ Use arrow keys to navigate through restaurants
-- 🖱️ Click any restaurant in the sidebar to zoom to its location
-- ⚡ Results are cached for 30 days for instant repeat searches
+### Project Structure
+
+```
+falter-map-extension/
+├── manifest.json      # Extension configuration
+├── content.js         # Main content script
+├── content.css        # Modal and UI styles
+├── popup.html/js      # Extension popup
+├── modules/           # JavaScript modules
+│   ├── MapModal.js    # Map modal component
+│   ├── geocoder.js    # Nominatim API integration
+│   ├── dom-parser.js  # Falter page scraping
+│   └── ...
+├── vendor/            # Leaflet.js libraries
+└── tests/             # Test suite
+```
 
 ---
 
-## ⚙️ Settings & Cache
+## License
 
-Open the extension popup to:
-- 📊 View cache statistics
-- 🗑️ Clear cached geocoding data
-- ⏱️ See 30-day expiration info
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-## 🛡️ Privacy & Rate Limiting
+## Credits
 
-- ✅ Uses free OpenStreetMap Nominatim API (respects 1 req/sec limit)
-- ✅ All data stored locally in your browser
-- ✅ No tracking, no analytics, no external servers
-- ✅ Shows API warning for 100+ uncached addresses
-
----
-
-## ❓ FAQ
-
-<details>
-<summary><b>"Auf Karte anzeigen" button doesn't appear?</b></summary>
-
-- Refresh the page
-- Ensure you're on a search results page (`/lokalfuehrer/suche`)
-- Check that the extension is enabled
-</details>
-
-<details>
-<summary><b>How do I clear the cache?</b></summary>
-
-Open the extension popup and click "Clear Cache" button
-</details>
-
-<details>
-<summary><b>Some addresses fail to geocode?</b></summary>
-
-This is normal - some address formats are unusual. The extension tries multiple variations but may miss a few.
-</details>
-
-<details>
-<summary><b>How long does geocoding take?</b></summary>
-
-~1 second per restaurant due to OpenStreetMap rate limits. But cached addresses load instantly!
-</details>
+- Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
+- Geocoding by [Nominatim](https://nominatim.org/)
+- Map library: [Leaflet.js](https://leafletjs.com/)
+- Clustering: [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster)
 
 ---
 
-## 🔧 Technical Details
-
-- **Manifest Version:** V3
-- **Geocoding:** OpenStreetMap Nominatim API
-- **Rate Limit:** 1 request per second
-- **Cache TTL:** 30 days
-- **Map Library:** Leaflet.js
-- **Supported Browsers:** Chrome, Edge, Brave, Opera
-
----
-
-## 📝 Version History
-
-- **v0.9.0** - **Austria-wide support**: All 9 Bundesländer, smart map centering, optimized geocoding with 7-tier fallback system
-- **v0.8.0** - UI/UX polish: Bunny Fonts (GDPR-compliant), German popup redesign, integrated status badge
-- **v0.7.0** - Result limiting (100 max) to respect Nominatim TOS and be a good open-source citizen
-- **v0.6.0** - Testing infrastructure: comprehensive test suite, automated testing, fixtures
-- **v0.5.0** - UX enhancements: visual progress bar, keyboard shortcuts help overlay, improved feedback
-- **v0.4.0** - Code refactoring: modular architecture, eliminated code duplication, centralized configuration
-- **v0.3.0** - Major UX improvements: loading skeleton, empty states, smooth pin animations, compact popup design
-- **v0.2.0** - Fixed pagination detection (case-insensitive)
-- **v0.1.0** - Initial development release with geocoding cache and keyboard navigation
-
----
-
-<div align="center">
-
-Made with ❤️ for Austrian foodies | Powered by OpenStreetMap
-
-</div>
+*Built for Austrian food lovers who want to explore restaurants on a map.*
