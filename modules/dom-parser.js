@@ -37,7 +37,34 @@ const PATTERNS = {
 };
 
 // ============================================
-// HELPER FUNCTIONS
+// ADDRESS PARSING (shared with geocoder.js)
+// ============================================
+
+/**
+ * Parse a single address line into components
+ * Exported for use by geocoder.js
+ * @param {string} addressLine - Single address line like "1040 Wien, Wiedner Hauptstraße 15"
+ * @returns {Object|null} { zip, city, street, number } or null if parsing fails
+ */
+export function parseAddressLine(addressLine) {
+    if (!addressLine || typeof addressLine !== 'string') return null;
+
+    // Find comma to split on
+    const commas = [...addressLine.matchAll(/,/g)].map(m => m.index);
+    if (commas.length === 0) return null;
+
+    // Try last comma first (handles "Wien, Innere Stadt, Stephansplatz 1")
+    let result = tryParseWithCommaAt(addressLine, commas[commas.length - 1]);
+
+    if (!isValidAddress(result) && commas.length > 1) {
+        result = tryParseWithCommaAt(addressLine, commas[0]);
+    }
+
+    return isValidAddress(result) ? result : null;
+}
+
+// ============================================
+// INTERNAL HELPER FUNCTIONS
 // ============================================
 
 /**
@@ -63,40 +90,20 @@ function isValidAddress(parsed) {
 }
 
 /**
- * Parse address from text using step-by-step approach
- * Handles: "1040 Wien, Wiedner Hauptstraße 15" or "7083 Purbach am See, Hauptgasse 64"
- * Also handles: "1010 Wien, Innere Stadt, Stephansplatz 1" (multiple commas)
- * @param {string} text - Text containing address
+ * Parse address from multi-line DOM text
+ * Finds the address line and parses it
+ * @param {string} text - Multi-line text containing address
  * @returns {Object|null} { zip, city, street, number } or null if not found
  */
 function parseAddress(text) {
     const lines = text.split('\n').map(l => l.trim());
 
-    // Step 1: Find the address line (starts with 4-digit ZIP)
+    // Find the address line (starts with 4-digit ZIP)
     const addressLine = lines.find(line => PATTERNS.addressLine.test(line));
     if (!addressLine) return null;
 
-    // Step 2: Find comma to split on
-    // Use LAST comma for "1010 Wien, Innere Stadt, Stephansplatz 1" → street = "Stephansplatz 1"
-    // Use FIRST comma for "1040 Wien, Wiedner Hauptstraße 15" → street = "Wiedner Hauptstraße 15"
-    const commas = [...addressLine.matchAll(/,/g)].map(m => m.index);
-    if (commas.length === 0) return null;
-
-    // Try last comma first (handles multi-comma addresses)
-    // If that fails validation, fall back to first comma
-    let result = tryParseWithCommaAt(addressLine, commas[commas.length - 1]);
-
-    if (!isValidAddress(result) && commas.length > 1) {
-        // Try first comma as fallback
-        result = tryParseWithCommaAt(addressLine, commas[0]);
-    }
-
-    // Final validation
-    if (!isValidAddress(result)) {
-        return null;
-    }
-
-    return result;
+    // Use shared parseAddressLine for actual parsing
+    return parseAddressLine(addressLine);
 }
 
 /**

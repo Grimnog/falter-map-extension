@@ -3,15 +3,13 @@
 import { CONFIG } from './constants.js';
 import { CacheManager } from './cache-utils.js';
 import { ErrorHandler } from './error-handler.js';
+import { parseAddressLine } from './dom-parser.js';
 
 // ============================================
 // CONSTANTS & PATTERNS
 // ============================================
 
 const PATTERNS = {
-    // Address format: "1040 Wien, Wiedner Hauptstraße 15"
-    address: /^(\d{4})\s+([^,]+),\s*(.+)$/,
-
     // Street cleaning patterns
     locationPrefix: /^(Strombad|Nord|Süd|Ost|West|Alt|Neu)\s+/i,
     parenthesized: /\s*\([^)]*\)/g,
@@ -29,21 +27,21 @@ const AMENITY_TYPES = ['restaurant', 'cafe', 'bar', 'fast_food', 'pub'];
 
 /**
  * Parse address into components for structured queries
+ * Uses shared parseAddressLine from dom-parser.js
  * @param {string} address - Full address string
  * @returns {Object} { zip, city, street } or null if parsing fails
  */
 function parseAddress(address) {
-    const match = address.match(PATTERNS.address);
+    const parsed = parseAddressLine(address);
+    if (!parsed) return null;
 
-    if (match) {
-        return {
-            zip: match[1],
-            city: match[2].trim(),
-            street: match[3].trim()
-        };
-    }
-
-    return null;
+    // Combine street + number for geocoding queries
+    const { zip, city, street, number } = parsed;
+    return {
+        zip,
+        city,
+        street: number ? `${street} ${number}` : street
+    };
 }
 
 /**
