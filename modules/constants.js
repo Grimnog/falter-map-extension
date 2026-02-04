@@ -18,7 +18,7 @@ export const CONFIG = {
     NOMINATIM: {
         RATE_LIMIT_MS: 1100,
         RETRY_DELAY_MS: 200,
-        USER_AGENT: 'FalterMapExtension/1.0',
+        USER_AGENT: 'FalterMapExtension/1.0 (https://github.com/Grimnog/falter-map-extension)',
         API_URL: 'https://nominatim.openstreetmap.org/search'
     },
 
