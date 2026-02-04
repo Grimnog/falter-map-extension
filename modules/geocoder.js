@@ -259,7 +259,7 @@ export async function geocodeRestaurants(restaurantList, progressCallback) {
             const cached = cache[cacheKey];
             results.push({
                 ...restaurant,
-                coords: cached.coords || cached, // Support both old and new format
+                coords: cached.coords,
                 fromCache: true
             });
         } else {
