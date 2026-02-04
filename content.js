@@ -47,12 +47,15 @@
         // Display initial results with skeleton
         mapModal.updateResultsList([]);
         setTimeout(() => {
-            mapModal.updateResultsList(currentResults);
-            mapModal.updateMapMarkers(currentResults.filter(r => r.coords), false);
+            // Only show restaurants with coordinates (from cache)
+            // Restaurants without coords will be added progressively during geocoding
+            const restaurantsWithCoords = currentResults.filter(r => r.coords);
+            mapModal.updateResultsList(restaurantsWithCoords);
+            mapModal.updateMapMarkers(restaurantsWithCoords, false);
 
-            // Update navigation with current results
+            // Update navigation with cached results only
             if (navigation) {
-                navigation.updateNavigableRestaurants(currentResults);
+                navigation.updateNavigableRestaurants(restaurantsWithCoords);
             }
         }, CONFIG.UI.SKELETON_DELAY_MS);
 
