@@ -4,17 +4,36 @@ import { CONFIG } from './constants.js';
 import { CacheManager } from './cache-utils.js';
 import { ErrorHandler } from './error-handler.js';
 
+// ============================================
+// CONSTANTS & PATTERNS
+// ============================================
+
+const PATTERNS = {
+    // Address format: "1040 Wien, Wiedner Hauptstraße 15"
+    address: /^(\d{4})\s+([^,]+),\s*(.+)$/,
+
+    // Street cleaning patterns
+    locationPrefix: /^(Strombad|Nord|Süd|Ost|West|Alt|Neu)\s+/i,
+    parenthesized: /\s*\([^)]*\)/g,
+    blockDescriptor: /\b(Block|Gebäude|Halle|Stand|Standplatz|Trakt|Sektor)\s+[IVX0-9A-Za-z]+/gi,
+    romanNumeral: /\b[IVX]+\.\s+/g,
+    multipleSpaces: /\s+/g
+};
+
+// Amenity types to try when restaurant name fails
+const AMENITY_TYPES = ['restaurant', 'cafe', 'bar', 'fast_food', 'pub'];
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
 /**
  * Parse address into components for structured queries
  * @param {string} address - Full address string
  * @returns {Object} { zip, city, street } or null if parsing fails
  */
 function parseAddress(address) {
-    // Pattern: "{ZIP} {City}, {Street}"
-    // Examples: "3420 Klosterneuburg, Donaulände 15"
-    //           "8010 Graz, Heinrichstraße 56"
-    //           "1040 Wien, Rechte Wienzeile 1"
-    const match = address.match(/^(\d{4})\s+([^,]+),\s*(.+)$/);
+    const match = address.match(PATTERNS.address);
 
     if (match) {
         return {
@@ -24,39 +43,22 @@ function parseAddress(address) {
         };
     }
 
-    console.warn('Could not parse address:', address);
     return null;
 }
 
 /**
  * Clean street name by removing common descriptors that confuse geocoding
- * Uses generic regex patterns instead of hardcoded lists
  * @param {string} street - Street name to clean
  * @returns {string} Cleaned street name
  */
 function cleanStreetName(street) {
-    let cleaned = street;
-
-    // 1. Remove leading location/directional prefixes
-    // Matches: "Strombad X", "Nord X", "Süd X", "Ost X", "West X", "Alt X", "Neu X"
-    cleaned = cleaned.replace(/^(Strombad|Nord|Süd|Ost|West|Alt|Neu)\s+/i, '');
-
-    // 2. Remove parenthesized sections
-    // Matches: "(Seepark)", "(Tourismusprojekte – Name)", etc.
-    cleaned = cleaned.replace(/\s*\([^)]*\)/g, '');
-
-    // 3. Remove building/block/hall/stand descriptors
-    // Matches: "Block VI", "Gebäude A", "Stand 19", "Halle 3"
-    cleaned = cleaned.replace(/\b(Block|Gebäude|Halle|Stand|Standplatz|Trakt|Sektor)\s+[IVX0-9A-Za-z]+/gi, '');
-
-    // 4. Remove Roman numerals with optional dot at start or middle
-    // Matches: "II. Block", "III. Straße", standalone "II."
-    cleaned = cleaned.replace(/\b[IVX]+\.\s+/g, '');
-
-    // 5. Clean up multiple spaces and trim
-    cleaned = cleaned.replace(/\s+/g, ' ').trim();
-
-    return cleaned;
+    return street
+        .replace(PATTERNS.locationPrefix, '')      // Remove "Strombad", "Nord", etc.
+        .replace(PATTERNS.parenthesized, '')       // Remove "(Seepark)", etc.
+        .replace(PATTERNS.blockDescriptor, '')     // Remove "Block VI", "Stand 19", etc.
+        .replace(PATTERNS.romanNumeral, '')        // Remove "II.", "III.", etc.
+        .replace(PATTERNS.multipleSpaces, ' ')     // Clean up spaces
+        .trim();
 }
 
 /**
@@ -182,8 +184,7 @@ export async function geocodeAddress(address, restaurantName = null) {
     }
 
     // Tier 4: Try amenity types (restaurant, cafe, bar, fast_food)
-    const amenityTypes = ['restaurant', 'cafe', 'bar', 'fast_food', 'pub'];
-    for (const amenityType of amenityTypes) {
+    for (const amenityType of AMENITY_TYPES) {
         const amenityTypeQueryURL = buildStructuredQueryURL({
             street: street,
             amenity: amenityType,
