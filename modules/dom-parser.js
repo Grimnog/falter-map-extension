@@ -3,6 +3,36 @@
 import { CONFIG } from './constants.js';
 import { ErrorHandler } from './error-handler.js';
 
+// ============================================
+// SELECTORS & PATTERNS
+// ============================================
+
+const SELECTORS = {
+    restaurantLink: 'a.group.block[href*="/lokal/"]',
+    restaurantName: 'h2'
+};
+
+const PATTERNS = {
+    // Extract restaurant ID from URL: /lokal/12345/
+    restaurantId: /\/lokal\/(\d+)\//,
+
+    // Pagination: "Seite 1 / 5"
+    pagination: /seite\s+(\d+)\s*\/\s*(\d+)/i,
+
+    // Lines to skip when extracting name (status messages)
+    skipLine: /^(derzeit|jetzt|öffnet|geschlossen|bis\s)/i,
+
+    // Address line detection: starts with 4-digit ZIP
+    addressLine: /^\d{4}\s+[A-Za-zäöüÄÖÜß]/i,
+
+    // Street number at end of street name: "Hauptstraße 15" or "Gasse 7a"
+    streetNumber: /^(.+?)\s+(\d+[A-Za-z\/\-]*)$/
+};
+
+// ============================================
+// PARSING FUNCTIONS
+// ============================================
+
 /**
  * Parse restaurant data from DOM
  * @param {Document} doc - DOM document to parse
@@ -10,7 +40,7 @@ import { ErrorHandler } from './error-handler.js';
  */
 export function parseRestaurantsFromDOM(doc) {
     const restaurants = [];
-    const links = doc.querySelectorAll('a.group.block[href*="/lokal/"]');
+    const links = doc.querySelectorAll(SELECTORS.restaurantLink);
 
     console.log('Found restaurant links:', links.length);
 
@@ -18,7 +48,7 @@ export function parseRestaurantsFromDOM(doc) {
         const href = link.getAttribute('href');
         if (!href) return;
 
-        const idMatch = href.match(/\/lokal\/(\d+)\//);
+        const idMatch = href.match(PATTERNS.restaurantId);
         if (!idMatch) return;
 
         const id = idMatch[1];
@@ -26,14 +56,14 @@ export function parseRestaurantsFromDOM(doc) {
 
         // Extract restaurant name
         let name = '';
-        const h2 = link.querySelector('h2');
+        const h2 = link.querySelector(SELECTORS.restaurantName);
         if (h2) {
             name = h2.textContent.trim();
         } else {
             const lines = text.split('\n').map(l => l.trim()).filter(l => l && l.length > 2);
             for (const line of lines) {
                 // Skip lines that look like addresses or status messages
-                if (!line.match(/^\d{4}\s+[A-Za-zäöüÄÖÜß]/i) && !line.match(/^(derzeit|Jetzt|öffnet|geschlossen|bis\s)/i)) {
+                if (!PATTERNS.addressLine.test(line) && !PATTERNS.skipLine.test(line)) {
                     name = line;
                     break;
                 }
@@ -82,8 +112,7 @@ export function parseRestaurantsFromDOM(doc) {
  */
 export function getPaginationInfo() {
     const pageText = document.body.innerText || '';
-    // Match both "Seite" and "SEITE" (case-insensitive)
-    const pageMatch = pageText.match(/seite\s+(\d+)\s*\/\s*(\d+)/i);
+    const pageMatch = pageText.match(PATTERNS.pagination);
 
     if (pageMatch) {
         return {
