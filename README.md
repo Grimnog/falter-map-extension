@@ -13,7 +13,7 @@ A Chrome extension that displays [Falter Lokalführer](https://www.falter.at/lok
 ## Highlights
 
 - **See restaurants on a map** — Transform Falter search results into an interactive map view
-- **Works across Austria** — All 9 Bundesländer supported with smart map centering
+- **Works across Austria** — All 9 federal states supported with smart map centering
 - **Fast repeat searches** — 30-day local cache means instant loading for visited addresses
 - **Keyboard navigation** — Browse restaurants without touching your mouse
 - **Privacy-friendly** — No tracking, no analytics, all data stays in your browser

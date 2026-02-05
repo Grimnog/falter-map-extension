@@ -88,12 +88,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🇦🇹 Austria-Wide Support
 
-**Major Feature Release:** The extension now works seamlessly across all 9 Austrian Bundesländer, not just Vienna!
+**Major Feature Release:** The extension now works seamlessly across all 9 Austrian federal states, not just Vienna!
 
 ### Added
 - **Austria-wide Bundesland support** - Works for all 9 Austrian states (Wien, Niederösterreich, Oberösterreich, Salzburg, Tirol, Vorarlberg, Steiermark, Kärnten, Burgenland)
 - **Smart map centering** - Map automatically centers on the Bundesland capital you're searching (e.g., Salzburg search → map starts on Salzburg city)
-- **Optimized zoom levels** - State-level zoom (9) for Bundesländer, city-level zoom (13) for Wien
+- **Optimized zoom levels** - State-level zoom (9) for federal states, city-level zoom (13) for Vienna
 - **Bundesland center coordinates** - Accurate coordinates for all 9 Bundesland capitals
 - **URL parameter detection** - Detects region from Falter.at's `?r=` filter parameter
 - **Multi-word city support** - Handles cities like "Purbach am Neusiedler See", "Weiden am See", "Schützen am Gebirge"
@@ -138,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Sprint 8 Complete:** All 7 Austria-wide support sub-tickets delivered (FALTMAP-26.1 through 26.7)
 
-**Tested:** All 9 Bundesländer validated with real Falter.at searches
+**Tested:** All 9 federal states validated with real Falter.at searches
 
 ---
 
