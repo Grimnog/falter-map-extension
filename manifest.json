@@ -6,9 +6,7 @@
   "author": "Paul Timotheus Zimmert",
 
   "permissions": [
-    "storage",
-    "activeTab",
-    "tabs"
+    "storage"
   ],
 
   "host_permissions": [
